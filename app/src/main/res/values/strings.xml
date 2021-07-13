@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Go4Lunch</string>
+    <string name="slogan">Find a nice restaurant for lunch!</string>
+    <string name="facebook_app_id">497958498159883</string>
+    <string name="fb_login_protocol_scheme">fb497958498159883</string>
+
 </resources>
