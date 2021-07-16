@@ -2,16 +2,18 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/landing_page_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/darkened_landing_page_background"
     tools:context=".LandingPageActivity">
 
+    <!--    App logo -->
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/landing_page_logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="@dimen/landing_page_margin_top_logo"
         android:src="@drawable/landing_page_logo"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -19,10 +21,12 @@
 
     </androidx.appcompat.widget.AppCompatImageView>
 
+    <!--    App slogan -->
     <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/landing_page_slogan"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/landing_page_standard_vertical_spacing_value"
         android:text="@string/slogan"
         android:textColor="@color/white"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -31,6 +35,213 @@
 
     </androidx.appcompat.widget.AppCompatTextView>
 
+    <!--    Facebook sign in button-->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/landing_page_facebook_login_button"
+        android:layout_width="@dimen/zero_dp"
+        android:layout_height="@dimen/landing_page_buttons_height"
+        android:layout_marginStart="@dimen/landing_page_borders_spacing_value"
+        android:layout_marginTop="@dimen/landing_page_logo_to_buttons_spacing_value"
+        android:layout_marginEnd="@dimen/landing_page_borders_spacing_value"
+        android:background="@drawable/rounded_corners_button_shape"
+        android:drawableStart="@drawable/ic_baseline_facebook_24"
+        android:drawablePadding="32dp"
+        android:text="@string/landing_page_facebook_button_text"
+        android:textAlignment="textStart"
+        android:textColor="@color/com_facebook_primary_button_text_color"
+        android:textSize="@dimen/landing_page_buttons_and_fields_text_size"
+        app:backgroundTint="@color/com_facebook_blue"
+        app:drawableTint="@color/com_facebook_primary_button_text_color"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/landing_page_slogan">
 
+    </androidx.appcompat.widget.AppCompatButton>
+
+    <!--    Google sign in button-->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/landing_page_google_login_button"
+        android:layout_width="@dimen/zero_dp"
+        android:layout_height="@dimen/landing_page_buttons_height"
+        android:layout_marginStart="@dimen/landing_page_borders_spacing_value"
+        android:layout_marginTop="@dimen/landing_page_standard_vertical_spacing_value"
+        android:layout_marginEnd="@dimen/landing_page_borders_spacing_value"
+        android:background="@drawable/rounded_corners_button_shape"
+        android:drawableStart="@drawable/ic_google_icon_24"
+        android:drawablePadding="32dp"
+        android:text="@string/landing_page_google_button_text"
+        android:textAlignment="textStart"
+        android:textColor="@color/common_google_signin_btn_text_light"
+        android:textSize="@dimen/landing_page_buttons_and_fields_text_size"
+        app:backgroundTint="@color/white"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/landing_page_facebook_login_button">
+
+    </androidx.appcompat.widget.AppCompatButton>
+
+    <!--    Login with email : text-->
+    <View
+        android:id="@+id/landing_page_divider_left"
+        android:layout_width="@dimen/zero_dp"
+        android:layout_height="@dimen/landing_page_dividers_thickness"
+        android:layout_marginStart="@dimen/landing_page_borders_spacing_value"
+        android:layout_marginTop="16dp"
+        android:background="@color/light_grey"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/landing_page_alternative_connection_type_text"
+        app:layout_constraintTop_toBottomOf="@id/landing_page_google_login_button" />
+
+    <TextView
+        android:id="@+id/landing_page_alternative_connection_type_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/landing_page_standard_vertical_spacing_value"
+        android:paddingHorizontal="16dp"
+        android:text="@string/login_with_email"
+        android:textColor="@color/light_grey"
+        android:textSize="@dimen/landing_page_standard_text_size"
+        app:layout_constraintLeft_toRightOf="@id/landing_page_divider_left"
+        app:layout_constraintRight_toLeftOf="@id/landing_page_divider_right"
+        app:layout_constraintTop_toBottomOf="@id/landing_page_google_login_button" />
+
+    <View
+        android:id="@+id/landing_page_divider_right"
+        android:layout_width="@dimen/zero_dp"
+        android:layout_height="@dimen/landing_page_dividers_thickness"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="@dimen/landing_page_borders_spacing_value"
+        android:background="@color/light_grey"
+        app:layout_constraintLeft_toRightOf="@id/landing_page_alternative_connection_type_text"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/landing_page_google_login_button" />
+
+    <!--    Login with email : input-->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/landing_page_email_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/landing_page_borders_spacing_value"
+        android:layout_marginTop="@dimen/landing_page_standard_vertical_spacing_value"
+        android:layout_marginRight="@dimen/landing_page_borders_spacing_value"
+        app:boxStrokeColor="@color/light_grey"
+        app:helperText="@string/type_email_string"
+        app:helperTextEnabled="true"
+        app:helperTextTextColor="@color/light_grey"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/landing_page_alternative_connection_type_text"
+        app:startIconDrawable="@drawable/ic_baseline_alternate_email_24"
+        app:startIconTint="@color/light_grey">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/landing_page_email_value"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/landing_page_inputs_height"
+            android:background="@android:color/transparent"
+            android:inputType="textEmailAddress"
+            android:maxLines="1"
+            android:paddingVertical="@dimen/zero_dp"
+            android:textColor="@color/white"
+            android:textCursorDrawable="@null"
+            android:textSize="@dimen/landing_page_buttons_and_fields_text_size">
+
+        </com.google.android.material.textfield.TextInputEditText>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!--    Login with email : password-->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/landing_page_password_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/landing_page_borders_spacing_value"
+        android:layout_marginTop="@dimen/landing_page_standard_vertical_spacing_value"
+        android:layout_marginRight="@dimen/landing_page_borders_spacing_value"
+        app:boxStrokeColor="@color/light_grey"
+        app:helperText="@string/type_password_string"
+        app:helperTextEnabled="true"
+        app:helperTextTextColor="@color/light_grey"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/landing_page_email_input"
+        app:startIconDrawable="@drawable/ic_baseline_password_24"
+        app:startIconTint="@color/light_grey">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/landing_page_password_value"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/landing_page_inputs_height"
+            android:background="@android:color/transparent"
+            android:inputType="textPassword"
+            android:maxLines="1"
+            android:paddingVertical="@dimen/zero_dp"
+            android:textColor="@color/white"
+            android:textCursorDrawable="@null"
+            android:textSize="@dimen/landing_page_buttons_and_fields_text_size">
+
+        </com.google.android.material.textfield.TextInputEditText>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!--    Email sign in button-->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/landing_page_email_login_button"
+        android:layout_width="@dimen/zero_dp"
+        android:layout_height="@dimen/landing_page_buttons_height"
+        android:layout_marginStart="@dimen/landing_page_borders_spacing_value"
+        android:layout_marginTop="@dimen/landing_page_standard_vertical_spacing_value"
+        android:layout_marginEnd="@dimen/landing_page_borders_spacing_value"
+        android:background="@drawable/rounded_corners_button_shape"
+        android:drawableStart="@drawable/ic_envelope_24"
+        android:drawablePadding="32dp"
+        android:text="@string/landing_page_email_button_text"
+        android:textAlignment="textStart"
+        android:textColor="@color/common_google_signin_btn_text_light"
+        android:textSize="@dimen/landing_page_buttons_and_fields_text_size"
+        app:backgroundTint="@color/light_grey"
+        app:drawableTint="@color/common_google_signin_btn_text_light_default"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/landing_page_password_input">
+
+    </androidx.appcompat.widget.AppCompatButton>
+
+    <!--    forgot password link-->
+    <TextView
+        android:id="@+id/landing_page_forgot_password_link"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/landing_page_borders_spacing_value"
+        android:text="@string/landing_page_forgot_password_link"
+        android:textColor="@color/light_grey"
+        android:textSize="@dimen/landing_page_standard_text_size"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/landing_page_email_login_button"
+        android:linksClickable="true">
+
+    </TextView>
+
+    <!--    create account link-->
+    <TextView
+        android:id="@+id/landing_page_create_account_link"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/landing_page_borders_spacing_value"
+        android:text="@string/landing_page_create_account_link"
+        android:textColor="@color/light_grey"
+        android:textSize="@dimen/landing_page_standard_text_size"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/landing_page_email_login_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="1"
+        android:layout_marginBottom="@dimen/landing_page_standard_vertical_spacing_value"
+        android:linksClickable="true">
+
+    </TextView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,5 +3,13 @@
     <string name="slogan">Find a nice restaurant for lunch!</string>
     <string name="facebook_app_id">497958498159883</string>
     <string name="fb_login_protocol_scheme">fb497958498159883</string>
+    <string name="login_with_email">or login with email</string>
+    <string name="type_email_string">email</string>
+    <string name="type_password_string">password</string>
+    <string name="landing_page_facebook_button_text">continue with facebook</string>
+    <string name="landing_page_google_button_text">continue with Google</string>
+    <string name="landing_page_email_button_text">continue with email</string>
+    <string name="landing_page_forgot_password_link">Forgot your password?</string>
+    <string name="landing_page_create_account_link">Not a member yet? Create your account now!</string>
 
 </resources>
