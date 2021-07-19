@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/darkened_landing_page_background"
-    tools:context=".LandingPageActivity">
+    tools:context=".landing_page.LandingPageActivity">
 
     <!--    App logo -->
     <androidx.appcompat.widget.AppCompatImageView

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/map_view_page"
+        android:enabled="true"
+        android:icon="@drawable/ic_map_24"
+        android:title="@string/map_view_page_label"
+        app:iconTint="@color/light_grey"/>
+    <item
+        android:id="@+id/list_view_page"
+        android:enabled="true"
+        android:icon="@drawable/ic_list_24"
+        android:title="@string/list_view_page_label"
+        app:iconTint="@color/light_grey"/>
+    <item
+        android:id="@+id/workmates_view_page"
+        android:enabled="true"
+        android:icon="@drawable/ic_workmates_24"
+        android:title="@string/workmates_view_page_label"
+        app:iconTint="@color/light_grey"/>
+
+</menu>

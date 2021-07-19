@@ -11,5 +11,10 @@
     <string name="landing_page_email_button_text">continue with email</string>
     <string name="landing_page_forgot_password_link">Forgot your password?</string>
     <string name="landing_page_create_account_link">Not a member yet? Create your account now!</string>
+    <string name="maps_view_appbar_title">who\'s there&#x2026;</string>
+    <string name="menu_search_item_title">Search</string>
+    <string name="map_view_page_label">Map View</string>
+    <string name="list_view_page_label">List View</string>
+    <string name="workmates_view_page_label">Workmates</string>
 
 </resources>

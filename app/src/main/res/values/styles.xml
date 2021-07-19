@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="appBarTitleTextAppearance">
+        <item name="android:fontFamily">@font/font_family</item>
+        <item name="android:textSize">28sp</item>
+        <item name="titleTextColor">@color/light_grey</item>
+    </style>
+</resources>
+

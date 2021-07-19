@@ -1,8 +1,9 @@
-package fr.plopez.go4lunch
+package fr.plopez.go4lunch.landing_page
 
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
+import fr.plopez.go4lunch.R
 
 class LandingPageActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
