@@ -16,5 +16,7 @@
     <string name="map_view_page_label">Map View</string>
     <string name="list_view_page_label">List View</string>
     <string name="workmates_view_page_label">Workmates</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

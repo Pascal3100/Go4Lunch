@@ -1,7 +1,10 @@
-package fr.plopez.go4lunch.maps_view
+package fr.plopez.go4lunch.main_activity
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -10,20 +13,27 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import fr.plopez.go4lunch.R
 
-class MapsViewActivity : AppCompatActivity(), OnMapReadyCallback {
+class MainActivityFragment : Fragment(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_maps_view)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map_view_fragment) as SupportMapFragment
+            .findFragmentById(R.id.activity_main_fragment_container) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        // Removes the titleBar
-        supportActionBar?.hide()
+
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_main_activity, container, false)
     }
 
     /**
@@ -42,8 +52,9 @@ class MapsViewActivity : AppCompatActivity(), OnMapReadyCallback {
         val pechabou = LatLng(43.5, 1.5)
         mMap.addMarker(
             MarkerOptions()
-            .position(pechabou)
-            .title("Marker in Pechabou"))
+                .position(pechabou)
+                .title("Marker in Pechabou"))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(pechabou))
     }
+
 }
