@@ -1,4 +1,4 @@
-package fr.plopez.go4lunch.landing_page
+package fr.plopez.go4lunch.view.landing_page
 
 import android.os.Bundle
 import android.view.WindowManager
