@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
         // Removes the titleBar
         supportActionBar?.hide()
 
-        println("##### At init item id = "+binding.bottomNavigation.selectedItemId)
+
         // Manage to always make corresponding selected icon and view after rotation or reload
         viewModel.getActivePageLiveData().observe(this, Observer {
             when(it){
@@ -42,18 +42,18 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNavigation.setOnItemSelectedListener{
             when (it.itemId) {
                 R.id.map_view_page -> {
-//                    fragmentReplacer(container, GoogleMapsViewFragment())
                     viewModel.setActivePage(it.itemId)
+                    binding.mainActivityTopAppbar.title = resources.getString(R.string.maps_view_appbar_title)
                     return@setOnItemSelectedListener true
                 }
                 R.id.list_view_page -> {
-//                    fragmentReplacer(container, ListViewRestaurantFragment())
                     viewModel.setActivePage(it.itemId)
+                    binding.mainActivityTopAppbar.title = resources.getString(R.string.list_view_appbar_title)
                     return@setOnItemSelectedListener true
                 }
                 R.id.workmates_view_page -> {
-//                    fragmentReplacer(container, ListWorkmatesFragment())
                     viewModel.setActivePage(it.itemId)
+                    binding.mainActivityTopAppbar.title = resources.getString(R.string.workmates_view_appbar_title)
                     return@setOnItemSelectedListener true
                 }
             }

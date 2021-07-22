@@ -6,8 +6,8 @@
         android:icon="@drawable/ic_baseline_search_24"
         android:title="@string/menu_search_item_title"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
-        app:showAsAction="ifRoom"
-        app:iconTint="@color/light_grey">
+        app:iconTint="@color/light_grey"
+        app:showAsAction="ifRoom">
 
     </item>
 </menu>

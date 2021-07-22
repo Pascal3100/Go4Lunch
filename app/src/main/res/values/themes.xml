@@ -2,7 +2,7 @@
     <!-- Base application theme. -->
     <style name="Theme.Go4Lunch" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/primary_diner_blue</item>
+        <item name="colorPrimary">@color/primary_diner_orange</item>
         <item name="colorPrimaryVariant">@color/primary_variant_diner_blue</item>
         <item name="colorOnPrimary">@color/light_grey</item>
         <!-- Secondary brand color. -->
@@ -19,4 +19,5 @@
         <item name="colorOnBackground">@color/black_is_not_black</item>
 
     </style>
+
 </resources>

@@ -1,9 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="appBarTitleTextAppearance">
-        <item name="android:fontFamily">@font/font_family</item>
-        <item name="android:textSize">28sp</item>
+        <item name="android:fontFamily">@font/quicksand_regular</item>
+        <item name="android:textSize">@dimen/app_bar_title_text_size</item>
+        <item name="android:textStyle">bold</item>
         <item name="titleTextColor">@color/light_grey</item>
     </style>
+
+    <style name="itemTitleTextAppearance">
+        <item name="android:fontFamily">@font/roboto_condensed_bold</item>
+        <item name="android:textSize">@dimen/item_title_text_size</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/black_is_not_black</item>
+    </style>
+
+    <style name="itemGhostGreyTextAppearance">
+        <item name="android:fontFamily">@font/roboto_condensed</item>
+        <item name="android:textSize">@dimen/item_title_text_size</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/ghost_grey</item>
+    </style>
+
+    <style name="itemSubtitleGreyTextAppearance">
+        <item name="android:fontFamily">@font/roboto_condensed</item>
+        <item name="android:textSize">@dimen/item_normal_text_size</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/grey</item>
+    </style>
+
+    <style name="itemOpeningGreyTextAppearance">
+        <item name="android:fontFamily">@font/roboto_condensed</item>
+        <item name="android:textSize">@dimen/item_normal_text_size</item>
+        <item name="android:textStyle">normal|italic</item>
+        <item name="android:textColor">@color/grey</item>
+    </style>
+
+    <style name="itemOpeningRedTextAppearance">
+        <item name="android:fontFamily">@font/roboto_condensed</item>
+        <item name="android:textSize">@dimen/item_normal_text_size</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/redish_whisky</item>
+    </style>
+
+    <style name="myRatingBar" parent="@android:style/Widget.RatingBar">
+        <item name="android:progressDrawable">@drawable/ic_star_16</item>
+    </style>
+
+
 </resources>
 

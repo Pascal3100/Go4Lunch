@@ -14,7 +14,7 @@ class ViewModelFactory:ViewModelProvider.Factory {
         if (modelClass.isAssignableFrom(MainActivityViewModel::class.java)){
             return MainActivityViewModel(activePageRepository) as T
         }
-        throw IllegalArgumentException("Unknown ViewModel Class : "+modelClass.toString())
+        throw IllegalArgumentException("Unknown ViewModel Class : $modelClass")
     }
 
     companion object {

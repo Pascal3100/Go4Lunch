@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/lvr_item_global_container"
+    android:layout_width="match_parent"
+    android:layout_height="100dp">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/lvr_item_restaurant_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1"
+        app:layout_constraintStart_toEndOf="@+id/lvr_item_text_container"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:background="@color/redish_whisky"
+        tools:layout_height="84dp"
+        tools:layout_width="84dp">
+
+    </androidx.appcompat.widget.AppCompatImageView>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/lvr_item_text_container"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:paddingVertical="8dp"
+        android:paddingStart="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/lvr_item_restaurant_image"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Title - restaurant name -->
+        <TextView
+            android:id="@+id/lvr_item_restaurant_name"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:textAppearance="@style/itemTitleTextAppearance"
+            app:layout_constraintBottom_toTopOf="@+id/lvr_item_restaurant_subtitle"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Le Mex">
+
+        </TextView>
+
+        <!-- Distance - restaurant distance from you -->
+        <TextView
+            android:id="@+id/lvr_item_restaurant_distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingHorizontal="8dp"
+            android:textAppearance="@style/itemGhostGreyTextAppearance"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1"
+            app:layout_constraintStart_toEndOf="@+id/lvr_item_restaurant_name"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="120m">
+
+        </TextView>
+
+        <!-- Subtitle - restaurant type and address -->
+        <TextView
+            android:id="@+id/lvr_item_restaurant_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:textAppearance="@style/itemSubtitleGreyTextAppearance"
+            app:layout_constraintBottom_toTopOf="@+id/lvr_item_restaurant_opening"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/lvr_item_restaurant_name"
+            tools:text="Mexican - 552 calle de los gringos">
+
+        </TextView>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:gravity="center|end"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toTopOf="@id/lvr_item_restaurant_opening"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1"
+            app:layout_constraintStart_toEndOf="@+id/lvr_item_restaurant_subtitle"
+            app:layout_constraintTop_toBottomOf="@+id/lvr_item_restaurant_name">
+
+            <ImageView
+                android:id="@+id/lvr_item_restaurant_user_avatar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:src="@drawable/ic_user_avatar_24"
+                app:tint="@color/grey">
+
+            </ImageView>
+
+            <TextView
+                android:id="@+id/lvr_item_restaurant_number_of_users"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:textAppearance="@style/itemSubtitleGreyTextAppearance"
+                tools:text="(5)">
+
+            </TextView>
+
+        </LinearLayout>
+
+        <!-- Opening - is restaurant opened or closed -->
+        <TextView
+            android:id="@+id/lvr_item_restaurant_opening"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:textAppearance="@style/itemOpeningGreyTextAppearance"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/lvr_item_restaurant_subtitle"
+            tools:text="Open until 7.30pm">
+
+        </TextView>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:gravity="center|end"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1"
+            app:layout_constraintStart_toEndOf="@+id/lvr_item_restaurant_opening"
+            app:layout_constraintTop_toBottomOf="@+id/lvr_item_restaurant_subtitle">
+
+        </LinearLayout>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

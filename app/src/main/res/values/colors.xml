@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary_diner_blue">#03D0DE</color>
+    <color name="primary_diner_orange">#E45826</color>
     <color name="primary_variant_diner_blue">#007872</color>
     <color name="secondary_diner_orange">#EC380B</color>
     <color name="secondary_variant_diner_orange">#F05F3B</color>
@@ -8,6 +8,8 @@
     <color name="black_is_not_black">#090B0C</color>
     <color name="white">#FFFFFFFF</color>
     <color name="light_grey">#E3E4E8</color>
+    <color name="ghost_grey">#BFBFBF</color>
+    <color name="grey">#424242</color>
     <color name="redish_whisky">#BB2B2A</color>
 
 
