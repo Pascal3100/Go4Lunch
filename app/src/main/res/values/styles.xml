@@ -42,8 +42,10 @@
         <item name="android:textColor">@color/redish_whisky</item>
     </style>
 
-    <style name="myRatingBar" parent="@android:style/Widget.RatingBar">
-        <item name="android:progressDrawable">@drawable/ic_star_16</item>
+    <style name="customRatingBar" parent="@android:style/Widget.RatingBar">
+        <item name="android:progressDrawable">@drawable/custom_rating_bar</item>
+        <item name="android:minHeight">16dp</item>
+        <item name="android:maxHeight">16dp</item>
     </style>
 
 

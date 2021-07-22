@@ -124,6 +124,24 @@
 
         </TextView>
 
+        <RatingBar
+            android:id="@+id/lvr_item_restaurant_rating_bar"
+            style="@style/customRatingBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:isIndicator="true"
+            android:numStars="@string/number_of_rating_stars"
+            tools:rating="1.0f"
+            android:stepSize="1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1"
+            app:layout_constraintStart_toEndOf="@+id/lvr_item_restaurant_opening"
+            app:layout_constraintTop_toBottomOf="@+id/lvr_item_restaurant_subtitle">
+
+        </RatingBar>
+
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -135,6 +153,7 @@
             app:layout_constraintHorizontal_bias="1"
             app:layout_constraintStart_toEndOf="@+id/lvr_item_restaurant_opening"
             app:layout_constraintTop_toBottomOf="@+id/lvr_item_restaurant_subtitle">
+
 
         </LinearLayout>
 
