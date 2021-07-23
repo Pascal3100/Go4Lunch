@@ -7,14 +7,15 @@
     tools:context=".view.main_activity.ListViewRestaurantFragment">
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/list_view_restaurant_recyclerview"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:listitem="@layout/list_view_restaurant_recyclerview_item"
-        tools:itemCount="5">
+        tools:itemCount="5"
+        tools:listitem="@layout/list_view_restaurant_recyclerview_item">
 
     </androidx.recyclerview.widget.RecyclerView>
 </androidx.constraintlayout.widget.ConstraintLayout>
