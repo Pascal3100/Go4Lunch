@@ -124,37 +124,19 @@
 
         <RatingBar
             android:id="@+id/lvr_item_restaurant_rating_bar"
-            style="@style/customRatingBar"
+            style="@style/customStarsRatingBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:isIndicator="true"
             android:numStars="@string/number_of_rating_stars"
-            tools:rating="1.0f"
-            android:stepSize="1"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:stepSize="0.5"
+            app:layout_constraintBottom_toBottomOf="@id/lvr_item_restaurant_opening"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1"
             app:layout_constraintStart_toEndOf="@+id/lvr_item_restaurant_opening"
-            app:layout_constraintTop_toBottomOf="@+id/lvr_item_restaurant_subtitle">
+            app:layout_constraintTop_toBottomOf="@+id/lvr_item_restaurant_subtitle"
+            tools:rating="1.5">
 
         </RatingBar>
-
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:gravity="center|end"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1"
-            app:layout_constraintStart_toEndOf="@+id/lvr_item_restaurant_opening"
-            app:layout_constraintTop_toBottomOf="@+id/lvr_item_restaurant_subtitle">
-
-
-        </LinearLayout>
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
