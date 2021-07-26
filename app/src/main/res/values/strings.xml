@@ -20,5 +20,8 @@
     <string name="list_view_appbar_title">today’s special?</string>
     <string name="workmates_view_appbar_title">my workmates</string>
     <string name="number_of_rating_stars">3</string>
+    <string name="frd_call_item_text">CALL</string>
+    <string name="frd_rate_item_text">LIKE</string>
+    <string name="frd_website_item_text">WEBSITE</string>
 
 </resources>

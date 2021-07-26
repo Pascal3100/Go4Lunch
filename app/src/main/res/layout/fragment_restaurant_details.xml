@@ -21,9 +21,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                tools:src="@tools:sample/backgrounds/scenic">
-
-            </androidx.appcompat.widget.AppCompatImageView>
+                tools:src="@tools:sample/backgrounds/scenic" />
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/restaurant_details_fragment_toolbar"
@@ -31,9 +29,7 @@
                 android:layout_height="match_parent"
                 android:background="@android:color/transparent"
                 app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
-                app:navigationIconTint="@color/light_grey">
-
-            </com.google.android.material.appbar.MaterialToolbar>
+                app:navigationIconTint="@color/light_grey" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
@@ -54,9 +50,7 @@
             android:textAppearance="@style/restaurantDetailsWhiteTitleTextAppearance"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Le Zinc">
-
-        </TextView>
+            tools:text="Le Zinc" />
 
         <RatingBar
             android:id="@+id/restaurant_details_fragment_restaurant_rating_bar"
@@ -69,9 +63,7 @@
             app:layout_constraintBottom_toTopOf="@+id/restaurant_details_fragment_subtitle"
             app:layout_constraintStart_toEndOf="@+id/restaurant_details_fragment_restaurant_name"
             app:layout_constraintTop_toTopOf="parent"
-            tools:rating="1.5">
-
-        </RatingBar>
+            tools:rating="1.5" />
 
         <TextView
             android:id="@+id/restaurant_details_fragment_subtitle"
@@ -81,7 +73,7 @@
             android:textAppearance="@style/restaurantDetailsWhiteSubtitleTextAppearance"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/restaurant_details_fragment_restaurant_name"
-            tools:text="Mexican - 552 calle de los gringos"
+            tools:text="Mexican - 552 calle de los gringos" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -93,50 +85,116 @@
         app:layout_anchorGravity="bottom">
 
         <LinearLayout
-            android:id="@+id/first"
+            android:id="@+id/phone_container"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:padding="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/rating_container"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:background="@color/black_is_not_black">
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_baseline_phone_24"
+                app:tint="@color/primary_diner_orange" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:text="@string/frd_call_item_text"
+                android:textAppearance="@style/restaurantDetailsOrangeTextAppearance"
+                />
 
         </LinearLayout>
+
         <LinearLayout
-            android:id="@+id/second"
+            android:id="@+id/rating_container"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:padding="16dp"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/first"
-            android:background="@color/redish_whisky">
+            app:layout_constraintEnd_toStartOf="@id/website_container"
+            app:layout_constraintStart_toEndOf="@+id/phone_container"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_baseline_star_rate_24"
+                app:tint="@color/primary_diner_orange" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:text="@string/frd_rate_item_text"
+                android:textAppearance="@style/restaurantDetailsOrangeTextAppearance" />
 
         </LinearLayout>
+
         <LinearLayout
-            android:id="@+id/third"
+            android:id="@+id/website_container"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:padding="16dp"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/second"
-            android:background="@color/yellow_for_stars">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/rating_container"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_global"
+                app:tint="@color/primary_diner_orange" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:text="@string/frd_website_item_text"
+                android:textAppearance="@style/restaurantDetailsOrangeTextAppearance" />
 
         </LinearLayout>
 
         <View
-            android:id="@+id/card_coordinates_divider_neighbour_details_activity"
+            android:id="@+id/divider"
             style="@style/Divider.Horizontal"
             android:layout_marginTop="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/list_workmates_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_anchor="@id/divider"
+        app:layout_anchorGravity="bottom"
+        android:layout_gravity="bottom"
+        tools:itemCount="2"
+        tools:listitem="@layout/workmates_list_view_item">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+
+
+
+
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_favorite_fab_neighbour_details_activity"
