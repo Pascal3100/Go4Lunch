@@ -24,9 +24,7 @@
             app:titleMarginStart="32dp"
             app:titleMarginBottom="16dp"
             app:titleTextAppearance="@style/appBarTitleTextAppearance"
-            app:titleTextColor="@color/light_grey">
-
-        </com.google.android.material.appbar.MaterialToolbar>
+            app:titleTextColor="@color/light_grey"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -43,9 +41,7 @@
             app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-        </FrameLayout>
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_navigation"
@@ -55,9 +51,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:menu="@menu/bottom_navigation_menu">
-
-        </com.google.android.material.bottomnavigation.BottomNavigationView>
+            app:menu="@menu/bottom_navigation_menu"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

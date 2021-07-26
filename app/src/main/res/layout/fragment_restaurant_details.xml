@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <androidx.appcompat.widget.AppCompatImageView
+            <ImageView
                 android:id="@+id/restaurant_details_fragment_restaurant_image"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -187,14 +187,7 @@
         app:layout_anchorGravity="bottom"
         android:layout_gravity="bottom"
         tools:itemCount="2"
-        tools:listitem="@layout/workmates_list_view_item">
-
-    </androidx.recyclerview.widget.RecyclerView>
-
-
-
-
-
+        tools:listitem="@layout/workmates_list_view_item"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_favorite_fab_neighbour_details_activity"
@@ -206,8 +199,6 @@
         app:borderWidth="0dp"
         app:elevation="8dp"
         app:layout_anchor="@id/restaurant_details_fragment_toolbar"
-        app:layout_anchorGravity="bottom|end">
-
-    </com.google.android.material.floatingactionbutton.FloatingActionButton>
+        app:layout_anchorGravity="bottom|end"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

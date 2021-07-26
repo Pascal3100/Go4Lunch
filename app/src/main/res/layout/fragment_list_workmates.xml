@@ -15,9 +15,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:itemCount="5"
-        tools:listitem="@layout/workmates_list_view_item">
-
-    </androidx.recyclerview.widget.RecyclerView>
+        tools:listitem="@layout/workmates_list_view_item"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
