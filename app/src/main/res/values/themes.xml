@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.Go4Lunch" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="Theme.Go4Lunch" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/primary_diner_orange</item>
         <item name="colorPrimaryVariant">@color/primary_variant_diner_blue</item>
@@ -17,7 +17,6 @@
         <item name="colorError">@color/redish_whisky</item>
         <item name="colorOnError">@color/black_is_not_black</item>
         <item name="colorOnBackground">@color/black_is_not_black</item>
-
     </style>
 
 </resources>
