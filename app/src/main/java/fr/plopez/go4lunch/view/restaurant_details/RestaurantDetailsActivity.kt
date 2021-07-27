@@ -8,5 +8,10 @@ class RestaurantDetailsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_restaurant_details)
+
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.restaurant_details_container, RestaurantDetailsFragment.newInstance("NOWHERE"))
+            .commit()
     }
 }

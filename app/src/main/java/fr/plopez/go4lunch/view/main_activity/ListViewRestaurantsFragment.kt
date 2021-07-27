@@ -9,6 +9,13 @@ import fr.plopez.go4lunch.R
 
 class ListViewRestaurantFragment : Fragment() {
 
+    //
+    companion object {
+        fun newInstance(): ListViewRestaurantFragment {
+            return ListViewRestaurantFragment()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }

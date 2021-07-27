@@ -14,6 +14,13 @@ import fr.plopez.go4lunch.R
 
 class GoogleMapsViewFragment : Fragment() {
 
+    //
+    companion object {
+        fun newInstance(): GoogleMapsViewFragment {
+            return GoogleMapsViewFragment()
+        }
+    }
+
     private lateinit var mapFragment : SupportMapFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,6 +40,7 @@ class GoogleMapsViewFragment : Fragment() {
             mapFragment.getMapAsync(OnMapReadyCallback {
 
                 // Add a marker in Pechabou and move the camera
+                // TODO : it does not zoom on location...
                 val pechabou = LatLng(43.5, 1.5)
                 it.addMarker(
                     MarkerOptions()

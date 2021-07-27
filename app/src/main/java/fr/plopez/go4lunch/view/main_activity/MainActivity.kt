@@ -2,15 +2,12 @@ package fr.plopez.go4lunch.view.main_activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.widget.AutoCompleteTextView
-import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.annotation.IdRes
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.appcompat.widget.SearchView
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import fr.plopez.go4lunch.R
@@ -99,15 +96,14 @@ class MainActivity : AppCompatActivity() {
         val container = binding.activityMainFragmentContainer.id
 
         when(itemId){
-            R.id.map_view_page -> fragmentReplacer(container, GoogleMapsViewFragment())
-            R.id.list_view_page -> fragmentReplacer(container, ListViewRestaurantFragment())
-            R.id.workmates_view_page -> fragmentReplacer(container, ListWorkmatesFragment())
+            R.id.map_view_page -> fragmentReplacer(container, GoogleMapsViewFragment.newInstance())
+            R.id.list_view_page -> fragmentReplacer(container, ListViewRestaurantFragment.newInstance())
+            R.id.workmates_view_page -> fragmentReplacer(container, ListWorkmatesFragment.newInstance())
         }
     }
 
     // Manage the fragment replacement
     private fun fragmentReplacer(container:Int, fragment: Fragment){
-        Log.d("TAG", "##### fragmentReplacer() called")
         supportFragmentManager
             .beginTransaction()
             .replace(container, fragment)

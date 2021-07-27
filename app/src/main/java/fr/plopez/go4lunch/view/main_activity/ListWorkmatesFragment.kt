@@ -9,6 +9,13 @@ import fr.plopez.go4lunch.R
 
 class ListWorkmatesFragment : Fragment() {
 
+    //
+    companion object {
+        fun newInstance(): ListWorkmatesFragment {
+            return ListWorkmatesFragment()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
