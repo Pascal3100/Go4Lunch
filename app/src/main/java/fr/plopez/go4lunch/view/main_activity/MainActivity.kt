@@ -2,14 +2,18 @@ package fr.plopez.go4lunch.view.main_activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
+import android.widget.AutoCompleteTextView
+import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.annotation.IdRes
+import androidx.appcompat.widget.AppCompatImageView
+import androidx.appcompat.widget.SearchView
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import fr.plopez.go4lunch.R
-import fr.plopez.go4lunch.ViewModelFactory
 import fr.plopez.go4lunch.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -22,6 +26,9 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
 
         setContentView(binding.root)
+
+        // Identify the top app bar as the action bar to allow its customization
+        setSupportActionBar(binding.mainActivityTopAppbar)
 
         // Manage first time main activity is loaded
         if (savedInstanceState == null){
@@ -54,6 +61,39 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Manage search menu customization
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        // Inflate the menu manually
+        val inflater:MenuInflater=menuInflater
+        inflater.inflate(R.menu.top_app_bar_menu, menu)
+
+        val menuItemSearch = menu?.findItem(R.id.search)
+
+        val lightGreyColor = ResourcesCompat.getColor(resources, R.color.light_grey, null)
+
+        // Set the search icon to light grey
+        val searchButton = menuItemSearch?.actionView?.findViewById<AppCompatImageView>(R.id.search_button)
+        searchButton?.setColorFilter(lightGreyColor)
+
+        // customize search view
+        val searchBar = menuItemSearch?.actionView?.findViewById<AutoCompleteTextView>(R.id.search_src_text)
+        searchBar?.setTextColor(lightGreyColor)
+        searchBar?.textSize = 14F
+
+        // TODO : find a way to tint search icon of search view to lightGrey Color - this does not work...
+        val searchIcon = menuItemSearch?.actionView?.findViewById<AppCompatImageView>(androidx.appcompat.R.id.search_mag_icon)
+        searchIcon?.setColorFilter(lightGreyColor)
+
+        // Recolor the close btn
+        val searchPlate = menuItemSearch?.actionView?.findViewById<LinearLayout>(R.id.search_plate)
+        val closeIcon = searchPlate?.findViewById<AppCompatImageView>(R.id.search_close_btn)
+        closeIcon?.setColorFilter(lightGreyColor)
+
+        return true
+    }
+
+
+
     // Set the fragment to replace in view
     private fun setActivePage(@IdRes itemId : Int){
         val container = binding.activityMainFragmentContainer.id
@@ -67,6 +107,7 @@ class MainActivity : AppCompatActivity() {
 
     // Manage the fragment replacement
     private fun fragmentReplacer(container:Int, fragment: Fragment){
+        Log.d("TAG", "##### fragmentReplacer() called")
         supportFragmentManager
             .beginTransaction()
             .replace(container, fragment)

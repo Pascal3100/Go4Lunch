@@ -23,5 +23,6 @@
     <string name="frd_call_item_text">CALL</string>
     <string name="frd_rate_item_text">LIKE</string>
     <string name="frd_website_item_text">WEBSITE</string>
+    <string name="serach_view_text_size">12sp</string>
 
 </resources>

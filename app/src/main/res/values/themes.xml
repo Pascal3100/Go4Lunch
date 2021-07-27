@@ -17,7 +17,7 @@
         <item name="colorError">@color/redish_whisky</item>
         <item name="colorOnError">@color/black_is_not_black</item>
         <item name="colorOnBackground">@color/black_is_not_black</item>
-
+        <item name="autoCompleteTextViewStyle">@style/cursorColor</item>
     </style>
 
 </resources>
