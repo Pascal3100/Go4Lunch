@@ -9,6 +9,7 @@ import android.widget.LinearLayout
 import androidx.annotation.IdRes
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.ActivityMainBinding
@@ -56,6 +57,20 @@ class MainActivity : AppCompatActivity() {
             }
             false
         }
+
+        binding.mainActivityTopAppbar.setNavigationOnClickListener {
+            binding.mainActivityDrawerLayout.openDrawer(GravityCompat.START)
+        }
+
+//        binding.mainActivityDrawerLayout.setNavigationItemSelectedListener { menuItem ->
+//            // Handle menu item selected
+//            menuItem.isChecked = true
+//            drawerLayout.close()
+//            true
+//        }
+
+
+
     }
 
     // Manage search menu customization

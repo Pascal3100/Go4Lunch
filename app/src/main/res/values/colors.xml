@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="primary_diner_blue">#E45826</color>
     <color name="primary_diner_orange">#E45826</color>
     <color name="primary_variant_diner_blue">#007872</color>
     <color name="secondary_diner_orange">#EC380B</color>

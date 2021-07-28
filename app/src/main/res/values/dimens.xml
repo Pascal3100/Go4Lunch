@@ -15,6 +15,7 @@
     <dimen name="item_normal_text_size">16sp</dimen>
     <dimen name="item_small_text_size">14sp</dimen>
     <dimen name="item_medium_text_size">18sp</dimen>
+    <dimen name="big_title_text_size">40sp</dimen>
 
     <dimen name="app_bar_title_text_size">24sp</dimen>
 

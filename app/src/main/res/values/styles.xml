@@ -2,7 +2,7 @@
 <resources>
 
     <style name="appBarTitleTextAppearance">
-        <item name="android:fontFamily">@font/quicksand_regular</item>
+        <item name="android:fontFamily">@font/roboto_regular</item>
         <item name="android:textSize">@dimen/app_bar_title_text_size</item>
         <item name="android:textStyle">bold</item>
         <item name="titleTextColor">@color/light_grey</item>
@@ -90,6 +90,34 @@
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/primary_diner_orange</item>
     </style>
+
+    <style name="drawerWhiteTitleTextAppearance">
+        <item name="android:fontFamily">@font/roboto_thin</item>
+        <item name="android:textSize">@dimen/big_title_text_size</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/light_grey</item>
+    </style>
+
+    <style name="drawerMenuTextAppearance">
+        <item name="android:fontFamily">@font/roboto_regular</item>
+        <item name="android:textSize">@dimen/item_normal_text_size</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="drawerUserTextAppearance">
+        <item name="android:fontFamily">@font/roboto_regular</item>
+        <item name="android:textSize">@dimen/item_title_text_size</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/light_grey</item>
+    </style>
+
+    <style name="drawerEmailTextAppearance">
+        <item name="android:fontFamily">@font/roboto_regular</item>
+        <item name="android:textSize">@dimen/item_normal_text_size</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/light_grey</item>
+    </style>
+
 
     <style name="Divider">
         <item name="android:background">?android:attr/listDivider</item>
