@@ -3,7 +3,7 @@
     <style name="Theme.Go4Lunch" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/primary_diner_orange</item>
-        <item name="colorPrimaryVariant">@color/primary_variant_diner_blue</item>
+        <item name="colorPrimaryVariant">@color/primary_variant_diner_orange</item>
         <item name="colorOnPrimary">@color/light_grey</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/secondary_diner_orange</item>

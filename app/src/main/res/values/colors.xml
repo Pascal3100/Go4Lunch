@@ -2,6 +2,7 @@
 <resources>
     <color name="primary_diner_blue">#E45826</color>
     <color name="primary_diner_orange">#E45826</color>
+    <color name="primary_variant_diner_orange">#F05F3B</color>
     <color name="primary_variant_diner_blue">#007872</color>
     <color name="secondary_diner_orange">#EC380B</color>
     <color name="secondary_variant_diner_orange">#F05F3B</color>
