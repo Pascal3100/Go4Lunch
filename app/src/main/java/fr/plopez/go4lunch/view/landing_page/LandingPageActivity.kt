@@ -104,6 +104,8 @@ class LandingPageActivity : AppCompatActivity() {
 
     // Google authentication
     private fun loginWithGoogle() {
+
+        // Configure Google Sign In
         val googleSignInOptions = GoogleSignInOptions
             .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
@@ -112,9 +114,9 @@ class LandingPageActivity : AppCompatActivity() {
         val googleSignInClient =
             GoogleSignIn.getClient(this@LandingPageActivity, googleSignInOptions)
 
+        // Launch Google Sign In
         val intent = googleSignInClient.signInIntent
         startActivityForResult(intent, RC_SIGN_IN)
-
     }
 
 
@@ -125,12 +127,13 @@ class LandingPageActivity : AppCompatActivity() {
         callbackManager.onActivityResult(requestCode, resultCode, data)
 
         // Google
+        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             val task =
                 GoogleSignIn.getSignedInAccountFromIntent(data)
 
             try {
-                val account : GoogleSignInAccount? = task.getResult(ApiException::class.java)
+                val account: GoogleSignInAccount? = task.getResult(ApiException::class.java)
 
                 goMainActivity()
 
