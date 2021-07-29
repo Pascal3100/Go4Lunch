@@ -27,5 +27,6 @@
     <string name="drawer_my_selected_restaurant_label">Your lunch</string>
     <string name="drawer_my_settings_label">Settings</string>
     <string name="drawer_logout_label">Logout</string>
+    <string name="your_web_client_id">238464625821-stvuo5n65glaq7cre86drrf43h2s5304.apps.googleusercontent.com</string>
 
 </resources>
