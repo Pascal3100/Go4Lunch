@@ -1,5 +1,6 @@
 package fr.plopez.go4lunch.view.main_activity
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
@@ -8,22 +9,29 @@ import android.widget.AutoCompleteTextView
 import android.widget.LinearLayout
 import androidx.annotation.IdRes
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private lateinit var binding : ActivityMainBinding
+
+    companion object {
+        fun navigate(activity: FragmentActivity) {
+            val intent = Intent(activity, MainActivity::class.java)
+            startActivity(activity, intent, null)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
-
-        setContentView(binding.root)
 
         // Identify the top app bar as the action bar to allow its customization
         setSupportActionBar(binding.mainActivityTopAppbar)
@@ -61,16 +69,6 @@ class MainActivity : AppCompatActivity() {
         binding.mainActivityTopAppbar.setNavigationOnClickListener {
             binding.mainActivityDrawerLayout.openDrawer(GravityCompat.START)
         }
-
-//        binding.mainActivityDrawerLayout.setNavigationItemSelectedListener { menuItem ->
-//            // Handle menu item selected
-//            menuItem.isChecked = true
-//            drawerLayout.close()
-//            true
-//        }
-
-
-
     }
 
     // Manage search menu customization
