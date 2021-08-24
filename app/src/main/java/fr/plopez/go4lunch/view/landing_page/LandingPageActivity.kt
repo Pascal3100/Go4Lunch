@@ -3,9 +3,9 @@ package fr.plopez.go4lunch.view.landing_page
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.view.WindowManager
 import android.widget.Button
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
@@ -19,7 +19,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
@@ -27,17 +26,30 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.ActivityLandingPageBinding
+import fr.plopez.go4lunch.utils.CustomSnackBar
 import fr.plopez.go4lunch.view.main_activity.MainActivity
 
 class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page) {
 
+    companion object {
+        private val TAG = "LandingPageActivity"
+
+        // Google
+        private val GOOGLE_AUTH_REQUEST_CODE = 999
+
+        private val IS_LOADING_STATE = "IS_LOADING_STATE"
+    }
+
+    private lateinit var snack : CustomSnackBar
+
+    // Loading state
+    private var isLoading = false
+
+    // View binding
     private lateinit var binding: ActivityLandingPageBinding
 
     // Facebook callManager
     private lateinit var callbackManager : CallbackManager
-
-    // Google
-    private val RC_SIGN_IN = 1
 
     // Firebase Auth
     private lateinit var firebaseAuth: FirebaseAuth
@@ -47,6 +59,16 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityLandingPageBinding.inflate(layoutInflater)
+
+        // Restore the previous loading state or initialize it
+        if (savedInstanceState != null) {
+            loading(savedInstanceState.getBoolean(IS_LOADING_STATE, false))
+        } else {
+            loading(false)
+        }
+
+        //Initialize custom snackBar
+        snack = CustomSnackBar(findViewById(android.R.id.content), applicationContext)
 
         // Initialize Facebook call manager
         callbackManager = CallbackManager.Factory.create()
@@ -86,6 +108,11 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page) {
 
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(IS_LOADING_STATE, isLoading)
+    }
+
     // Navigation utility
     private fun goMainActivity() {
         MainActivity.navigate(this)
@@ -102,32 +129,22 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page) {
             }
 
             override fun onCancel() {
-                Toast.makeText(
-                    this@LandingPageActivity,
-                    "Facebook login cancelled",
-                    Toast.LENGTH_SHORT
-                ).show()
+                snack.showWarningSnackBar("Facebook login cancelled")
             }
 
             override fun onError(error: FacebookException?) {
-                Toast.makeText(
-                    this@LandingPageActivity,
-                    "Facebook login failed: ${error.toString()}",
-                    Toast.LENGTH_SHORT
-                ).show()
+                snack.showErrorSnackBar("Facebook login failed: ${error.toString()}")
             }
-
         })
     }
 
     // Google authentication
     private fun loginWithGoogle() {
 
-        Log.d("TAG", "#### loginWithGoogle")
         // Configure Google Sign In
         val googleSignInOptions = GoogleSignInOptions
             .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestIdToken(getString(R.string.web_client_id))
             .requestEmail()
             .requestProfile()
             .build()
@@ -136,10 +153,12 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page) {
             GoogleSignIn.getClient(this@LandingPageActivity, googleSignInOptions)
 
         // Launch Google Sign In
+        loading(true)
         val intent = googleSignInClient.signInIntent
-        startActivityForResult(intent, RC_SIGN_IN)
+        startActivityForResult(intent, GOOGLE_AUTH_REQUEST_CODE)
     }
 
+    // Google authentication on Firebase
     private fun firebaseAuthWithGoogle(account : GoogleSignInAccount) {
         val credential = GoogleAuthProvider.getCredential(account.idToken, null)
         signInToFirebase(credential)
@@ -150,9 +169,11 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page) {
         FirebaseAuth.getInstance().signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
+                    loading(false)
                     goMainActivity()
                 } else {
-                    Snackbar.make(findViewById(android.R.id.content), "Hey, you're not connected", Snackbar.LENGTH_SHORT).show()
+                    loading(false)
+                    snack.showWarningSnackBar("Hey, you're not connected")
                 }
             }
     }
@@ -165,24 +186,42 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page) {
 
         // Google
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
+        if (requestCode == GOOGLE_AUTH_REQUEST_CODE) {
+
+            loading(true)
+
             val task =
                 GoogleSignIn.getSignedInAccountFromIntent(data)
 
             try {
                 val account: GoogleSignInAccount = task.getResult(ApiException::class.java)
-                firebaseAuthWithGoogle(account)
+
+                if (account == null) {
+                    loading(false)
+                    snack.showErrorSnackBar("Google sign in failed. Account is empty.")
+                } else {
+                    firebaseAuthWithGoogle(account)
+                }
 
             } catch (e: ApiException) {
                 // The ApiException status code indicates the detailed failure reason.
                 // Please refer to the GoogleSignInStatusCodes class reference for more information.
-                Toast.makeText(
-                    this@LandingPageActivity,
-                    "Google login failed",
-                    Toast.LENGTH_SHORT
-                ).show()
+                loading(false)
+                snack.showErrorSnackBar("Google sign in failed.")
+                Log.d(TAG, "#### onActivityResult: ${task.exception}")
             }
         }
-
     }
+
+    // Display loading indicator utility
+    private fun loading(isLoading: Boolean) {
+        this.isLoading = isLoading
+
+        if (isLoading) {
+            binding.landingPageProgressIndicator.visibility = View.VISIBLE
+        } else {
+            binding.landingPageProgressIndicator.visibility = View.GONE
+        }
+    }
+
 }

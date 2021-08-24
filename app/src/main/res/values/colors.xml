@@ -14,6 +14,7 @@
     <color name="grey">#424242</color>
     <color name="redish_whisky">#BB2B2A</color>
     <color name="yellow_for_stars">#FFC107</color>
+    <color name="yellow_warning">#FF8F00</color>
 
 
 </resources>
