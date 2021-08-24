@@ -4,6 +4,9 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/PLOPEZ/WORK/EAGLE/P07/Go4Lunch/app/src/main/res/layout/activity_landing_page.xml" value="0.15806159420289856" />
+        <entry key="..\:/PLOPEZ/WORK/EAGLE/P07/Go4Lunch/app/src/main/res/layout/activity_main.xml" value="0.14401440144014402" />
+        <entry key="..\:/PLOPEZ/WORK/EAGLE/P07/Go4Lunch/app/src/main/res/layout/fragment_login.xml" value="0.2962962962962963" />
+        <entry key="..\:/PLOPEZ/WORK/EAGLE/P07/Go4Lunch/app/src/main/res/layout/fragment_permissions.xml" value="0.2962962962962963" />
       </map>
     </option>
   </component>

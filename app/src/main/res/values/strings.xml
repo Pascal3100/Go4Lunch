@@ -31,7 +31,7 @@
     <string name="fb_login_protocol_scheme">fb497958498159883</string>
 
     <!--  Google  -->
-<!--    <string name="web_client_id">238464625821-stvuo5n65glaq7cre86drrf43h2s5304.apps.googleusercontent.com</string>-->
+    <!--    <string name="web_client_id">238464625821-stvuo5n65glaq7cre86drrf43h2s5304.apps.googleusercontent.com</string>-->
     <string name="web_client_id">238464625821-9u2ora1s2bgd66b3eb7vv01qe64cupg6.apps.googleusercontent.com</string>
 
 </resources>

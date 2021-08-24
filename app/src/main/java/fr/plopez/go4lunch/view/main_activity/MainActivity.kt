@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.ActivityMainBinding
+import fr.plopez.go4lunch.utils.FragmentManager
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
@@ -109,18 +110,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         val container = binding.activityMainFragmentContainer.id
 
         when(itemId){
-            R.id.map_view_page -> fragmentReplacer(container, GoogleMapsViewFragment.newInstance())
-            R.id.list_view_page -> fragmentReplacer(container, ListViewRestaurantFragment.newInstance())
-            R.id.workmates_view_page -> fragmentReplacer(container, ListWorkmatesFragment.newInstance())
+            R.id.map_view_page -> FragmentManager.replace(this, container, GoogleMapsViewFragment.newInstance())
+            R.id.list_view_page -> FragmentManager.replace(this, container, ListViewRestaurantFragment.newInstance())
+            R.id.workmates_view_page -> FragmentManager.replace(this, container, ListWorkmatesFragment.newInstance())
         }
-    }
-
-    // Manage the fragment replacement
-    private fun fragmentReplacer(container:Int, fragment: Fragment){
-        supportFragmentManager
-            .beginTransaction()
-            .replace(container, fragment)
-            .commit()
     }
 
     // Manage to save current page title to restore it after rotation

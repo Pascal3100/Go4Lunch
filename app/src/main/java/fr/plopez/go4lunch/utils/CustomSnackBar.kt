@@ -5,6 +5,7 @@ import android.view.View
 import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
 import fr.plopez.go4lunch.R
+import fr.plopez.go4lunch.view.main_activity.MainActivity
 
 class CustomSnackBar constructor(private val parentView: View,
                                  private val parentContext: Context) {
