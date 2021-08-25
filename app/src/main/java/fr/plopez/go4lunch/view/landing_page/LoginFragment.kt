@@ -1,5 +1,6 @@
 package fr.plopez.go4lunch.view.landing_page
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -28,6 +29,10 @@ import com.google.firebase.ktx.Firebase
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.FragmentLoginBinding
 import fr.plopez.go4lunch.utils.CustomSnackBar
+import com.google.firebase.auth.FirebaseUser
+import fr.plopez.go4lunch.interfaces.OnLoginSuccessful
+import java.lang.ClassCastException
+
 
 class LoginFragment : Fragment() {
 
@@ -37,6 +42,9 @@ class LoginFragment : Fragment() {
         }
 
         private val TAG = "LoginFragment"
+
+        // Interface
+        private lateinit var onLoginSuccessful: OnLoginSuccessful
 
         // Google authentication code
         private val GOOGLE_AUTH_REQUEST_CODE = 999
@@ -60,10 +68,23 @@ class LoginFragment : Fragment() {
     private lateinit var firebaseAuth: FirebaseAuth
 
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is OnLoginSuccessful) {
+            onLoginSuccessful = context as OnLoginSuccessful
+        } else {
+            throw ClassCastException(
+                context.toString()
+                        + " must implement OnLoginSuccessful"
+            )
+        }
+
+    }
+
     override fun onCreateView(
         layoutInflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
 
         binding = FragmentLoginBinding.inflate(layoutInflater)
@@ -181,10 +202,19 @@ class LoginFragment : Fragment() {
                 if (task.isSuccessful) {
                     loading(false)
                     // TODO : notify viewModel
+                    val user = firebaseAuth.currentUser
+                    Log.d(TAG, "signInToFirebaseUser: ${user.toString()}")
+                    Log.d(TAG, "UserName: ${user!!.displayName}")
+                    Log.d(TAG, "UserEmail: ${user!!.email}")
+                    Log.d(TAG, "UserAvatarUrl: ${user.photoUrl}")
+
+                    onLoginSuccessful.onLoginSuccessful(true)
 
                 } else {
                     loading(false)
+                    Log.d(TAG, "#### signInToFirebase: ${task.exception}")
                     snack.showWarningSnackBar("Hey, you're not connected")
+                    onLoginSuccessful.onLoginSuccessful(false)
                 }
             }
     }

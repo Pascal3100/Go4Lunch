@@ -27,11 +27,13 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.ActivityLandingPageBinding
+import fr.plopez.go4lunch.interfaces.OnLoginSuccessful
+import fr.plopez.go4lunch.interfaces.OnPermissionsAccepted
 import fr.plopez.go4lunch.utils.CustomSnackBar
 import fr.plopez.go4lunch.utils.FragmentManager
 import fr.plopez.go4lunch.view.main_activity.MainActivity
 
-class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page) {
+class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page), OnLoginSuccessful, OnPermissionsAccepted {
 
     companion object {
         private val TAG = "LandingPageActivity"
@@ -56,6 +58,20 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page) {
     private fun goMainActivity() {
         // TODO : add here an observer to check when user is logged and permissions are accepted
         MainActivity.navigate(this)
+    }
+
+    override fun onLoginSuccessful(success: Boolean) {
+        if (success) {
+            FragmentManager.replace(
+                this,
+                R.id.landing_page_fragment_container,
+                PermissionsFragment.newInstance()
+            )
+        }
+    }
+
+    override fun onPermissionsAccepted(accepted: Boolean) {
+
     }
 
 }

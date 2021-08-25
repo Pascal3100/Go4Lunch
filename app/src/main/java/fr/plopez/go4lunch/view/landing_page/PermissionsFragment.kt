@@ -2,24 +2,23 @@ package fr.plopez.go4lunch.view.landing_page
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
-import fr.plopez.go4lunch.R
-import fr.plopez.go4lunch.databinding.FragmentLoginBinding
 import fr.plopez.go4lunch.databinding.FragmentPermissionsBinding
 import fr.plopez.go4lunch.utils.CustomSnackBar
 
 class PermissionsFragment : Fragment() {
 
-
     companion object{
         val REQUEST_CODE = 0
+
+        fun newInstance(): PermissionsFragment {
+            return PermissionsFragment()
+        }
     }
 
     // View binding
@@ -39,6 +38,7 @@ class PermissionsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         snack = CustomSnackBar(requireView(), requireContext())
+        checkPermissions()
     }
 
     // Check External Storage Permissions
