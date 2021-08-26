@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.view.isVisible
 import androidx.transition.TransitionManager
 import com.facebook.CallbackManager
@@ -42,6 +43,8 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page), O
     // View binding
     private lateinit var binding: ActivityLandingPageBinding
 
+    private lateinit var snack: CustomSnackBar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -50,6 +53,8 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page), O
         this.window.setFlags(fullScreenFlag, fullScreenFlag)
 
         binding = ActivityLandingPageBinding.inflate(layoutInflater)
+
+        snack = CustomSnackBar(findViewById(android.R.id.content), this)
 
         FragmentManager.replace(this, R.id.landing_page_fragment_container, LoginFragment.newInstance())
     }
@@ -60,6 +65,7 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page), O
         MainActivity.navigate(this)
     }
 
+    // On login successful go to permissions fragment
     override fun onLoginSuccessful(success: Boolean) {
         if (success) {
             FragmentManager.replace(
@@ -70,8 +76,13 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page), O
         }
     }
 
+    // On permissions accepted go to main activity, else back to login page
     override fun onPermissionsAccepted(accepted: Boolean) {
-
+        if (accepted) {
+            goMainActivity()
+        } else {
+            FragmentManager.replace(this, R.id.landing_page_fragment_container, LoginFragment.newInstance())
+            snack.showWarningSnackBar("Please accept permissions to continue")
+        }
     }
-
 }

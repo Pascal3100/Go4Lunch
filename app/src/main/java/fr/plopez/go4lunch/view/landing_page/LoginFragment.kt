@@ -67,6 +67,8 @@ class LoginFragment : Fragment() {
     // Firebase Auth
     private lateinit var firebaseAuth: FirebaseAuth
 
+    // ViewModel
+    private val landingPageViewModel = LandingPageViewModel()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -78,7 +80,6 @@ class LoginFragment : Fragment() {
                         + " must implement OnLoginSuccessful"
             )
         }
-
     }
 
     override fun onCreateView(
@@ -201,18 +202,13 @@ class LoginFragment : Fragment() {
             .addOnCompleteListener(requireActivity()) { task ->
                 if (task.isSuccessful) {
                     loading(false)
-                    // TODO : notify viewModel
-                    val user = firebaseAuth.currentUser
-                    Log.d(TAG, "signInToFirebaseUser: ${user.toString()}")
-                    Log.d(TAG, "UserName: ${user!!.displayName}")
-                    Log.d(TAG, "UserEmail: ${user!!.email}")
-                    Log.d(TAG, "UserAvatarUrl: ${user.photoUrl}")
+                    // Notify viewModel
+                    landingPageViewModel.setUserInformation(firebaseAuth.currentUser)
 
                     onLoginSuccessful.onLoginSuccessful(true)
 
                 } else {
                     loading(false)
-                    Log.d(TAG, "#### signInToFirebase: ${task.exception}")
                     snack.showWarningSnackBar("Hey, you're not connected")
                     onLoginSuccessful.onLoginSuccessful(false)
                 }
@@ -237,19 +233,13 @@ class LoginFragment : Fragment() {
             try {
                 val account: GoogleSignInAccount = task.getResult(ApiException::class.java)
 
-                if (account == null) {
-                    loading(false)
-                    snack.showErrorSnackBar("Google sign in failed. Account is empty.")
-                } else {
                     firebaseAuthWithGoogle(account)
-                }
 
             } catch (e: ApiException) {
                 // The ApiException status code indicates the detailed failure reason.
                 // Please refer to the GoogleSignInStatusCodes class reference for more information.
                 loading(false)
                 snack.showErrorSnackBar("Google sign in failed.")
-                Log.d(TAG, "#### onActivityResult: ${task.exception}")
             }
         }
     }

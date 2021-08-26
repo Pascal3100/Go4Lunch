@@ -1,15 +1,18 @@
 package fr.plopez.go4lunch.view.landing_page
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.app.ActivityCompat
+import androidx.core.content.PermissionChecker.checkSelfPermission
 import fr.plopez.go4lunch.databinding.FragmentPermissionsBinding
+import fr.plopez.go4lunch.interfaces.OnPermissionsAccepted
 import fr.plopez.go4lunch.utils.CustomSnackBar
+import java.lang.ClassCastException
 
 class PermissionsFragment : Fragment() {
 
@@ -23,7 +26,21 @@ class PermissionsFragment : Fragment() {
 
     // View binding
     private lateinit var binding: FragmentPermissionsBinding
-    private lateinit var snack: CustomSnackBar
+
+    private lateinit var onPermissionsAccepted: OnPermissionsAccepted
+
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is OnPermissionsAccepted) {
+            onPermissionsAccepted = context as OnPermissionsAccepted
+        } else {
+            throw ClassCastException(
+                context.toString()
+                        + " must implement OnPermissionsAccepted"
+            )
+        }
+    }
 
     override fun onCreateView(
         layoutInflater: LayoutInflater, container: ViewGroup?,
@@ -37,21 +54,22 @@ class PermissionsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        snack = CustomSnackBar(requireView(), requireContext())
+
+        // Go check permissions
         checkPermissions()
     }
 
     // Check External Storage Permissions
     private fun hasWriteExternalStoragePermissions()=
-        ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+        checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
 
     // Check Location Permissions
     private fun hasLocationForegroundPermissions()=
-        ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
     // Check permissions
     private fun checkPermissions(){
-        var permissionsToRequest = mutableListOf<String>()
+        val permissionsToRequest = mutableListOf<String>()
         if (!hasWriteExternalStoragePermissions()){
             permissionsToRequest.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }
@@ -60,7 +78,9 @@ class PermissionsFragment : Fragment() {
         }
 
         if (permissionsToRequest.isNotEmpty()){
-            ActivityCompat.requestPermissions(requireActivity(), permissionsToRequest.toTypedArray(), REQUEST_CODE)
+            requestPermissions(permissionsToRequest.toTypedArray(), REQUEST_CODE)
+        } else {
+            onPermissionsAccepted.onPermissionsAccepted(true)
         }
     }
 
@@ -71,13 +91,14 @@ class PermissionsFragment : Fragment() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE && grantResults.isNotEmpty()){
+            var acceptedStatus = true
             for (i in grantResults.indices) {
                 if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                    snack.showWarningSnackBar("Please accept permissions to continue")
+                    acceptedStatus = false
+                    break
                 }
             }
+            onPermissionsAccepted.onPermissionsAccepted(acceptedStatus)
         }
     }
-
-
 }
