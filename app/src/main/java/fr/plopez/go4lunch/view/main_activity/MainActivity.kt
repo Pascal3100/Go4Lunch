@@ -14,6 +14,10 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.ActivityMainBinding
 import fr.plopez.go4lunch.utils.FragmentManager
@@ -23,9 +27,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var binding : ActivityMainBinding
 
     companion object {
-        fun navigate(activity: FragmentActivity) {
-            val intent = Intent(activity, MainActivity::class.java)
-            startActivity(activity, intent, null)
+        fun navigate(activity: FragmentActivity): Intent {
+            return Intent(activity, MainActivity::class.java)
         }
     }
 
@@ -69,6 +72,15 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         binding.mainActivityTopAppbar.setNavigationOnClickListener {
             binding.mainActivityDrawerLayout.openDrawer(GravityCompat.START)
+        }
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        // Check if user is not logged, go to login page
+        if (Firebase.auth.currentUser == null) {
+            startActivity(MainActivity.navigate(this))
         }
     }
 
