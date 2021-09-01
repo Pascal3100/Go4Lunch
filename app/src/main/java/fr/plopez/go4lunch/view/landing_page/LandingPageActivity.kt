@@ -55,6 +55,8 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page), O
 
         binding = ActivityLandingPageBinding.inflate(layoutInflater)
 
+        setContentView(binding.root)
+
         snack = CustomSnackBar(findViewById(android.R.id.content), this)
 
         FragmentManager.replace(this, R.id.landing_page_fragment_container, LoginFragment.newInstance())

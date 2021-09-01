@@ -5,17 +5,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
+import android.view.MenuItem
 import android.widget.AutoCompleteTextView
 import android.widget.LinearLayout
 import androidx.annotation.IdRes
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import fr.plopez.go4lunch.R
@@ -37,6 +34,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
 
+        setContentView(binding.root)
+
         // Identify the top app bar as the action bar to allow its customization
         setSupportActionBar(binding.mainActivityTopAppbar)
 
@@ -45,7 +44,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             setActivePage(R.id.map_view_page)
             binding.mainActivityTopAppbar.title = resources.getString(R.string.maps_view_appbar_title)
         } else {
-            binding.mainActivityTopAppbar.title =savedInstanceState.getCharSequence("appBarCurTitle")
+            binding.mainActivityTopAppbar.title = savedInstanceState.getCharSequence("appBarCurTitle")
         }
 
         // Load the corresponding fragment to the bottom nav icon clicked
@@ -74,7 +73,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             binding.mainActivityDrawerLayout.openDrawer(GravityCompat.START)
         }
     }
-
 
     override fun onResume() {
         super.onResume()
@@ -115,7 +113,27 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         return true
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
+        return when (item.itemId) {
+            R.id.my_selected_restaurant -> {
+                // TODO : implementation to add
+                true
+            }
+            R.id.my_settings -> {
+                // TODO : implementation to add
+                true
+            }
+            R.id.logout -> {
+                // Logout
+                Firebase.auth.signOut()
+                true
+            }
+            else -> {
+                super.onOptionsItemSelected(item)
+            }
+        }
+    }
 
     // Set the fragment to replace in view
     private fun setActivePage(@IdRes itemId : Int){
