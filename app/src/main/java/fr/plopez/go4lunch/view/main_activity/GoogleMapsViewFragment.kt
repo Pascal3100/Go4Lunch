@@ -1,10 +1,12 @@
 package fr.plopez.go4lunch.view.main_activity
 
+import android.location.Location
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
@@ -19,13 +21,14 @@ class GoogleMapsViewFragment : Fragment() {
         fun newInstance(): GoogleMapsViewFragment {
             return GoogleMapsViewFragment()
         }
+        const val DEFAULT_ZOOM_VALUE = 15
     }
 
     private lateinit var mapFragment : SupportMapFragment
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+
+    private var lastKnownLocation: Location? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,14 +43,13 @@ class GoogleMapsViewFragment : Fragment() {
             mapFragment.getMapAsync(OnMapReadyCallback {
 
                 // Add a marker in Pechabou and move the camera
-                // TODO : it does not zoom on location...
                 val pechabou = LatLng(43.5, 1.5)
                 it.addMarker(
                     MarkerOptions()
                         .position(pechabou)
                         .title("Marker in Pechabou")
                 )
-                it.moveCamera(CameraUpdateFactory.newLatLng(pechabou))
+                it.moveCamera(CameraUpdateFactory.newLatLngZoom(pechabou, DEFAULT_ZOOM_VALUE.toFloat()))
             })
         }
 

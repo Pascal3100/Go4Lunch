@@ -12,6 +12,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.fragment.app.FragmentActivity
 import androidx.transition.TransitionManager
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
@@ -39,6 +40,9 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page), O
 
     companion object {
         private val TAG = "LandingPageActivity"
+        fun navigate(activity: FragmentActivity): Intent {
+            return Intent(activity, LandingPageActivity::class.java)
+        }
     }
 
     // View binding
