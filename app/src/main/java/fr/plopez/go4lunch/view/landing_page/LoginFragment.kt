@@ -73,7 +73,7 @@ class LoginFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is OnLoginSuccessful) {
-            onLoginSuccessful = context as OnLoginSuccessful
+            onLoginSuccessful = context
         } else {
             throw ClassCastException(
                 context.toString()

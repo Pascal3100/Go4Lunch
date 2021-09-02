@@ -4,6 +4,6 @@
     android:id="@+id/google_maps_view_fragment_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.main_activity.GoogleMapsViewFragment">
+    tools:context=".view.main_activity.GoogleMapsFragment">
 
 </FrameLayout>

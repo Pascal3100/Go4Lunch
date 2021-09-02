@@ -33,7 +33,7 @@ class PermissionsFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is OnPermissionsAccepted) {
-            onPermissionsAccepted = context as OnPermissionsAccepted
+            onPermissionsAccepted = context
         } else {
             throw ClassCastException(
                 context.toString()

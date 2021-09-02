@@ -6,20 +6,23 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import fr.plopez.go4lunch.R
+import kotlinx.coroutines.InternalCoroutinesApi
 
-class GoogleMapsViewFragment : Fragment() {
+class GoogleMapsFragment : Fragment() {
 
     //
     companion object {
-        fun newInstance(): GoogleMapsViewFragment {
-            return GoogleMapsViewFragment()
+        fun newInstance(): GoogleMapsFragment {
+            return GoogleMapsFragment()
         }
         const val DEFAULT_ZOOM_VALUE = 15
     }
@@ -30,28 +33,41 @@ class GoogleMapsViewFragment : Fragment() {
 
     private var lastKnownLocation: Location? = null
 
+    // TODO : to be injected
+    private lateinit var googleMapsFragmentViewModel : GoogleMapsFragmentViewModel
+
+    @InternalCoroutinesApi
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
 
-        // Build the fragment only if it not initialized
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext())
+        googleMapsFragmentViewModel = GoogleMapsFragmentViewModel(fusedLocationProviderClient)
+
+        // Build the fragment only if it is not initialized
         if (!this::mapFragment.isInitialized) {
+
+            googleMapsFragmentViewModel.monitorUserLocation()
 
             // Obtain the SupportMapFragment and get notified when the map is ready to be used.
             mapFragment = SupportMapFragment.newInstance()
-            mapFragment.getMapAsync(OnMapReadyCallback {
+            mapFragment.getMapAsync(OnMapReadyCallback { googleMap ->
 
-                // Add a marker in Pechabou and move the camera
-                val pechabou = LatLng(43.5, 1.5)
-                it.addMarker(
-                    MarkerOptions()
-                        .position(pechabou)
-                        .title("Marker in Pechabou")
-                )
-                it.moveCamera(CameraUpdateFactory.newLatLngZoom(pechabou, DEFAULT_ZOOM_VALUE.toFloat()))
+                googleMapsFragmentViewModel
+                    .getCurrentLocationLiveData()?.observe(
+                        viewLifecycleOwner, Observer { curUserPosition ->
+                    googleMap.clear()
+                    googleMap.addMarker(
+                        MarkerOptions()
+                            .position(curUserPosition)
+                            .title("Pascualito is here")
+                    )
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(curUserPosition, DEFAULT_ZOOM_VALUE.toFloat()))
+                })
             })
         }
+
 
         // Replace the frameLayout with map fragment
         childFragmentManager

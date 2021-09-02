@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
-import android.view.MenuItem
 import android.widget.AutoCompleteTextView
 import android.widget.LinearLayout
 import androidx.annotation.IdRes
@@ -14,8 +13,6 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.FragmentActivity
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.ActivityMainBinding
 import fr.plopez.go4lunch.utils.FragmentManager
@@ -164,7 +161,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             R.id.map_view_page -> FragmentManager.replace(
                 this,
                 container,
-                GoogleMapsViewFragment.newInstance()
+                GoogleMapsFragment.newInstance()
             )
             R.id.list_view_page -> FragmentManager.replace(
                 this,
