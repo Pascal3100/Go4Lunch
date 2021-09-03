@@ -8,13 +8,12 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.maps.model.LatLng
-import fr.plopez.go4lunch.data.model.MapLocation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
-class LocationUpdatesUseCase constructor(
+class LocationUpdates constructor(
     // client will be injected
     private val client: FusedLocationProviderClient
 ) {
@@ -48,8 +47,6 @@ class LocationUpdatesUseCase constructor(
             override fun onLocationResult(locationResult: LocationResult) {
                 super.onLocationResult(locationResult)
                 val location = locationResult.lastLocation
-
-                Log.d(TAG, "#### onLocationResult : latitude = ${location.latitude}, longitude = ${location.longitude}")
                 offer(LatLng(location.latitude, location.longitude))
             }
         }
