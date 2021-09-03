@@ -8,18 +8,20 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.model.LatLng
 import fr.plopez.go4lunch.data.model.MapLocation
+import fr.plopez.go4lunch.data.repositories.LocationRepository
 import fr.plopez.go4lunch.utils.LocationUpdatesUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 
-class GoogleMapsFragmentViewModel(private val client: FusedLocationProviderClient): ViewModel() {
+class GoogleMapsFragmentViewModel(
+    private val client: FusedLocationProviderClient,
+    private val locationRepository: LocationRepository
+): ViewModel() {
 
     companion object {
         private val TAG = "Google Maps ViewModel"
     }
-
-    private val curLocationMutableLiveData : MutableLiveData<LatLng>? = null
 
     @InternalCoroutinesApi
     @ExperimentalCoroutinesApi
@@ -29,10 +31,10 @@ class GoogleMapsFragmentViewModel(private val client: FusedLocationProviderClien
             locationUpdatesUseCase
                 .fetchUpdates()
                 .collect {
-                    curLocationMutableLiveData?.value = it
+                    locationRepository.setCurrentLocation(it)
                 }
         }
     }
 
-    fun getCurrentLocationLiveData(): LiveData<LatLng>? = curLocationMutableLiveData
+    fun getCurrentLocationLiveData(): LiveData<LatLng> = locationRepository.getCurrentLocationLiveData()
 }

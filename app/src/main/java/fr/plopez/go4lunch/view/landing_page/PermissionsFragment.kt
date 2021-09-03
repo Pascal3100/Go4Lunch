@@ -1,7 +1,9 @@
 package fr.plopez.go4lunch.view.landing_page
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Context.LOCATION_SERVICE
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -13,6 +15,16 @@ import fr.plopez.go4lunch.databinding.FragmentPermissionsBinding
 import fr.plopez.go4lunch.interfaces.OnPermissionsAccepted
 import fr.plopez.go4lunch.utils.CustomSnackBar
 import java.lang.ClassCastException
+import android.content.DialogInterface
+
+import android.content.Intent
+
+import android.location.LocationManager
+import android.provider.Settings
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
+
+import androidx.core.content.ContextCompat.getSystemService
 
 class PermissionsFragment : Fragment() {
 
@@ -55,15 +67,28 @@ class PermissionsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Go check GPS
+        checkGps()
+
         // Go check permissions
         checkPermissions()
     }
 
+    private fun checkGps() {
+        val activity = requireActivity()
+        val manager = activity.getSystemService(LOCATION_SERVICE) as LocationManager?
+        if (!manager!!.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            buildAlertMessageNoGps()
+        }
+    }
+
     // Check External Storage Permissions
+    @SuppressLint("WrongConstant")
     private fun hasWriteExternalStoragePermissions()=
         checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
 
     // Check Location Permissions
+    @SuppressLint("WrongConstant")
     private fun hasLocationForegroundPermissions()=
         checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
@@ -101,4 +126,22 @@ class PermissionsFragment : Fragment() {
             onPermissionsAccepted.onPermissionsAccepted(acceptedStatus)
         }
     }
+
+    private fun buildAlertMessageNoGps() {
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setMessage("Your GPS seems to be disabled, do you want to enable it?")
+            .setCancelable(false)
+            .setPositiveButton("Yes",
+                DialogInterface.OnClickListener {
+                    dialog, id -> onPermissionsAccepted.onGPSActivationRequest(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                })
+            .setNegativeButton("No",
+                DialogInterface.OnClickListener {
+                    dialog, id -> dialog.cancel()
+                }
+            )
+        val alert: AlertDialog = builder.create()
+        alert.show()
+    }
+
 }

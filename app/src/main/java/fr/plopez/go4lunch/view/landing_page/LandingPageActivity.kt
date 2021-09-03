@@ -1,6 +1,7 @@
 package fr.plopez.go4lunch.view.landing_page
 
 import android.content.Intent
+import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -50,6 +51,9 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page), O
 
     private lateinit var snack: CustomSnackBar
 
+    private var permissionsAccepted = false
+    private var gpsActivated = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -88,11 +92,16 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page), O
 
     // On permissions accepted go to main activity, else back to login page
     override fun onPermissionsAccepted(accepted: Boolean) {
-        if (accepted) {
+        val manager = getSystemService(LOCATION_SERVICE) as LocationManager?
+        if (accepted && manager!!.isProviderEnabled(LocationManager.GPS_PROVIDER) ) {
             goMainActivity()
         } else {
             FragmentManager.replace(this, R.id.landing_page_fragment_container, LoginFragment.newInstance())
-            snack.showWarningSnackBar("Please accept permissions to continue")
+            snack.showWarningSnackBar("Please accept permissions and activate GPS to continue")
         }
+    }
+
+    override fun onGPSActivationRequest(intent: Intent) {
+        startActivity(intent)
     }
 }

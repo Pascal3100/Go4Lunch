@@ -2,6 +2,7 @@ package fr.plopez.go4lunch.utils
 
 import android.annotation.SuppressLint
 import android.os.Looper
+import android.util.Log
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -19,7 +20,10 @@ class LocationUpdatesUseCase constructor(
 ) {
 
     companion object {
+        private const val TAG = "LocationUpdatesUseCase"
+        private const val MAX_INTERVAL_SECS = 60L
         private const val UPDATE_INTERVAL_SECS = 60L
+        private const val FASTEST_UPDATE_INTERVAL_SECS = 10L
         private const val SMALLEST_DISPLACEMENT_METERS = 20F
     }
 
@@ -29,9 +33,13 @@ class LocationUpdatesUseCase constructor(
 
         // Settings for location requests
         val locationRequest = LocationRequest().apply {
-            priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+//            priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
             smallestDisplacement = SMALLEST_DISPLACEMENT_METERS
-            maxWaitTime = java.util.concurrent.TimeUnit.SECONDS.toMillis(UPDATE_INTERVAL_SECS)
+            interval = java.util.concurrent.TimeUnit.SECONDS.toMillis(UPDATE_INTERVAL_SECS)
+            fastestInterval = java.util.concurrent.TimeUnit.SECONDS.toMillis(
+                FASTEST_UPDATE_INTERVAL_SECS)
+            maxWaitTime = java.util.concurrent.TimeUnit.SECONDS.toMillis(MAX_INTERVAL_SECS)
         }
 
         val callBack = object : LocationCallback() {
@@ -41,6 +49,7 @@ class LocationUpdatesUseCase constructor(
                 super.onLocationResult(locationResult)
                 val location = locationResult.lastLocation
 
+                Log.d(TAG, "#### onLocationResult : latitude = ${location.latitude}, longitude = ${location.longitude}")
                 offer(LatLng(location.latitude, location.longitude))
             }
         }

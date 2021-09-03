@@ -1,23 +1,24 @@
 package fr.plopez.go4lunch.view.main_activity
 
-import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import fr.plopez.go4lunch.R
+import fr.plopez.go4lunch.ViewModelFactory
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 
-class GoogleMapsFragment : Fragment() {
+class GoogleMapsFragment : Fragment(), OnMapReadyCallback {
 
     //
     companion object {
@@ -29,45 +30,27 @@ class GoogleMapsFragment : Fragment() {
 
     private lateinit var mapFragment : SupportMapFragment
 
-    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-
-    private var lastKnownLocation: Location? = null
-
-    // TODO : to be injected
     private lateinit var googleMapsFragmentViewModel : GoogleMapsFragmentViewModel
 
+    @ExperimentalCoroutinesApi
     @InternalCoroutinesApi
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext())
-        googleMapsFragmentViewModel = GoogleMapsFragmentViewModel(fusedLocationProviderClient)
+        googleMapsFragmentViewModel = ViewModelProvider(this, ViewModelFactory.INSTANCE)[GoogleMapsFragmentViewModel::class.java]
+
+        // Start monitoring user location
+        googleMapsFragmentViewModel.monitorUserLocation()
 
         // Build the fragment only if it is not initialized
         if (!this::mapFragment.isInitialized) {
 
-            googleMapsFragmentViewModel.monitorUserLocation()
-
             // Obtain the SupportMapFragment and get notified when the map is ready to be used.
             mapFragment = SupportMapFragment.newInstance()
-            mapFragment.getMapAsync(OnMapReadyCallback { googleMap ->
-
-                googleMapsFragmentViewModel
-                    .getCurrentLocationLiveData()?.observe(
-                        viewLifecycleOwner, Observer { curUserPosition ->
-                    googleMap.clear()
-                    googleMap.addMarker(
-                        MarkerOptions()
-                            .position(curUserPosition)
-                            .title("Pascualito is here")
-                    )
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(curUserPosition, DEFAULT_ZOOM_VALUE.toFloat()))
-                })
-            })
+            mapFragment.getMapAsync(this)
         }
-
 
         // Replace the frameLayout with map fragment
         childFragmentManager
@@ -77,5 +60,20 @@ class GoogleMapsFragment : Fragment() {
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_google_maps_view, container, false)
+    }
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        googleMapsFragmentViewModel
+            .getCurrentLocationLiveData().observe(
+                viewLifecycleOwner, Observer { curUserPosition ->
+                    Log.d("TAG", "#### onMapReady : curUserPosition = ${curUserPosition.toString()}")
+                    googleMap.clear()
+                    googleMap.addMarker(
+                        MarkerOptions()
+                            .position(curUserPosition)
+                            .title("Pascualito is here:${curUserPosition.latitude},${curUserPosition.longitude}")
+                    )
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(curUserPosition, DEFAULT_ZOOM_VALUE.toFloat()))
+                })
     }
 }
