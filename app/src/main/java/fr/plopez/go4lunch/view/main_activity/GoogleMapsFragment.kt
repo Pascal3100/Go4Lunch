@@ -1,5 +1,6 @@
 package fr.plopez.go4lunch.view.main_activity
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -14,6 +15,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.ViewModelFactory
@@ -29,8 +31,6 @@ class GoogleMapsFragment : Fragment(), OnMapReadyCallback {
         fun newInstance(): GoogleMapsFragment {
             return GoogleMapsFragment()
         }
-
-        const val DEFAULT_ZOOM_VALUE = 15
     }
 
     private lateinit var mapFragment: SupportMapFragment
@@ -70,22 +70,36 @@ class GoogleMapsFragment : Fragment(), OnMapReadyCallback {
         return inflater.inflate(R.layout.fragment_google_maps_view, container, false)
     }
 
+    @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
+
+        googleMap.isMyLocationEnabled = true
+
+        var marker: Marker? = null
+
+        googleMap.setOnCameraMoveListener {
+            googleMapsFragmentViewModel.setCurrentZoom(googleMap.cameraPosition.zoom)
+        }
 
         lifecycleScope.launchWhenStarted {
             googleMapsFragmentViewModel.currentLocationStateFlow.collect {
-                googleMap.clear()
-                googleMap.addMarker(
-                    MarkerOptions()
-                        .position(it)
-                        .title("${it.latitude},${it.longitude}")
-                )
+                if (marker == null) {
+                    marker = googleMap.addMarker(
+                                MarkerOptions()
+                                    .position(it)
+                                    .title("${it.latitude},${it.longitude}")
+                    )
+                } else {
+                    marker?.position = it
+                }
+
                 googleMap.moveCamera(
                     CameraUpdateFactory.newLatLngZoom(
                         it,
-                        DEFAULT_ZOOM_VALUE.toFloat()
+                        googleMapsFragmentViewModel.getCurrentZoom()
                     )
                 )
+
             }
         }
 
