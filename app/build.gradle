@@ -53,7 +53,7 @@ dependencies {
 
     implementation 'com.android.support:multidex:1.0.3'
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.5.30"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.core:core-ktx:1.6.0'
@@ -63,7 +63,6 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.3.1")
 
     implementation 'com.github.bumptech.glide:glide:4.12.0'
-    implementation 'com.shobhitpuri.custombuttons:google-signin:1.1.0'
 
     implementation 'com.facebook.android:facebook-login:5.15.3'
     implementation 'com.facebook.android:facebook-android-sdk:5.15.3'
@@ -76,6 +75,21 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth-ktx'
 
     implementation 'com.google.android.libraries.places:places:2.4.0'
+
+    // Retrofit
+    implementation "com.squareup.retrofit2:retrofit:2.9.0" // Core
+    implementation "com.squareup.retrofit2:converter-gson:2.9.0" // Converts JSON to POJO / POKO
+
+    //OkHttp
+    implementation('com.squareup.okhttp3:okhttp') { version { strictly '3.12.12'  } }
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.12.12'
+
+    // Gson
+    implementation 'com.google.code.gson:gson:2.8.6'
+
+    // Kotlin - Coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0"
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
