@@ -73,7 +73,7 @@ class GoogleMapsFragment : Fragment(), OnMapReadyCallback {
     @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
 
-        googleMap.isMyLocationEnabled = true
+        googleMap.isMyLocationEnabled= true
 
         var marker: Marker? = null
 

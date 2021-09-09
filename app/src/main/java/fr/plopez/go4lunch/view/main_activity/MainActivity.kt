@@ -13,11 +13,13 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.FragmentActivity
 import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.ActivityMainBinding
 import fr.plopez.go4lunch.utils.FragmentManager
 import fr.plopez.go4lunch.view.landing_page.LandingPageActivity
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     companion object {
