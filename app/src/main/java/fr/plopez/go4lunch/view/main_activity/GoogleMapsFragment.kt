@@ -2,14 +2,11 @@ package fr.plopez.go4lunch.view.main_activity
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -17,15 +14,15 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
-import fr.plopez.go4lunch.ViewModelFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class GoogleMapsFragment : Fragment(), OnMapReadyCallback {
-
     //
     companion object {
         fun newInstance(): GoogleMapsFragment {
@@ -33,9 +30,9 @@ class GoogleMapsFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    private lateinit var mapFragment: SupportMapFragment
+    @Inject lateinit var mapFragment: SupportMapFragment
 
-    private lateinit var googleMapsFragmentViewModel: GoogleMapsFragmentViewModel
+    private val googleMapsFragmentViewModel: GoogleMapsFragmentViewModel by viewModels()
 
     @ExperimentalCoroutinesApi
     @InternalCoroutinesApi
@@ -44,11 +41,6 @@ class GoogleMapsFragment : Fragment(), OnMapReadyCallback {
         savedInstanceState: Bundle?
     ): View? {
 
-        googleMapsFragmentViewModel = ViewModelProvider(
-            this,
-            ViewModelFactory.INSTANCE
-        )[GoogleMapsFragmentViewModel::class.java]
-
         // Start monitoring user location
         googleMapsFragmentViewModel.monitorUserLocation()
 
@@ -56,7 +48,7 @@ class GoogleMapsFragment : Fragment(), OnMapReadyCallback {
         if (!this::mapFragment.isInitialized) {
 
             // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-            mapFragment = SupportMapFragment.newInstance()
+            // mapFragment = SupportMapFragment.newInstance()
             mapFragment.getMapAsync(this)
         }
 

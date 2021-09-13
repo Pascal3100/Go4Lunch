@@ -2,8 +2,11 @@ package fr.plopez.go4lunch.view.landing_page
 
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseUser
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class LandingPageViewModel: ViewModel() {
+@HiltViewModel
+class LandingPageViewModel @Inject constructor() : ViewModel() {
 
     fun setLoginSuccessful(success: Boolean){
 

@@ -5,14 +5,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.model.LatLng
+import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.plopez.go4lunch.data.repositories.LocationRepository
 import fr.plopez.go4lunch.utils.LocationUpdates
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class GoogleMapsFragmentViewModel(
+@HiltViewModel
+class GoogleMapsFragmentViewModel @Inject constructor(
     private val client: FusedLocationProviderClient,
     private val locationRepository: LocationRepository
 ): ViewModel() {

@@ -29,6 +29,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.ActivityLandingPageBinding
 import fr.plopez.go4lunch.interfaces.OnLoginSuccessful
@@ -37,6 +38,7 @@ import fr.plopez.go4lunch.utils.CustomSnackBar
 import fr.plopez.go4lunch.utils.FragmentManager
 import fr.plopez.go4lunch.view.main_activity.MainActivity
 
+@AndroidEntryPoint
 class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page), OnLoginSuccessful, OnPermissionsAccepted {
 
     companion object {

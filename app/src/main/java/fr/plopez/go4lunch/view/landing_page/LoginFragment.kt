@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
+import androidx.fragment.app.viewModels
 import androidx.transition.TransitionManager
 import com.facebook.AccessToken
 import com.facebook.CallbackManager
@@ -24,16 +25,15 @@ import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.FragmentLoginBinding
 import fr.plopez.go4lunch.utils.CustomSnackBar
-import com.google.firebase.auth.FirebaseUser
+import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.interfaces.OnLoginSuccessful
 import java.lang.ClassCastException
+import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class LoginFragment : Fragment() {
 
     companion object {
@@ -41,18 +41,20 @@ class LoginFragment : Fragment() {
             return LoginFragment()
         }
 
-        private val TAG = "LoginFragment"
+        private const val TAG = "LoginFragment"
 
         // Interface
         private lateinit var onLoginSuccessful: OnLoginSuccessful
 
         // Google authentication code
-        private val GOOGLE_AUTH_REQUEST_CODE = 999
+        private const val GOOGLE_AUTH_REQUEST_CODE = 999
 
         // Loading state
-        private val IS_LOADING_STATE = "IS_LOADING_STATE"
+        private const val IS_LOADING_STATE = "IS_LOADING_STATE"
     }
 
+    // TODO @Nino better solution?
+    //Initialize custom snackBar
     private lateinit var snack : CustomSnackBar
 
     // Loading state
@@ -61,14 +63,15 @@ class LoginFragment : Fragment() {
     // View binding
     private lateinit var binding: FragmentLoginBinding
 
+    // TODO @Nino why is not initialized...
     // Facebook callManager
-    private lateinit var callbackManager : CallbackManager
+    @Inject lateinit var callbackManager : CallbackManager
 
     // Firebase Auth
-    private lateinit var firebaseAuth: FirebaseAuth
+    @Inject lateinit var firebaseAuth: FirebaseAuth
 
-    // ViewModel
-    private val landingPageViewModel = LandingPageViewModel()
+    // ViewModel provided by delegate
+    private val landingPageViewModel by viewModels<LandingPageViewModel>()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -94,21 +97,15 @@ class LoginFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        snack = CustomSnackBar(requireView(), requireContext())
+
         // Restore the previous loading state or initialize it
         if (savedInstanceState != null) {
             loading(savedInstanceState.getBoolean(IS_LOADING_STATE, false))
         } else {
             loading(false)
         }
-
-        //Initialize custom snackBar
-        snack = CustomSnackBar(requireView(), requireContext())
-
-        // Initialize Facebook call manager
-        callbackManager = CallbackManager.Factory.create()
-
-        // Initialize Firebase Auth
-        firebaseAuth = Firebase.auth
 
         // ------------------- Facebook authentication -------------------
         val facebookButton = binding.loginFragmentFacebookLoginButton

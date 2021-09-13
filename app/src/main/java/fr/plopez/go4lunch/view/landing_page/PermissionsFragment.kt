@@ -25,7 +25,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 
 import androidx.core.content.ContextCompat.getSystemService
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class PermissionsFragment : Fragment() {
 
     companion object{

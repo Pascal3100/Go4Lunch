@@ -5,8 +5,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
 
+@AndroidEntryPoint
 class RestaurantDetailsFragment : Fragment() {
 
     // Argument passed to the fragment is the Restaurant id to retrieve it from ViewModel
