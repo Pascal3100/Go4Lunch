@@ -12,12 +12,14 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.commit
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.ActivityMainBinding
-import fr.plopez.go4lunch.utils.FragmentManager
 import fr.plopez.go4lunch.view.landing_page.LandingPageActivity
+import fr.plopez.go4lunch.view.landing_page.LoginFragment
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
@@ -30,7 +32,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private lateinit var binding: ActivityMainBinding
 
-    private val firebaseAuth = FirebaseAuth.getInstance()
+    // Firebase Auth
+    @Inject lateinit var firebaseAuth: FirebaseAuth
 
     private val firebaseAuthListener = FirebaseAuth.AuthStateListener {
         if (it.currentUser == null) {
@@ -160,21 +163,15 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         val container = binding.activityMainFragmentContainer.id
 
         when (itemId) {
-            R.id.map_view_page -> FragmentManager.replace(
-                this,
-                container,
-                GoogleMapsFragment.newInstance()
-            )
-            R.id.list_view_page -> FragmentManager.replace(
-                this,
-                container,
-                ListViewRestaurantFragment.newInstance()
-            )
-            R.id.workmates_view_page -> FragmentManager.replace(
-                this,
-                container,
-                ListWorkmatesFragment.newInstance()
-            )
+            R.id.map_view_page -> supportFragmentManager.commit {
+                replace(container, GoogleMapsFragment.newInstance())
+            }
+            R.id.list_view_page -> supportFragmentManager.commit {
+                replace(container, ListViewRestaurantFragment.newInstance())
+            }
+            R.id.workmates_view_page -> supportFragmentManager.commit {
+                replace(container, ListWorkmatesFragment.newInstance())
+            }
         }
     }
 

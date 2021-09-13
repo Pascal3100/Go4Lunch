@@ -63,7 +63,6 @@ class LoginFragment : Fragment() {
     // View binding
     private lateinit var binding: FragmentLoginBinding
 
-    // TODO @Nino why is not initialized...
     // Facebook callManager
     @Inject lateinit var callbackManager : CallbackManager
 
@@ -75,6 +74,7 @@ class LoginFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+        Log.d(TAG, "#### onAttach: ${context.toString()}")
         if (context is OnLoginSuccessful) {
             onLoginSuccessful = context
         } else {
