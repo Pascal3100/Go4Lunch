@@ -30,6 +30,7 @@ class GoogleMapsFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
+    // Obtain the SupportMapFragment
     @Inject lateinit var mapFragment: SupportMapFragment
 
     private val googleMapsFragmentViewModel: GoogleMapsFragmentViewModel by viewModels()
@@ -44,13 +45,10 @@ class GoogleMapsFragment : Fragment(), OnMapReadyCallback {
         // Start monitoring user location
         googleMapsFragmentViewModel.monitorUserLocation()
 
-        // Build the fragment only if it is not initialized
-        if (!this::mapFragment.isInitialized) {
+        // TODO @Nino : comme j'injecte le SupportMapFragment j'ai viré la if isInitialized sinon il passe jamais de dedans. Right or not?
 
-            // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-            // mapFragment = SupportMapFragment.newInstance()
-            mapFragment.getMapAsync(this)
-        }
+        // Get notified when the map is ready to be used.
+        mapFragment.getMapAsync(this)
 
         // Replace the frameLayout with map fragment
         childFragmentManager
@@ -65,7 +63,7 @@ class GoogleMapsFragment : Fragment(), OnMapReadyCallback {
     @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
 
-        googleMap.isMyLocationEnabled= true
+        googleMap.isMyLocationEnabled = true
 
         var marker: Marker? = null
 
