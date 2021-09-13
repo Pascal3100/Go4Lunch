@@ -45,8 +45,9 @@ class GoogleMapsFragment : Fragment(), OnMapReadyCallback {
         // Start monitoring user location
         googleMapsFragmentViewModel.monitorUserLocation()
 
-        // TODO @Nino : comme j'injecte le SupportMapFragment j'ai viré la if isInitialized sinon il passe jamais de dedans. Right or not?
-
+        // TODO @Nino : comme j'injecte le SupportMapFragment j'ai viré la if isInitialized
+        // sinon il passe jamais dedans. Right or not?
+        // ----- ??? -----
         // Get notified when the map is ready to be used.
         mapFragment.getMapAsync(this)
 
@@ -65,33 +66,22 @@ class GoogleMapsFragment : Fragment(), OnMapReadyCallback {
 
         googleMap.isMyLocationEnabled = true
 
-        var marker: Marker? = null
-
         googleMap.setOnCameraMoveListener {
+            // TODO @Nino : is it good to do a setter here?
             googleMapsFragmentViewModel.setCurrentZoom(googleMap.cameraPosition.zoom)
         }
 
         lifecycleScope.launchWhenStarted {
-            googleMapsFragmentViewModel.currentLocationStateFlow.collect {
-                if (marker == null) {
-                    marker = googleMap.addMarker(
-                                MarkerOptions()
-                                    .position(it)
-                                    .title("${it.latitude},${it.longitude}")
-                    )
-                } else {
-                    marker?.position = it
-                }
 
-                googleMap.moveCamera(
-                    CameraUpdateFactory.newLatLngZoom(
-                        it,
-                        googleMapsFragmentViewModel.getCurrentZoom()
-                    )
+            googleMapsFragmentViewModel.currentLocationFlow.collect {
+
+                // TODO : eventually put a custom marker on the user position
+
+                // Just center the camera on the new position
+                googleMap.animateCamera(
+                    CameraUpdateFactory.newLatLngZoom(it.position, it.zoom)
                 )
-
             }
         }
-
     }
 }

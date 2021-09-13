@@ -1,47 +1,47 @@
 package fr.plopez.go4lunch.view.main_activity
 
+import android.util.Log
 import kotlinx.coroutines.flow.collect
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.plopez.go4lunch.data.repositories.LocationRepository
-import fr.plopez.go4lunch.utils.LocationUpdates
+import fr.plopez.go4lunch.view.model.PositionViewState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class GoogleMapsFragmentViewModel @Inject constructor(
-    private val client: FusedLocationProviderClient,
     private val locationRepository: LocationRepository
-): ViewModel() {
+) : ViewModel() {
 
     companion object {
         private val TAG = "Google Maps ViewModel"
     }
 
-    val currentLocationStateFlow: StateFlow<LatLng> = locationRepository.curLocationStateFlow
+    var currentLocationMutableStateFlow = MutableStateFlow(PositionViewState(LatLng(0.0, 0.0), 0.0F))
+    val currentLocationFlow: Flow<PositionViewState> = currentLocationMutableStateFlow
 
     @InternalCoroutinesApi
     @ExperimentalCoroutinesApi
     fun monitorUserLocation() {
-        val locationUpdates = LocationUpdates(client)
         viewModelScope.launch {
-            locationUpdates
-                .fetchUpdates()
-                .collect {
-                    locationRepository.curLocationMutableStateFlow.value = it
-                }
+            locationRepository.fetchUpdates().collect {
+                //
+                // TODO : Send a request to Retrofit with the new location value to update Restaurants list
+
+                currentLocationMutableStateFlow.value = it
+            }
         }
     }
 
-    fun setCurrentZoom(zoom:Float){
-        locationRepository.currentZoom = zoom
+    fun setCurrentZoom(zoom: Float) {
+        locationRepository.currentZoomMutableStateFlow.value = zoom
     }
-
-    fun getCurrentZoom() = locationRepository.currentZoom
 }
