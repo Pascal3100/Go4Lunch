@@ -7,24 +7,19 @@ import com.google.android.material.snackbar.Snackbar
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.view.main_activity.MainActivity
 
-class CustomSnackBar constructor(private val parentView: View,
-                                 private val parentContext: Context) {
+class CustomSnackBar constructor(private val parentView: View) {
 
     private lateinit var snackbar: Snackbar
 
     private fun initSnackBar(message: String) {
-        snackbar = Snackbar.make(
-            parentView,
-            message,
-            Snackbar.LENGTH_SHORT
-        )
+        snackbar =
     }
 
-    fun showNormalSnackBar(message: String) {
+    fun showNormalSnackBar(message): String {
         initSnackBar(message)
 
-        snackbar.setBackgroundTint(ContextCompat.getColor(parentContext, R.color.grey))
-        snackbar.setTextColor(ContextCompat.getColor(parentContext, R.color.white))
+        snackbar.setBackgroundTint(ContextCompat.getColor(parentView.context, R.color.grey))
+        snackbar.setTextColor(ContextCompat.getColor(parentView.context, R.color.white))
 
         snackbar.show()
     }
@@ -32,8 +27,8 @@ class CustomSnackBar constructor(private val parentView: View,
     fun showWarningSnackBar(message: String) {
         initSnackBar(message)
 
-        snackbar.setBackgroundTint(ContextCompat.getColor(parentContext, R.color.yellow_warning))
-        snackbar.setTextColor(ContextCompat.getColor(parentContext, R.color.light_grey))
+        snackbar.setBackgroundTint(ContextCompat.getColor(parentView.context, R.color.yellow_warning))
+        snackbar.setTextColor(ContextCompat.getColor(parentView.context, R.color.light_grey))
 
         snackbar.show()
     }
@@ -41,8 +36,8 @@ class CustomSnackBar constructor(private val parentView: View,
     fun showErrorSnackBar(message: String) {
         initSnackBar(message)
 
-        snackbar.setBackgroundTint(ContextCompat.getColor(parentContext, R.color.redish_whisky))
-        snackbar.setTextColor(ContextCompat.getColor(parentContext, R.color.white))
+        snackbar.setBackgroundTint(ContextCompat.getColor(parentView.context, R.color.redish_whisky))
+        snackbar.setTextColor(ContextCompat.getColor(parentView.context, R.color.white))
 
         snackbar.show()
     }

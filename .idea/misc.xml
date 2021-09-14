@@ -8,10 +8,11 @@
         <entry key="..\:/PLOPEZ/WORK/EAGLE/P07/Go4Lunch/app/src/main/res/layout/fragment_login.xml" value="0.2962962962962963" />
         <entry key="..\:/PLOPEZ/WORK/EAGLE/P07/Go4Lunch/app/src/main/res/layout/fragment_permissions.xml" value="0.2962962962962963" />
         <entry key="..\:/PLOPEZ/WORK/EAGLE/P07/Go4Lunch/app/src/main/res/menu/navigation_drawer_menu.xml" value="0.2911737943585077" />
+        <entry key="..\:/Work/oc/pascal/Go4Lunch/app/src/main/res/layout/fragment_google_maps_view.xml" value="0.31296296296296294" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

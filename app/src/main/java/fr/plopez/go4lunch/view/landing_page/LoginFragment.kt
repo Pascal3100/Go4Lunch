@@ -4,11 +4,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.transition.TransitionManager
 import com.facebook.AccessToken
@@ -21,16 +22,15 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.FragmentLoginBinding
-import fr.plopez.go4lunch.utils.CustomSnackBar
-import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.interfaces.OnLoginSuccessful
-import java.lang.ClassCastException
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -53,10 +53,6 @@ class LoginFragment : Fragment() {
         private const val IS_LOADING_STATE = "IS_LOADING_STATE"
     }
 
-    // TODO @Nino better solution?
-    //Initialize custom snackBar
-    private lateinit var snack : CustomSnackBar
-
     // Loading state
     private var isLoading = false
 
@@ -64,10 +60,12 @@ class LoginFragment : Fragment() {
     private lateinit var binding: FragmentLoginBinding
 
     // Facebook callManager
-    @Inject lateinit var callbackManager : CallbackManager
+    @Inject
+    lateinit var callbackManager: CallbackManager
 
     // Firebase Auth
-    @Inject lateinit var firebaseAuth: FirebaseAuth
+    @Inject
+    lateinit var firebaseAuth: FirebaseAuth
 
     // ViewModel provided by delegate
     private val landingPageViewModel by viewModels<LandingPageViewModel>()
@@ -80,7 +78,7 @@ class LoginFragment : Fragment() {
         } else {
             throw ClassCastException(
                 context.toString()
-                        + " must implement OnLoginSuccessful"
+                    + " must implement OnLoginSuccessful"
             )
         }
     }
@@ -97,8 +95,6 @@ class LoginFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
-        snack = CustomSnackBar(requireView(), requireContext())
 
         // Restore the previous loading state or initialize it
         if (savedInstanceState != null) {
@@ -152,7 +148,14 @@ class LoginFragment : Fragment() {
             }
 
             override fun onCancel() {
-                snack.showWarningSnackBar("Facebook login cancelled")
+                Snackbar.make(
+                    binding.root,
+                    "Facebook login cancelled",
+                    Snackbar.LENGTH_SHORT
+                ).apply {
+                    setBackgroundTint(ContextCompat.getColor(binding.root.context, R.color.redish_whisky))
+                    setTextColor(ContextCompat.getColor(binding.root.context, R.color.white))
+                }.show()
             }
 
             override fun onError(error: FacebookException?) {
@@ -162,8 +165,8 @@ class LoginFragment : Fragment() {
     }
 
     // FaceBook authentication on Firebase
-    private fun firebaseAuthWithFacebook(token: AccessToken){
-        val credential :AuthCredential = FacebookAuthProvider.getCredential(token.token)
+    private fun firebaseAuthWithFacebook(token: AccessToken) {
+        val credential: AuthCredential = FacebookAuthProvider.getCredential(token.token)
         signInToFirebase(credential)
     }
 
@@ -230,7 +233,7 @@ class LoginFragment : Fragment() {
             try {
                 val account: GoogleSignInAccount = task.getResult(ApiException::class.java)
 
-                    firebaseAuthWithGoogle(account)
+                firebaseAuthWithGoogle(account)
 
             } catch (e: ApiException) {
                 // The ApiException status code indicates the detailed failure reason.

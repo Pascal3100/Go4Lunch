@@ -19,11 +19,3 @@ class FusedLocationProvider {
     fun provideFusedLocationProviderClient(@ApplicationContext context : Context): FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(context)
 }
-
-@InstallIn(ActivityComponent::class)
-@Module
-class GoogleMapsProvider {
-
-    @Provides
-    fun provideMapFragment(): SupportMapFragment = SupportMapFragment.newInstance()
-}

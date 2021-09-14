@@ -71,8 +71,8 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page), O
 
     // On permissions accepted go to main activity, else back to login page
     override fun onPermissionsAccepted(accepted: Boolean) {
-        val manager = getSystemService(LOCATION_SERVICE) as LocationManager?
-        if (accepted && manager!!.isProviderEnabled(LocationManager.GPS_PROVIDER) ) {
+        val manager = getSystemService(LOCATION_SERVICE) as LocationManager
+        if (accepted && manager.isProviderEnabled(LocationManager.GPS_PROVIDER) ) {
             goMainActivity()
         } else {
             supportFragmentManager.commit {
