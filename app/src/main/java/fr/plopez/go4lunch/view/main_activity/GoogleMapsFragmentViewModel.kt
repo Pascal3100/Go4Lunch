@@ -1,5 +1,7 @@
 package fr.plopez.go4lunch.view.main_activity
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.content.res.Resources
 import android.util.Log
 import kotlinx.coroutines.flow.collect
@@ -7,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.data.repositories.LocationRepository
 import fr.plopez.go4lunch.view.model.PositionViewState
@@ -18,9 +21,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@SuppressLint("StaticFieldLeak")
 @HiltViewModel
 class GoogleMapsFragmentViewModel @Inject constructor(
-    private val locationRepository: LocationRepository
+    private val locationRepository: LocationRepository,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     companion object {
@@ -30,7 +35,7 @@ class GoogleMapsFragmentViewModel @Inject constructor(
     var currentLocationMutableStateFlow = MutableStateFlow(
         PositionViewState(
             LatLng(0.0, 0.0),
-            Resources.getSystem().getString(R.string.default_zoom_value).toFloat()
+            context.resources.getString(R.string.default_zoom_value).toFloat()
         )
     )
     val currentLocationFlow: Flow<PositionViewState> = currentLocationMutableStateFlow

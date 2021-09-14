@@ -1,6 +1,7 @@
 package fr.plopez.go4lunch.data.repositories
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.res.Resources
 import android.os.Looper
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -8,7 +9,9 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.maps.model.LatLng
+import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.plopez.go4lunch.R
+import fr.plopez.go4lunch.utils.Go4LunchApp
 import fr.plopez.go4lunch.view.model.PositionViewState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
@@ -22,7 +25,8 @@ import javax.inject.Singleton
 
 @Singleton
 class LocationRepository @Inject constructor(
-    private val client: FusedLocationProviderClient
+    private val client: FusedLocationProviderClient,
+    @ApplicationContext private val context: Context
     ) {
 
     companion object {
@@ -33,7 +37,7 @@ class LocationRepository @Inject constructor(
     }
 
     var currentZoomMutableStateFlow = MutableStateFlow(
-        Resources.getSystem().getString(R.string.default_zoom_value).toFloat()
+        context.resources.getString(R.string.default_zoom_value).toFloat()
     )
 
     @ExperimentalCoroutinesApi
