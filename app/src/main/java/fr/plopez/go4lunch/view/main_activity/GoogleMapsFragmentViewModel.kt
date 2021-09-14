@@ -1,11 +1,13 @@
 package fr.plopez.go4lunch.view.main_activity
 
+import android.content.res.Resources
 import android.util.Log
 import kotlinx.coroutines.flow.collect
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
+import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.data.repositories.LocationRepository
 import fr.plopez.go4lunch.view.model.PositionViewState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -25,7 +27,12 @@ class GoogleMapsFragmentViewModel @Inject constructor(
         private val TAG = "Google Maps ViewModel"
     }
 
-    var currentLocationMutableStateFlow = MutableStateFlow(PositionViewState(LatLng(0.0, 0.0), 0.0F))
+    var currentLocationMutableStateFlow = MutableStateFlow(
+        PositionViewState(
+            LatLng(0.0, 0.0),
+            Resources.getSystem().getString(R.string.default_zoom_value).toFloat()
+        )
+    )
     val currentLocationFlow: Flow<PositionViewState> = currentLocationMutableStateFlow
 
     @InternalCoroutinesApi
@@ -36,6 +43,7 @@ class GoogleMapsFragmentViewModel @Inject constructor(
                 //
                 // TODO : Send a request to Retrofit with the new location value to update Restaurants list
 
+                // Just update value to trigger the position on the UI
                 currentLocationMutableStateFlow.value = it
             }
         }

@@ -1,12 +1,14 @@
 package fr.plopez.go4lunch.data.repositories
 
 import android.annotation.SuppressLint
+import android.content.res.Resources
 import android.os.Looper
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.maps.model.LatLng
+import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.view.model.PositionViewState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
@@ -24,14 +26,15 @@ class LocationRepository @Inject constructor(
     ) {
 
     companion object {
-        private const val DEFAULT_ZOOM_VALUE = 15
         private const val MAX_INTERVAL_SECS = 60L
         private const val UPDATE_INTERVAL_SECS = 60L
         private const val FASTEST_UPDATE_INTERVAL_SECS = 10L
         private const val SMALLEST_DISPLACEMENT_METERS = 20F
     }
 
-    var currentZoomMutableStateFlow = MutableStateFlow(DEFAULT_ZOOM_VALUE.toFloat())
+    var currentZoomMutableStateFlow = MutableStateFlow(
+        Resources.getSystem().getString(R.string.default_zoom_value).toFloat()
+    )
 
     @ExperimentalCoroutinesApi
     @SuppressLint("MissingPermission")
