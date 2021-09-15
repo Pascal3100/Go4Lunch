@@ -30,9 +30,6 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page), O
 
     private lateinit var snack: CustomSnackBar
 
-    private var permissionsAccepted = false
-    private var gpsActivated = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

@@ -2,27 +2,17 @@ package fr.plopez.go4lunch.view.main_activity
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.*
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.AndroidEntryPoint
-import fr.plopez.go4lunch.R
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.collect
-import javax.inject.Inject
 
 @AndroidEntryPoint
-class GoogleMapsFragment : Fragment(), OnMapReadyCallback {
+class GoogleMapsFragment : SupportMapFragment(), OnMapReadyCallback {
     //
     companion object {
         fun newInstance(): GoogleMapsFragment {
@@ -30,57 +20,55 @@ class GoogleMapsFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    // Obtain the SupportMapFragment
-    @Inject lateinit var mapFragment: SupportMapFragment
+    private val googleMapsViewModel: GoogleMapsViewModel by viewModels()
 
-    private val googleMapsFragmentViewModel: GoogleMapsFragmentViewModel by viewModels()
+    private var onLoadFragment = true
 
-    @ExperimentalCoroutinesApi
-    @InternalCoroutinesApi
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        // Start monitoring user location
-        googleMapsFragmentViewModel.monitorUserLocation()
-
-        // TODO @Nino : comme j'injecte le SupportMapFragment j'ai viré la if isInitialized
-        // sinon il passe jamais dedans. Right or not?
-        // ----- ??? -----
         // Get notified when the map is ready to be used.
-        mapFragment.getMapAsync(this)
-
-        // Replace the frameLayout with map fragment
-        childFragmentManager
-            .beginTransaction()
-            .replace(R.id.google_maps_view_fragment_container, mapFragment)
-            .commit()
-
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_google_maps_view, container, false)
+        getMapAsync(this)
     }
 
+    @InternalCoroutinesApi
     @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
 
+        // Notify the viewModel that Map is ready to work
+        googleMapsViewModel.onMapReady()
+
         googleMap.isMyLocationEnabled = true
 
+        // Notify the viewModel that zoom value has been changed and provides it
         googleMap.setOnCameraMoveListener {
-            // TODO @Nino : is it good to do a setter here?
-            googleMapsFragmentViewModel.setCurrentZoom(googleMap.cameraPosition.zoom)
+            googleMapsViewModel.OnZoomChanged(googleMap.cameraPosition.zoom)
         }
 
         lifecycleScope.launchWhenStarted {
 
-            googleMapsFragmentViewModel.currentLocationFlow.collect {
+            googleMapsViewModel.googleMapViewSharedFlow.collect {
 
                 // TODO : eventually put a custom marker on the user position
 
                 // Just center the camera on the new position
-                googleMap.animateCamera(
-                    CameraUpdateFactory.newLatLngZoom(it.position, it.zoom)
-                )
+                // The onLoadFragment is used to not animate camera when map is loaded.
+                if (onLoadFragment) {
+                    onLoadFragment = false
+                    googleMap.moveCamera(
+                        CameraUpdateFactory.newLatLngZoom(
+                            LatLng(it.latitude, it.longitude),
+                            it.zoom
+                        )
+                    )
+                } else {
+                    googleMap.animateCamera(
+                        CameraUpdateFactory.newLatLngZoom(
+                            LatLng(it.latitude, it.longitude),
+                            it.zoom
+                        )
+                    )
+                }
             }
         }
     }

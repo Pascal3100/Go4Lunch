@@ -35,6 +35,9 @@
 
     <!--  Google Maps -->
     <string name="default_zoom_value">15.0</string>
+    <string name="default_lat_value">43.6067724</string>
+    <string name="default_long_value">1.4371122</string>
+
     <string name="nearby_api_url">https://maps.googleapis.com/maps/api/place/nearbysearch</string>
     <string name="place_api_url">https://maps.googleapis.com/maps/api/place/findplacefromtext</string>
 
