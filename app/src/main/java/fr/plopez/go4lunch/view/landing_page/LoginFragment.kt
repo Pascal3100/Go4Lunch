@@ -152,11 +152,11 @@ class LoginFragment : Fragment() {
             }
 
             override fun onCancel() {
-                snack.showWarningSnackBar("Facebook login cancelled")
+                snack.showWarningSnackBar(getString(R.string.facebook_canceled_connection_message))
             }
 
             override fun onError(error: FacebookException?) {
-                snack.showErrorSnackBar("Facebook login failed: ${error.toString()}")
+                snack.showErrorSnackBar(getString(R.string.facebook_connection_failed_message))
             }
         })
     }
@@ -206,7 +206,7 @@ class LoginFragment : Fragment() {
 
                 } else {
                     loading(false)
-                    snack.showWarningSnackBar("Hey, you're not connected")
+                    snack.showWarningSnackBar(getString(R.string.not_connected_message))
                     onLoginSuccessful.onLoginSuccessful(false)
                 }
             }
@@ -236,7 +236,7 @@ class LoginFragment : Fragment() {
                 // The ApiException status code indicates the detailed failure reason.
                 // Please refer to the GoogleSignInStatusCodes class reference for more information.
                 loading(false)
-                snack.showErrorSnackBar("Google sign in failed.")
+                snack.showErrorSnackBar(getString(R.string.google_connection_failed_message))
             }
         }
     }

@@ -40,5 +40,13 @@
 
     <string name="nearby_api_url">https://maps.googleapis.com/maps/api/place/nearbysearch</string>
     <string name="place_api_url">https://maps.googleapis.com/maps/api/place/findplacefromtext</string>
+    <string name="no_response_message">no restaurant around you</string>
+    <string name="no_internet_message">It seems you have no internet</string>
+    <string name="network_error_message">network error while requesting data</string>
+    <string name="accept_permissions_message">Please accept permissions and activate GPS to continue</string>
+    <string name="facebook_canceled_connection_message">Facebook login cancelled</string>
+    <string name="facebook_connection_failed_message">Facebook login failed</string>
+    <string name="not_connected_message">Hey, you\'re not connected</string>
+    <string name="google_connection_failed_message">Google sign in failed</string>
 
 </resources>

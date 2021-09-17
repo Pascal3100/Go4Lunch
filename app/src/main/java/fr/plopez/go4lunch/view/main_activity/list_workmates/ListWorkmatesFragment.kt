@@ -1,4 +1,4 @@
-package fr.plopez.go4lunch.view.main_activity
+package fr.plopez.go4lunch.view.main_activity.list_workmates
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment

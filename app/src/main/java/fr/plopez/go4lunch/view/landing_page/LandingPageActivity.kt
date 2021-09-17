@@ -51,7 +51,6 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page), O
 
     // Navigation utility
     private fun goMainActivity() {
-        // TODO : add here an observer to check when user is logged and permissions are accepted
         startActivity(MainActivity.navigate(this))
     }
 
@@ -76,7 +75,7 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page), O
                 replace(R.id.landing_page_fragment_container, LoginFragment.newInstance())
                 setReorderingAllowed(true)
             }
-            snack.showWarningSnackBar("Please accept permissions and activate GPS to continue")
+            snack.showWarningSnackBar(getString(R.string.accept_permissions_message))
         }
     }
 

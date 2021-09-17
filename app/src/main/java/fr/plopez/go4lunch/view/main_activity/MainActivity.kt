@@ -18,7 +18,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.ActivityMainBinding
 import fr.plopez.go4lunch.view.landing_page.LandingPageActivity
-import fr.plopez.go4lunch.view.landing_page.LoginFragment
+import fr.plopez.go4lunch.view.main_activity.google_maps.GoogleMapsFragment
+import fr.plopez.go4lunch.view.main_activity.list_workmates.ListWorkmatesFragment
+import kotlinx.coroutines.InternalCoroutinesApi
 import javax.inject.Inject
 
 @AndroidEntryPoint

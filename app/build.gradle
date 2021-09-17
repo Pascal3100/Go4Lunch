@@ -70,6 +70,9 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
+    // Provides lifecycle and coroutines scopes
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.4.0-alpha03"
+
     //ViewModels delegation extensions for activity
     implementation 'androidx.activity:activity-ktx:1.3.1'
     //ViewModels delegation extensions for fragment

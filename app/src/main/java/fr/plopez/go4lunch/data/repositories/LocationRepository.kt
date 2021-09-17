@@ -26,7 +26,7 @@ class LocationRepository @Inject constructor(
     companion object {
         private const val MAX_INTERVAL_SECS = 60L
         private const val UPDATE_INTERVAL_SECS = 60L
-        private const val FASTEST_UPDATE_INTERVAL_SECS = 10L
+        private const val FASTEST_UPDATE_INTERVAL_SECS = 2L
         private const val SMALLEST_DISPLACEMENT_METERS = 20F
     }
 
@@ -73,5 +73,6 @@ class LocationRepository @Inject constructor(
     data class PositionWithZoom (
         val latitude : Double,
         val longitude : Double,
-        val zoom : Float)
+        val zoom : Float
+        )
 }
