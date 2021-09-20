@@ -1,33 +1,23 @@
 package fr.plopez.go4lunch.data.repositories
 
-import android.location.Location
 import fr.plopez.go4lunch.data.model.restaurant.Restaurant
 import fr.plopez.go4lunch.di.NearbyParameters
 import fr.plopez.go4lunch.interfaces.RestaurantNearbyService
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
 class RestaurantsRepository @Inject constructor(
-    private val restaurantNearbyService: RestaurantNearbyService
+    private val restaurantNearbyService: RestaurantNearbyService,
+    private val nearbyParameters: NearbyParameters
 ) {
-    private val responseStatusMutableStateFlow = MutableStateFlow<ResponseStatus>(ResponseStatus.Empty)
-    val responseStatusStateFlow = responseStatusMutableStateFlow.asStateFlow()
-    @Inject lateinit var nearbyParameters: NearbyParameters
-
-    // Todo : this should be in a DB
-    private var firstTime = true
-    private var previousLatitude  = "0"
-    private var previousLongitude = "0"
-    private var previousListRestaurants : List<Restaurant> = emptyList()
+    //private val cache : Map<???, List<Restaurant>> = mapOf()
 
     suspend fun getRestaurantsAroundPosition(
         latitude: String,
         longitude: String,
         radius: String,
-    ): List<Restaurant> {
+    ): ResponseStatus {
 
         // check for distance between last and actual request
 
@@ -46,36 +36,29 @@ class RestaurantsRepository @Inject constructor(
                 radius
             )
 
-            if (response.isSuccessful && response.body() != null){
-                responseStatusMutableStateFlow.value = ResponseStatus.ResponseOk
-                return response.body()!!
+            val responseBody = response.body()
+
+            return if (response.isSuccessful && responseBody != null) {
+                ResponseStatus.Success(responseBody)
             } else {
-                responseStatusMutableStateFlow.value = ResponseStatus.NoResponse
+                ResponseStatus.NoResponse
             }
-
         } catch (e: IOException) {
-            responseStatusMutableStateFlow.value = ResponseStatus.StatusError.IOException
-
+            return ResponseStatus.StatusError.IOException
         } catch (e: HttpException) {
-            responseStatusMutableStateFlow.value = ResponseStatus.StatusError.HttpException
+            return ResponseStatus.StatusError.HttpException
         }
-
-        // Return an empty list for all non ok states
-        return emptyList()
     }
 
     sealed class ResponseStatus {
 
-        object Empty:ResponseStatus()
+        object NoResponse : ResponseStatus()
 
-        object NoResponse:ResponseStatus()
+        data class Success(val data: List<Restaurant>) : ResponseStatus()
 
-        object ResponseOk:ResponseStatus()
-
-        sealed class StatusError:ResponseStatus(){
-            object IOException:StatusError()
-            object HttpException:StatusError()
+        sealed class StatusError : ResponseStatus() {
+            object IOException : StatusError()
+            object HttpException : StatusError()
         }
-
     }
 }

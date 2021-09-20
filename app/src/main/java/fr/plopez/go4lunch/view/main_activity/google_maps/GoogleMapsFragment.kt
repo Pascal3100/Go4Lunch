@@ -13,13 +13,10 @@ import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.utils.CustomSnackBar
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 
-
 @ExperimentalCoroutinesApi
-@InternalCoroutinesApi
 @AndroidEntryPoint
 class GoogleMapsFragment : SupportMapFragment(), OnMapReadyCallback {
     //
@@ -87,8 +84,8 @@ class GoogleMapsFragment : SupportMapFragment(), OnMapReadyCallback {
                 // TODO : Put a custom marker on the restaurant position
 
                 // Add markers for proxy restaurants
-                if (it.restaurantList.isNotEmpty()) {
-                    it.restaurantList.forEach { restaurantViewSate ->
+                if (it.items.isNotEmpty()) {
+                    it.items.forEach { restaurantViewSate ->
                         googleMap.addMarker(
                             MarkerOptions()
                                 .position(
@@ -102,18 +99,14 @@ class GoogleMapsFragment : SupportMapFragment(), OnMapReadyCallback {
                     }
                 }
             }
+        }
+
+        lifecycleScope.launchWhenStarted {
 
             // Collect the request status flow
-            googleMapsViewModel.responseStatusStateFlow.collect {
+            googleMapsViewModel.googleMapViewActionFlow.collect {
                 when (it) {
-                    RestaurantsRepository.ResponseStatus.NoResponse ->
-                        snackbar.showWarningSnackBar(getString(R.string.no_response_message))
-                    RestaurantsRepository.ResponseStatus.StatusError.IOException ->
-                        snackbar.showWarningSnackBar(getString(R.string.no_internet_message))
-                    RestaurantsRepository.ResponseStatus.StatusError.HttpException ->
-                        snackbar.showWarningSnackBar(getString(R.string.network_error_message))
-                    else -> return@collect
-
+                    is GoogleMapsViewModel.GoogleMapViewAction.Toast -> snackbar.showWarningSnackBar(getString(it.messageResId))
                 }
             }
         }
