@@ -20,7 +20,8 @@ import fr.plopez.go4lunch.databinding.ActivityMainBinding
 import fr.plopez.go4lunch.view.landing_page.LandingPageActivity
 import fr.plopez.go4lunch.view.main_activity.google_maps.GoogleMapsFragment
 import fr.plopez.go4lunch.view.main_activity.list_workmates.ListWorkmatesFragment
-import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collect
 import javax.inject.Inject
 
 @AndroidEntryPoint

@@ -4,9 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
@@ -17,7 +15,8 @@ import fr.plopez.go4lunch.utils.CustomSnackBar
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collectLatest
+
 
 @ExperimentalCoroutinesApi
 @InternalCoroutinesApi
@@ -60,65 +59,61 @@ class GoogleMapsFragment : SupportMapFragment(), OnMapReadyCallback {
             googleMapsViewModel.onZoomChanged(googleMap.cameraPosition.zoom)
         }
 
-        lifecycleScope.launch {
-            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // Collect the position flow
-                googleMapsViewModel.googleMapViewSharedFlow.collect {
+        lifecycleScope.launchWhenStarted {
 
-                    // TODO : eventually put a custom marker on the user position
+            googleMapsViewModel.googleMapViewStateSharedFlow.collectLatest {
 
-                    // Just center the camera on the new position
-                    // The onLoadFragment is used to not animate camera when map is loaded.
-                    if (onLoadFragment) {
-                        onLoadFragment = false
-                        googleMap.moveCamera(
-                            CameraUpdateFactory.newLatLngZoom(
-                                LatLng(it.latitude, it.longitude),
-                                it.zoom
-                            )
+                // TODO : eventually put a custom marker on the user position
+
+                // Just center the camera on the new position
+                // The onLoadFragment is used to not animate camera when map is loaded.
+                if (onLoadFragment) {
+                    onLoadFragment = false
+                    googleMap.moveCamera(
+                        CameraUpdateFactory.newLatLngZoom(
+                            LatLng(it.latitude, it.longitude),
+                            it.zoom
                         )
-                    } else {
-                        googleMap.animateCamera(
-                            CameraUpdateFactory.newLatLngZoom(
-                                LatLng(it.latitude, it.longitude),
-                                it.zoom
-                            )
+                    )
+                } else {
+                    googleMap.animateCamera(
+                        CameraUpdateFactory.newLatLngZoom(
+                            LatLng(it.latitude, it.longitude),
+                            it.zoom
                         )
-                    }
+                    )
                 }
 
-                // Collect the restaurant list flow
-                googleMapsViewModel.listRestaurantViewStateFlow.collect {
+                // TODO : Put a custom marker on the restaurant position
 
-                    // TODO : Put a custom marker on the restaurant position
-
-                    // Add markers for proxy restaurants
-                    if (it.isNotEmpty()) {
-                        it.forEach { restaurantViewSate ->
-                            googleMap.addMarker(
-                                MarkerOptions()
-                                    .position(
-                                        LatLng(
-                                            restaurantViewSate.latitude,
-                                            restaurantViewSate.longitude
-                                        )
+                // Add markers for proxy restaurants
+                if (it.restaurantList.isNotEmpty()) {
+                    it.restaurantList.forEach { restaurantViewSate ->
+                        googleMap.addMarker(
+                            MarkerOptions()
+                                .position(
+                                    LatLng(
+                                        restaurantViewSate.latitude,
+                                        restaurantViewSate.longitude
                                     )
-                                    .title(restaurantViewSate.name)
-                            )
-                        }
+                                )
+                                .title(restaurantViewSate.name)
+                        )
                     }
                 }
+            }
 
-                // Collect the request status flow
-                googleMapsViewModel.responseStatusStateFlow.collect {
-                    when (it) {
-                        RestaurantsRepository.ResponseStatus.NoResponse ->
-                            snackbar.showWarningSnackBar(getString(R.string.no_response_message))
-                        RestaurantsRepository.ResponseStatus.StatusError.IOException ->
-                            snackbar.showWarningSnackBar(getString(R.string.no_internet_message))
-                        RestaurantsRepository.ResponseStatus.StatusError.HttpException ->
-                            snackbar.showWarningSnackBar(getString(R.string.network_error_message))
-                    }
+            // Collect the request status flow
+            googleMapsViewModel.responseStatusStateFlow.collect {
+                when (it) {
+                    RestaurantsRepository.ResponseStatus.NoResponse ->
+                        snackbar.showWarningSnackBar(getString(R.string.no_response_message))
+                    RestaurantsRepository.ResponseStatus.StatusError.IOException ->
+                        snackbar.showWarningSnackBar(getString(R.string.no_internet_message))
+                    RestaurantsRepository.ResponseStatus.StatusError.HttpException ->
+                        snackbar.showWarningSnackBar(getString(R.string.network_error_message))
+                    else -> return@collect
+
                 }
             }
         }

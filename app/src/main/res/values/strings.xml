@@ -35,6 +35,8 @@
 
     <!--  Google Maps -->
     <string name="default_zoom_value">15.0</string>
+    <string name="default_detection_radius_value">1000</string>
+
     <string name="default_lat_value">43.6067724</string>
     <string name="default_long_value">1.4371122</string>
 

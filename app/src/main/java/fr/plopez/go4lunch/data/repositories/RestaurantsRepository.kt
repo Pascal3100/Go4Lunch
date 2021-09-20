@@ -1,5 +1,6 @@
 package fr.plopez.go4lunch.data.repositories
 
+import android.location.Location
 import fr.plopez.go4lunch.data.model.restaurant.Restaurant
 import fr.plopez.go4lunch.di.NearbyParameters
 import fr.plopez.go4lunch.interfaces.RestaurantNearbyService
@@ -12,16 +13,30 @@ import javax.inject.Inject
 class RestaurantsRepository @Inject constructor(
     private val restaurantNearbyService: RestaurantNearbyService
 ) {
-
     private val responseStatusMutableStateFlow = MutableStateFlow<ResponseStatus>(ResponseStatus.Empty)
     val responseStatusStateFlow = responseStatusMutableStateFlow.asStateFlow()
     @Inject lateinit var nearbyParameters: NearbyParameters
+
+    // Todo : this should be in a DB
+    private var firstTime = true
+    private var previousLatitude  = "0"
+    private var previousLongitude = "0"
+    private var previousListRestaurants : List<Restaurant> = emptyList()
 
     suspend fun getRestaurantsAroundPosition(
         latitude: String,
         longitude: String,
         radius: String,
     ): List<Restaurant> {
+
+        // check for distance between last and actual request
+
+//        Location.distanceBetween(
+//            previousLatitude.toDouble(),
+//            previousLongitude.toDouble(),
+//            latitude.toDouble(),
+//            longitude.toDouble()
+
         try {
             val location = "$latitude,$longitude"
             val response = restaurantNearbyService.getNearbyRestaurants(

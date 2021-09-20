@@ -6,10 +6,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.data.model.restaurant.Restaurant
 import fr.plopez.go4lunch.data.repositories.LocationRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
@@ -31,12 +33,19 @@ class GoogleMapsViewModel @Inject constructor(
     // Position flow
     private val googleMapViewStateMutableSharedFlow =
         MutableSharedFlow<GoogleMapViewState>(replay = 1)
-    val googleMapViewSharedFlow = googleMapViewStateMutableSharedFlow.asSharedFlow()
+    val googleMapViewStateSharedFlow = googleMapViewStateMutableSharedFlow.asSharedFlow()
 
     // Restaurants list flow
-    private val listRestaurantViewStateMutableStateFlow =
-        MutableStateFlow(emptyList<RestaurantViewState>())
-    val listRestaurantViewStateFlow = listRestaurantViewStateMutableStateFlow.asStateFlow()
+//    private val listRestaurantViewStateMutableStateFlow =
+//        MutableStateFlow(
+//            GoogleMapViewState(
+//                context.resources.getString(R.string.default_lat_value).toDouble(),
+//                context.resources.getString(R.string.default_long_value).toDouble(),
+//                context.resources.getString(R.string.default_zoom_value).toFloat(),
+//                emptyList()
+//            )
+//        )
+//    val listRestaurantViewStateFlow = listRestaurantViewStateMutableStateFlow.asStateFlow()
 
     private val onMapReadyMutableStateFlow = MutableStateFlow(false)
 
@@ -45,32 +54,35 @@ class GoogleMapsViewModel @Inject constructor(
     init {
         viewModelScope.launch {
 
-            onMapReadyMutableStateFlow.combine(locationRepository.fetchUpdates()){
-                    isMapReady, positionWithZoom ->
+            onMapReadyMutableStateFlow.combine(locationRepository.fetchUpdates()) { isMapReady, positionWithZoom ->
                 // Send an empty flow is map not ready
                 if (!isMapReady) flowOf<GoogleMapViewState>()
 
                 // Emit the current position to the view
                 // Todo @Nino Map???
-                googleMapViewStateMutableSharedFlow.emit(
-                    GoogleMapViewState(
-                        positionWithZoom.latitude,
-                        positionWithZoom.longitude,
-                        positionWithZoom.zoom
-                    )
-                )
+//                googleMapViewStateMutableSharedFlow.emit(
+//                    GoogleMapViewState(
+//                        positionWithZoom.latitude,
+//                        positionWithZoom.longitude,
+//                        positionWithZoom.zoom
+//                    )
+//                )
 
                 // Send a retrofit request to fetch restaurants around received position
-                restaurantsRepository.getRestaurantsAroundPosition(
+                val listRestaurant = restaurantsRepository.getRestaurantsAroundPosition(
                     positionWithZoom.latitude.toString(),
                     positionWithZoom.longitude.toString(),
-                    1000.toString()
+                    context.resources.getString(R.string.default_detection_radius_value)
+                )
+
+                GoogleMapData(
+                    positionWithZoom, listRestaurant
                 )
 
             }.map {
                 restaurantMapper(it)
             }.collect {
-                listRestaurantViewStateMutableStateFlow.value = it
+                googleMapViewStateMutableSharedFlow.tryEmit(it)
             }
         }
     }
@@ -83,10 +95,10 @@ class GoogleMapsViewModel @Inject constructor(
         locationRepository.currentZoom = zoom
     }
 
-    private fun restaurantMapper(restaurantList: List<Restaurant>): List<RestaurantViewState>{
-        var restaurantViewStateMutableList = mutableListOf<RestaurantViewState>()
+    private fun restaurantMapper(googleMapData: GoogleMapData): GoogleMapViewState {
+        val restaurantViewStateMutableList = mutableListOf<RestaurantViewState>()
 
-        restaurantList.forEach {
+        googleMapData.listRestaurant.forEach {
             restaurantViewStateMutableList.add(
                 RestaurantViewState(
                     it.geometry.location.lat,
@@ -96,15 +108,25 @@ class GoogleMapsViewModel @Inject constructor(
             )
         }
 
-        return Collections.unmodifiableList(restaurantViewStateMutableList)
+        return GoogleMapViewState(
+            googleMapData.positionWithZoom.latitude,
+            googleMapData.positionWithZoom.longitude,
+            googleMapData.positionWithZoom.zoom,
+            Collections.unmodifiableList(restaurantViewStateMutableList)
+        )
     }
 
+    data class GoogleMapData(
+        val positionWithZoom: LocationRepository.PositionWithZoom,
+        val listRestaurant: List<Restaurant>
+    )
 
     // Data Class to emit to the UI
     data class GoogleMapViewState(
         val latitude: Double,
         val longitude: Double,
         val zoom: Float,
+        val restaurantList: List<RestaurantViewState>
     )
 
     // Data Class to emit to the UI
