@@ -4,7 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import fr.plopez.go4lunch.interfaces.RestaurantNearbyService
+import fr.plopez.go4lunch.retrofit.RestaurantService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
@@ -14,12 +14,12 @@ import javax.inject.Singleton
 object RetrofitModule {
     @Singleton
     @Provides
-    fun provideNearbyApi(): RestaurantNearbyService {
+    fun provideNearbyApi(): RestaurantService {
         return Retrofit.Builder()
             .baseUrl("https://maps.googleapis.com/maps/api/place/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(RestaurantNearbyService::class.java)
+            .create(RestaurantService::class.java)
     }
 
     @Singleton

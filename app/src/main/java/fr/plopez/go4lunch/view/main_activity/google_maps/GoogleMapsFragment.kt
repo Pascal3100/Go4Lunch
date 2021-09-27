@@ -9,17 +9,13 @@ import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import dagger.hilt.android.AndroidEntryPoint
-import fr.plopez.go4lunch.R
-import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.utils.CustomSnackBar
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 
 
 @ExperimentalCoroutinesApi
-@InternalCoroutinesApi
 @AndroidEntryPoint
 class GoogleMapsFragment : SupportMapFragment(), OnMapReadyCallback {
     //
@@ -103,17 +99,11 @@ class GoogleMapsFragment : SupportMapFragment(), OnMapReadyCallback {
                 }
             }
 
-            // Collect the request status flow
-            googleMapsViewModel.responseStatusStateFlow.collect {
+            // TODO : resolve this bug man!
+            googleMapsViewModel.googleMapViewActionFlow.collect{
                 when (it) {
-                    RestaurantsRepository.ResponseStatus.NoResponse ->
-                        snackbar.showWarningSnackBar(getString(R.string.no_response_message))
-                    RestaurantsRepository.ResponseStatus.StatusError.IOException ->
-                        snackbar.showWarningSnackBar(getString(R.string.no_internet_message))
-                    RestaurantsRepository.ResponseStatus.StatusError.HttpException ->
-                        snackbar.showWarningSnackBar(getString(R.string.network_error_message))
-                    else -> return@collect
-
+                    is GoogleMapsViewModel.GoogleMapViewAction.ResponseStatusMessage ->
+                        snackbar.showWarningSnackBar(getString(it.messageResId))
                 }
             }
         }

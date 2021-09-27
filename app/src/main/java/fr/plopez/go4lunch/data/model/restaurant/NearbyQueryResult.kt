@@ -2,7 +2,14 @@ package fr.plopez.go4lunch.data.model.restaurant
 
 import com.google.gson.annotations.SerializedName
 
-data class Restaurant (
+data class NearbyQueryResult(
+    val html_attributions: List<Any>,
+    val next_page_token: String,
+    val results: List<RestaurantQueryResponseItem>,
+    val status: String
+)
+
+data class RestaurantQueryResponseItem (
     @SerializedName("business_status")
     val businessStatus: String,
 
@@ -17,8 +24,8 @@ data class Restaurant (
 
     val name: String,
 
-    @SerializedName("opening_hours")
-    val openingHours: OpeningHours,
+//    @SerializedName("opening_hours")
+//    val openingHours: OpeningHours,
 
     val photos: List<Photo>,
 
@@ -54,10 +61,10 @@ data class Viewport (
     val southwest: Location
 )
 
-data class OpeningHours (
-    @SerializedName("open_now")
-    val openNow: Boolean
-)
+//data class OpeningHours (
+//    @SerializedName("open_now")
+//    val openNow: Boolean
+//)
 
 data class Photo (
     val height: Long,
