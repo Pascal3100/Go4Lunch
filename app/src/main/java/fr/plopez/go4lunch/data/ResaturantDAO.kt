@@ -4,7 +4,9 @@ import androidx.room.*
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantEntity
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantOpeningPeriod
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantsQuery
+import fr.plopez.go4lunch.data.model.restaurant.entites.relations.QueryWithRestaurants
 import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantOpeningPeriodsCrossReference
+import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantQueriesCrossReference
 
 @Dao
 interface RestaurantDAO {
@@ -23,21 +25,26 @@ interface RestaurantDAO {
         crossReference: RestaurantOpeningPeriodsCrossReference
     )
 
-//    @Transaction
-//    @Query(
-//        "SELECT * " +
-//                "FROM restaurant_entity " +
-//                "WHERE query_time_stamp = (" +
-//                    "SELECT query_time_stamp " +
-//                    "FROM restaurant_query " +
-//                    "WHERE (" +
-//                    ":latitude-latitude)*(:latitude-latitude) + (:longitude-longitude)*(:longitude-longitude) < :radius*:radius " +
-//                    "LIMIT 1" +
-//                ");")
-//    suspend fun getNearestQuery(latitude: Double, longitude: Double, radius: Float): List<RestaurantEntity>
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertRestaurantQueriesCrossReference(
+        crossReference: RestaurantQueriesCrossReference
+    )
 
-//    @Transaction
-//    @Query("SELECT * FROM restaurant_opening_period WHERE restaurant_id = :restaurantId")
-//    suspend fun getRestaurantOpeningPeriods(restaurantId: String): List<RestaurantOpeningPeriod>
+    @Transaction
+    @Query("SELECT EXISTS(SELECT restaurant_id FROM restaurant_entity WHERE restaurant_id = :restaurant_id)")
+    suspend fun isRestaurantExist(restaurant_id: String): Boolean
 
+    @Transaction
+    @Query("SELECT EXISTS(SELECT period_id FROM restaurant_opening_period WHERE period_id = :period_id)")
+    suspend fun isPeriodExist(period_id: String): Boolean
+
+    @Transaction
+    @Query(
+        "SELECT * " +
+                "FROM restaurant_query " +
+                "WHERE " +
+                "(:latitude-latitude)*(:latitude-latitude) + (:longitude-longitude)*(:longitude-longitude) < :displacementTol*:displacementTol " +
+                "LIMIT 1;"
+    )
+    suspend fun getNearestRestaurants(latitude: Double, longitude: Double, displacementTol: Float): QueryWithRestaurants
 }

@@ -9,8 +9,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.data.model.restaurant.RestaurantQueryResponseItem
+import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantEntity
 import fr.plopez.go4lunch.data.repositories.LocationRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
@@ -28,7 +30,7 @@ class GoogleMapsViewModel @Inject constructor(
 ) : ViewModel() {
 
     companion object {
-        private val TAG = "Google Maps ViewModel"
+        private const val TAG = "Google Maps ViewModel"
     }
 
     // Position with zoom and restaurants flow
@@ -44,9 +46,11 @@ class GoogleMapsViewModel @Inject constructor(
     private val onMapReadyMutableStateFlow = MutableStateFlow(false)
 
     init {
-        viewModelScope.launch {
 
-            onMapReadyMutableStateFlow.combine(locationRepository.fetchUpdates()) { isMapReady, positionWithZoom ->
+        // Initialization of the flow at init of the viewModel
+        viewModelScope.launch(Dispatchers.IO) {
+
+            combine(onMapReadyMutableStateFlow,locationRepository.fetchUpdates()) { isMapReady, positionWithZoom ->
                 // Send an empty flow is map not ready
                 if (!isMapReady) return@combine null
 
@@ -71,7 +75,6 @@ class GoogleMapsViewModel @Inject constructor(
                         dataSender(positionWithZoom, emptyList(), R.string.no_internet_message)
                 }
 
-
             }.collect()
         }
     }
@@ -89,7 +92,7 @@ class GoogleMapsViewModel @Inject constructor(
     // Manage data sending in flows
     private suspend fun dataSender(
         positionWithZoom: LocationRepository.PositionWithZoom,
-        listRestaurants: List<RestaurantQueryResponseItem>,
+        listRestaurants: List<RestaurantEntity>,
         messageResId: Int
     ) {
         // Send message if there is one to send
@@ -108,15 +111,15 @@ class GoogleMapsViewModel @Inject constructor(
     // Mapper for the ui view state
     private fun map(
         positionWithZoom: LocationRepository.PositionWithZoom,
-        listRestaurants: List<RestaurantQueryResponseItem>
+        listRestaurants: List<RestaurantEntity>
     ): GoogleMapViewState {
         val restaurantViewStateMutableList = mutableListOf<RestaurantViewState>()
 
         listRestaurants.forEach {
             restaurantViewStateMutableList.add(
                 RestaurantViewState(
-                    it.geometry.location.lat,
-                    it.geometry.location.lng,
+                    it.latitude,
+                    it.longitude,
                     it.name
                 )
             )

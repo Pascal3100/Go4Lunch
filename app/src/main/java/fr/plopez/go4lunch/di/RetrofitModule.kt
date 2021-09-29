@@ -1,5 +1,6 @@
 package fr.plopez.go4lunch.di
 
+import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,7 +18,7 @@ object RetrofitModule {
     fun provideNearbyApi(): RestaurantService {
         return Retrofit.Builder()
             .baseUrl("https://maps.googleapis.com/maps/api/place/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create()))
             .build()
             .create(RestaurantService::class.java)
     }

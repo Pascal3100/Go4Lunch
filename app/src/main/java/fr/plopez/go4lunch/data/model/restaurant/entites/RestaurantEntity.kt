@@ -20,9 +20,15 @@ data class RestaurantEntity(
     @ColumnInfo(name = "address")
     val address: String,
 
+    @ColumnInfo(name = "latitude")
+    val latitude: Double,
+
+    @ColumnInfo(name = "longitude")
+    val longitude: Double,
+
     @ColumnInfo(name = "photo_url")
-    val photoUrl: String,
+    val photoUrl: String?,
 
     @ColumnInfo(name = "rate")
-    val rate: Float,
-)
+    val rate: Float
+    )

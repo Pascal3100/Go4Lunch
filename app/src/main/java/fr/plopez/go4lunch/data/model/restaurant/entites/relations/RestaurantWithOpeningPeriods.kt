@@ -10,8 +10,8 @@ data class RestaurantWithOpeningPeriods(
     @Embedded
     val restaurant: RestaurantEntity,
     @Relation(
-         parentColumn = "id",
-         entityColumn = "restaurant_id",
+         parentColumn = "restaurant_id",
+         entityColumn = "period_id",
          associateBy = Junction(RestaurantOpeningPeriodsCrossReference::class)
     )
     val openingHours: List<RestaurantOpeningPeriod>

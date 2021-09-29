@@ -11,7 +11,6 @@ interface RestaurantService {
     companion object {
         private const val NEARBY_SEARCH_REQUEST_PATH = "nearbysearch/json"
         private const val DETAILS_REQUEST_PATH = "details/json"
-        private const val PHOTO_REQUEST_PATH = "photo"
     }
 
     @GET(NEARBY_SEARCH_REQUEST_PATH)
@@ -28,11 +27,4 @@ interface RestaurantService {
         @Query("fields") fields : String,
         @Query("place_id") placeId : String
         ): Response<DetailsQueryResult>
-
-    @GET(PHOTO_REQUEST_PATH)
-    suspend fun getPhotoForRestaurant(
-        @Query("key") key : String,
-        @Query("photo_reference") photoReference : String,
-        @Query("maxheight") maxHeight : String
-        ): String
 }
