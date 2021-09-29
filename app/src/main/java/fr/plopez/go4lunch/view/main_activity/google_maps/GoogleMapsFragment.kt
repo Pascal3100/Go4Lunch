@@ -7,6 +7,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.utils.CustomSnackBar
@@ -31,6 +32,8 @@ class GoogleMapsFragment : SupportMapFragment(), OnMapReadyCallback {
     private val googleMapsViewModel: GoogleMapsViewModel by viewModels()
 
     private var onLoadFragment = true
+
+    private val allMarkers = mutableListOf<Marker>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -80,12 +83,13 @@ class GoogleMapsFragment : SupportMapFragment(), OnMapReadyCallback {
                     )
                 }
 
-                // TODO : Put a custom marker on the restaurant position
+                // TODO : Put a custom marker on the restaurant position with .icon option
 
                 // Add markers for proxy restaurants
                 if (it.restaurantList.isNotEmpty()) {
+                    clearAllMarkers()
                     it.restaurantList.forEach { restaurantViewSate ->
-                        googleMap.addMarker(
+                        allMarkers += googleMap.addMarker(
                             MarkerOptions()
                                 .position(
                                     LatLng(
@@ -99,13 +103,19 @@ class GoogleMapsFragment : SupportMapFragment(), OnMapReadyCallback {
                 }
             }
 
-            // TODO : resolve this bug man!
-            googleMapsViewModel.googleMapViewActionFlow.collect{
+            googleMapsViewModel.googleMapViewActionFlow.collect {
                 when (it) {
                     is GoogleMapsViewModel.GoogleMapViewAction.ResponseStatusMessage ->
                         snackbar.showWarningSnackBar(getString(it.messageResId))
                 }
             }
         }
+    }
+
+    private fun clearAllMarkers() {
+        allMarkers.forEach {
+            it.remove()
+        }
+        allMarkers.clear()
     }
 }
