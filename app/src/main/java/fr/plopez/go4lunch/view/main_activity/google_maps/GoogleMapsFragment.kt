@@ -89,6 +89,8 @@ class GoogleMapsFragment : SupportMapFragment(), OnMapReadyCallback {
                 if (it.restaurantList.isNotEmpty()) {
                     clearAllMarkers()
                     it.restaurantList.forEach { restaurantViewSate ->
+
+                        // TODO @Nino Why???
                         allMarkers += googleMap.addMarker(
                             MarkerOptions()
                                 .position(

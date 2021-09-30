@@ -7,6 +7,7 @@ import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantOpeningPeriod
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantsQuery
 import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantOpeningPeriodsCrossReference
 import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantQueriesCrossReference
+import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantWithOpeningPeriods
 import fr.plopez.go4lunch.di.NearbyParameters
 import fr.plopez.go4lunch.retrofit.RestaurantService
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -25,9 +26,11 @@ class RestaurantsRepository @Inject constructor(
 ) {
 
     companion object {
-        private const val MAX_HEIGHT = "400"
+        private const val MAX_WIDTH = "1080"
+
         // this value is calculated for a tol of 50 m
         private const val MAX_DISPLACEMENT_TOL = "0.000449"
+
         private const val PERIODS_SEARCH_FIELD = "opening_hours"
     }
 
@@ -92,7 +95,7 @@ class RestaurantsRepository @Inject constructor(
     // Retrieve photo Url per restaurant
     private suspend fun mapRestaurantPhotoUrl(photoReference: String): String {
         return "https://maps.googleapis.com/maps/api/place/photo?" +
-                "maxwidth=$MAX_HEIGHT&" +
+                "maxwidth=$MAX_WIDTH&" +
                 "photoreference=$photoReference&" +
                 "key=${nearbyParameters.key};"
     }
@@ -233,6 +236,14 @@ class RestaurantsRepository @Inject constructor(
         }
 
         return Collections.unmodifiableList(restaurantEntityList)
+    }
+
+    suspend fun getRestaurantsWithOpeningPeriods(requestedTimeStamp: Long): List<RestaurantWithOpeningPeriods> {
+        return if (requestedTimeStamp == 0L) {
+            emptyList<RestaurantWithOpeningPeriods>()
+        } else {
+            restaurantsCacheDAO.getCurrentRestaurants(requestedTimeStamp)
+        }
     }
 
 

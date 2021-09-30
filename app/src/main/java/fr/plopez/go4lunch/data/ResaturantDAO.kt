@@ -7,6 +7,7 @@ import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantsQuery
 import fr.plopez.go4lunch.data.model.restaurant.entites.relations.QueryWithRestaurants
 import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantOpeningPeriodsCrossReference
 import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantQueriesCrossReference
+import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantWithOpeningPeriods
 
 @Dao
 interface RestaurantDAO {
@@ -47,4 +48,16 @@ interface RestaurantDAO {
                 "LIMIT 1;"
     )
     suspend fun getNearestRestaurants(latitude: Double, longitude: Double, displacementTol: Float): QueryWithRestaurants
+
+    @Transaction
+    @Query(
+        "SELECT * " +
+                "FROM restaurent_entity " +
+                "WHERE restaurant_id = (" +
+                    "SELECT restaurant_id " +
+                    "FROM restaurant_queries_cross_ref " +
+                    "WHERE query_time_stamp = :queryTimeStamp" +
+                ");"
+    )
+    suspend fun getCurrentRestaurants(queryTimeStamp:Long): List<RestaurantWithOpeningPeriods>
 }
