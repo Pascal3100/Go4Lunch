@@ -20,9 +20,9 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
-        buildConfigField 'String', 'places_api_key', PLACES_API_KEY
+        buildConfigField 'String', 'places_api_key', '"PLACES_API_KEY"'
 
-        resValue 'string', 'maps_api_key', MAPS_API_KEY
+        resValue 'string', 'maps_api_key', '"MAPS_API_KEY"'
     }
 
     buildFeatures {

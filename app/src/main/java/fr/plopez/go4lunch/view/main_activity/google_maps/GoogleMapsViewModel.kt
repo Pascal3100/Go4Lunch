@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.plopez.go4lunch.R
-import fr.plopez.go4lunch.data.model.restaurant.RestaurantQueryResponseItem
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantEntity
 import fr.plopez.go4lunch.data.repositories.LocationRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
@@ -56,24 +55,21 @@ class GoogleMapsViewModel @Inject constructor(
 
                 // TODO : detection radius can be a setting...
                 // Send a retrofit request to fetch restaurants around received position
-                val restaurantResponse = restaurantsRepository.getRestaurantsAroundPosition(
+                restaurantsRepository.getRestaurantsAroundPosition(
                     positionWithZoom.latitude.toString(),
                     positionWithZoom.longitude.toString(),
                     context.resources.getString(R.string.default_detection_radius_value)
-                )
+                ).collect { restaurantResponse->
 
-                when (restaurantResponse) {
-                    is RestaurantsRepository.ResponseStatus.Success ->
-                        dataSender(positionWithZoom, restaurantResponse.data, 0)
-                    is RestaurantsRepository.ResponseStatus.NoUpdate ->
-                        dataSender(positionWithZoom, emptyList(), 0)
-                    is RestaurantsRepository.ResponseStatus.NoResponse ->
-                        dataSender(positionWithZoom, emptyList(), R.string.no_response_message)
-                    is RestaurantsRepository.ResponseStatus.StatusError.HttpException ->
-                        dataSender(positionWithZoom, emptyList(), R.string.network_error_message)
-                    is RestaurantsRepository.ResponseStatus.StatusError.IOException ->
-                        dataSender(positionWithZoom, emptyList(), R.string.no_internet_message)
+                    when (restaurantResponse) {
+                        is RestaurantsRepository.ResponseStatus.Success -> mapData(positionWithZoom, restaurantResponse.data)
+                        is RestaurantsRepository.ResponseStatus.NoUpdate,
+                        is RestaurantsRepository.ResponseStatus.NoResponse -> mapEvent(R.string.no_response_message)
+                        is RestaurantsRepository.ResponseStatus.StatusError.HttpException -> mapEvent( R.string.network_error_message)
+                        is RestaurantsRepository.ResponseStatus.StatusError.IOException -> mapEvent( R.string.no_internet_message)
+                    }
                 }
+
 
             }.collect()
         }
@@ -90,9 +86,18 @@ class GoogleMapsViewModel @Inject constructor(
     }
 
     // Manage data sending in flows
-    private suspend fun dataSender(
+    private suspend fun mapData(
         positionWithZoom: LocationRepository.PositionWithZoom,
-        listRestaurants: List<RestaurantEntity>,
+        listRestaurants: List<RestaurantEntity>
+    ) {
+
+        // Send cur position and list of around restaurants
+        googleMapViewStateMutableSharedFlow.tryEmit(
+            map(positionWithZoom, listRestaurants)
+        )
+    }
+
+    private suspend fun mapEvent(
         messageResId: Int
     ) {
         // Send message if there is one to send
@@ -101,11 +106,6 @@ class GoogleMapsViewModel @Inject constructor(
                 GoogleMapViewAction.ResponseStatusMessage(R.string.no_response_message)
             )
         }
-
-        // Send cur position and list of around restaurants
-        googleMapViewStateMutableSharedFlow.tryEmit(
-            map(positionWithZoom, listRestaurants)
-        )
     }
 
     // Mapper for the ui view state

@@ -11,39 +11,39 @@ data class NearbyQueryResult(
 
 data class RestaurantQueryResponseItem (
     @SerializedName("business_status")
-    val businessStatus: String,
+    val businessStatus: String?,
 
-    val geometry: Geometry,
-    val icon: String,
+    val geometry: Geometry?,
+    val icon: String?,
 
     @SerializedName("icon_background_color")
-    val iconBackgroundColor: String,
+    val iconBackgroundColor: String?,
 
     @SerializedName("icon_mask_base_uri")
-    val iconMaskBaseURI: String,
+    val iconMaskBaseURI: String?,
 
-    val name: String,
+    val name: String?,
 
 //    @SerializedName("opening_hours")
 //    val openingHours: OpeningHours,
 
-    val photos: List<Photo>,
+    val photos: List<Photo>?,
 
     @SerializedName("place_id")
-    val placeID: String,
+    val placeID: String?,
 
     @SerializedName("plus_code")
-    val plusCode: PlusCode,
+    val plusCode: PlusCode?,
 
-    val rating: Double,
-    val reference: String,
-    val scope: String,
-    val types: List<String>,
+    val rating: Double?,
+    val reference: String?,
+    val scope: String?,
+    val types: List<String>?,
 
     @SerializedName("user_ratings_total")
-    val userRatingsTotal: Long,
+    val userRatingsTotal: Long?,
 
-    val vicinity: String
+    val vicinity: String?
 )
 
 data class Geometry (
