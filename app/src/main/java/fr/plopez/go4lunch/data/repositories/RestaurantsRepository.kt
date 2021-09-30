@@ -7,25 +7,29 @@ import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantOpeningPeriod
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantsQuery
 import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantOpeningPeriodsCrossReference
 import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantQueriesCrossReference
-import fr.plopez.go4lunch.di.NearbyParameters
+import fr.plopez.go4lunch.di.NearbyConstants
 import fr.plopez.go4lunch.retrofit.RestaurantService
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import java.io.IOException
 import java.time.LocalTime
-import java.util.*
 import javax.inject.Inject
 import kotlin.math.round
 
 class RestaurantsRepository @Inject constructor(
     private val restaurantService: RestaurantService,
-    private val nearbyParameters: NearbyParameters,
+    private val nearbyConstants: NearbyConstants,
     private val restaurantsCacheDAO: RestaurantDAO,
 ) {
 
     companion object {
         private const val MAX_HEIGHT = "400"
+
         // this value is calculated for a tol of 50 m
         private const val MAX_DISPLACEMENT_TOL = "0.000449"
         private const val PERIODS_SEARCH_FIELD = "opening_hours"
@@ -39,7 +43,7 @@ class RestaurantsRepository @Inject constructor(
         latitude: String,
         longitude: String,
         radius: String,
-    ): ResponseStatus {
+    ): Flow<ResponseStatus> = flow {
 
         // Check if a previous request correspond in the Database
         val restaurantsFromDatabase = restaurantsCacheDAO.getNearestRestaurants(
@@ -49,52 +53,56 @@ class RestaurantsRepository @Inject constructor(
         )
 
         // Check for result in database
-        if (restaurantsFromDatabase != null) {
+        if (restaurantsFromDatabase.isNotEmpty()) {
             // Update the shared Flow to allow other view Models to request the right restaurants list
-            lastRequestTimeStampMutableSharedFlow.emit(restaurantsFromDatabase.query.queryTimeStamp)
-            return ResponseStatus.Success(restaurantsFromDatabase.restaurantList)
+            lastRequestTimeStampMutableSharedFlow.emit(restaurantsFromDatabase.first().query.queryTimeStamp)
+            emit(ResponseStatus.Success(restaurantsFromDatabase.first().restaurantList))
+            return@flow
         }
 
         // If no response of the database, check on google
         try {
             val location = "$latitude,$longitude"
             val response = restaurantService.getNearbyRestaurants(
-                nearbyParameters.key,
-                nearbyParameters.type,
+                nearbyConstants.key,
+                nearbyConstants.type,
                 location,
                 radius
             )
 
             val responseBody = response.body()
 
-            when {
-                response.isSuccessful && responseBody != null && responseBody.results.isNotEmpty() -> {
+            if (response.isSuccessful && responseBody != null && responseBody.results.isNotEmpty()) {
 
-                    val restaurantEntityList = mapRestaurantQueryToEntity(responseBody.results)
+                // Map query result to domain model
+                val restaurantEntityList = mapRestaurantQueryToEntity(responseBody.results)
 
+                // Store restaurants in database in a separate coroutine
+                withContext(Dispatchers.IO) {
                     storeInDatabase(restaurantEntityList, latitude, longitude)
+                }
 
-                    return ResponseStatus.Success(restaurantEntityList)
-                }
-                else -> {
-                    return ResponseStatus.NoResponse
-                }
+                // Emit the list of restaurant to the VM
+                emit(ResponseStatus.Success(restaurantEntityList))
+            } else {
+                emit(ResponseStatus.NoResponse)
             }
 
         } catch (e: IOException) {
-            return ResponseStatus.StatusError.IOException
+            emit(ResponseStatus.StatusError.IOException)
 
         } catch (e: HttpException) {
-            return ResponseStatus.StatusError.HttpException
+            emit(ResponseStatus.StatusError.HttpException)
         }
     }
 
+    // TODO : this will go in a VM
     // Retrieve photo Url per restaurant
     private suspend fun mapRestaurantPhotoUrl(photoReference: String): String {
         return "https://maps.googleapis.com/maps/api/place/photo?" +
                 "maxwidth=$MAX_HEIGHT&" +
                 "photoreference=$photoReference&" +
-                "key=${nearbyParameters.key};"
+                "key=${nearbyConstants.key};"
     }
 
     // Retrieve opening hours per restaurant
@@ -102,7 +110,7 @@ class RestaurantsRepository @Inject constructor(
 
         try {
             val response = restaurantService.getOpeningPeriodsForRestaurant(
-                nearbyParameters.key,
+                nearbyConstants.key,
                 PERIODS_SEARCH_FIELD,
                 placeId
             )
@@ -155,84 +163,72 @@ class RestaurantsRepository @Inject constructor(
                 )
             )
 
-            if (!restaurantsCacheDAO.isRestaurantExist(it.restaurantId)) {
+            // Inserting restaurant entity
+            restaurantsCacheDAO.upsertRestaurant(it)
 
-                // Inserting restaurant entity
-                restaurantsCacheDAO.insertRestaurant(it)
+            // Store all periods of opening for a restaurant
+            val periodList = getRestaurantOpeningPeriods(it.restaurantId)
 
-                // Store all periods of opening for a restaurant
-                val periodList = getRestaurantOpeningPeriods(it.restaurantId)
+            if (periodList.isNotEmpty()) {
+                periodList.forEach { period ->
 
-                if (periodList.isNotEmpty()) {
-                    periodList.forEach { period ->
+                    val day = period.open.day
+                    val openingHour = period.open.time
+                    val closingHour = period.close.time
+                    val periodId = "$day$openingHour$closingHour"
 
-                        val day = period.open.day
-                        val openingHour = period.open.time
-                        val closingHour = period.close.time
-                        val periodId = "$day$openingHour$closingHour"
-
-                        if (!restaurantsCacheDAO.isPeriodExist(periodId)) {
-
-                            // Inserting Period
-                            restaurantsCacheDAO.insertRestaurantOpeningPeriod(
-                                RestaurantOpeningPeriod(
-                                    periodId,
-                                    LocalTime.of(
-                                        openingHour.take(2).toInt(),
-                                        openingHour.takeLast(2).toInt()
-                                    ).toString(),
-                                    LocalTime.of(
-                                        closingHour.take(2).toInt(),
-                                        closingHour.takeLast(2).toInt()
-                                    ).toString(),
-                                    day
-                                )
-                            )
-                        }
-
-                        // Inserting restaurant - period cross ref
-                        restaurantsCacheDAO.insertRestaurantOpeningPeriodCrossReference(
-                            RestaurantOpeningPeriodsCrossReference(
-                                it.restaurantId,
-                                periodId
-                            )
+                    // Inserting Period
+                    restaurantsCacheDAO.insertRestaurantOpeningPeriod(
+                        RestaurantOpeningPeriod(
+                            periodId,
+                            LocalTime.of(
+                                openingHour.take(2).toInt(),
+                                openingHour.takeLast(2).toInt()
+                            ).toString(),
+                            LocalTime.of(
+                                closingHour.take(2).toInt(),
+                                closingHour.takeLast(2).toInt()
+                            ).toString(),
+                            day
                         )
-                    }
+                    )
+
+                    // Inserting restaurant - period cross ref
+                    restaurantsCacheDAO.insertRestaurantOpeningPeriodCrossReference(
+                        RestaurantOpeningPeriodsCrossReference(
+                            it.restaurantId,
+                            periodId
+                        )
+                    )
                 }
             }
         }
 
     }
 
+    // Map the query nearby object to domain object
     private fun mapRestaurantQueryToEntity(
         restaurantQueryResponseItemList: List<RestaurantQueryResponseItem>
-    ): List<RestaurantEntity> {
+    ): List<RestaurantEntity> = restaurantQueryResponseItemList.mapNotNull {
 
-        val restaurantEntityList = mutableListOf<RestaurantEntity>()
-
-        restaurantQueryResponseItemList.forEach {
-            val rate = round((it.rating.toFloat() * 3.0f) / 5.0f)
-            var photoUrl: String
-            if (it.photos == null) {
-                photoUrl = ""
-            } else {
-                photoUrl = it.photos.first().photoReference
-            }
-
-            restaurantEntityList.add(
-                RestaurantEntity(
-                    it.placeID,
-                    it.name,
-                    it.vicinity,
-                    it.geometry.location.lat,
-                    it.geometry.location.lng,
-                    photoUrl,
-                    rate
-                )
+        if (it.placeID != null
+            && it.name != null
+            && it.vicinity != null
+            && it.geometry != null
+            && it.rating != null
+        ) {
+            RestaurantEntity(
+                it.placeID,
+                it.name,
+                it.vicinity,
+                it.geometry.location.lat,
+                it.geometry.location.lng,
+                it.photos?.firstOrNull()?.photoReference,
+                round((it.rating.toFloat() * 3.0f) / 5.0f)
             )
+        } else {
+            null
         }
-
-        return Collections.unmodifiableList(restaurantEntityList)
     }
 
 

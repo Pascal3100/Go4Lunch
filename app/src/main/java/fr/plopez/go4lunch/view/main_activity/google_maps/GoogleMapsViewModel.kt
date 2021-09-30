@@ -50,9 +50,7 @@ class GoogleMapsViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
 
             combine(
-                onMapReadyMutableStateFlow,
-                locationRepository.fetchUpdates()
-            ) { isMapReady, positionWithZoom ->
+                onMapReadyMutableStateFlow, locationRepository.fetchUpdates()) { isMapReady, positionWithZoom ->
                 // Send an empty flow is map not ready
                 if (!isMapReady) return@combine null
 
@@ -62,20 +60,19 @@ class GoogleMapsViewModel @Inject constructor(
                     positionWithZoom.latitude.toString(),
                     positionWithZoom.longitude.toString(),
                     context.resources.getString(R.string.default_detection_radius_value)
-                )
-
-                when (restaurantResponse) {
-                    is RestaurantsRepository.ResponseStatus.Success ->
-                        mapData(positionWithZoom, restaurantResponse.data)
-                    is RestaurantsRepository.ResponseStatus.NoUpdate -> Unit
-                    is RestaurantsRepository.ResponseStatus.NoResponse ->
-                        mapEvent(R.string.no_response_message)
-                    is RestaurantsRepository.ResponseStatus.StatusError.HttpException ->
-                        mapEvent(R.string.network_error_message)
-                    is RestaurantsRepository.ResponseStatus.StatusError.IOException ->
-                        mapEvent(R.string.no_internet_message)
+                ).collect {
+                    when (it) {
+                        is RestaurantsRepository.ResponseStatus.Success ->
+                            mapData(positionWithZoom, it.data)
+                        is RestaurantsRepository.ResponseStatus.NoUpdate -> Unit
+                        is RestaurantsRepository.ResponseStatus.NoResponse ->
+                            mapEvent(R.string.no_response_message)
+                        is RestaurantsRepository.ResponseStatus.StatusError.HttpException ->
+                            mapEvent(R.string.network_error_message)
+                        is RestaurantsRepository.ResponseStatus.StatusError.IOException ->
+                            mapEvent(R.string.no_internet_message)
+                    }
                 }
-
             }.collect()
         }
     }
