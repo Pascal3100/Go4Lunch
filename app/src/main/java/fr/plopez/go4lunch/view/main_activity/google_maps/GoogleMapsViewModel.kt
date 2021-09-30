@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.plopez.go4lunch.R
-import fr.plopez.go4lunch.data.model.restaurant.RestaurantQueryResponseItem
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantEntity
 import fr.plopez.go4lunch.data.repositories.LocationRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
@@ -50,7 +49,10 @@ class GoogleMapsViewModel @Inject constructor(
         // Initialization of the flow at init of the viewModel
         viewModelScope.launch(Dispatchers.IO) {
 
-            combine(onMapReadyMutableStateFlow,locationRepository.fetchUpdates()) { isMapReady, positionWithZoom ->
+            combine(
+                onMapReadyMutableStateFlow,
+                locationRepository.fetchUpdates()
+            ) { isMapReady, positionWithZoom ->
                 // Send an empty flow is map not ready
                 if (!isMapReady) return@combine null
 
@@ -64,15 +66,14 @@ class GoogleMapsViewModel @Inject constructor(
 
                 when (restaurantResponse) {
                     is RestaurantsRepository.ResponseStatus.Success ->
-                        dataSender(positionWithZoom, restaurantResponse.data, 0)
-                    is RestaurantsRepository.ResponseStatus.NoUpdate ->
-                        dataSender(positionWithZoom, emptyList(), 0)
+                        mapData(positionWithZoom, restaurantResponse.data)
+                    is RestaurantsRepository.ResponseStatus.NoUpdate -> Unit
                     is RestaurantsRepository.ResponseStatus.NoResponse ->
-                        dataSender(positionWithZoom, emptyList(), R.string.no_response_message)
+                        mapEvent(R.string.no_response_message)
                     is RestaurantsRepository.ResponseStatus.StatusError.HttpException ->
-                        dataSender(positionWithZoom, emptyList(), R.string.network_error_message)
+                        mapEvent(R.string.network_error_message)
                     is RestaurantsRepository.ResponseStatus.StatusError.IOException ->
-                        dataSender(positionWithZoom, emptyList(), R.string.no_internet_message)
+                        mapEvent(R.string.no_internet_message)
                 }
 
             }.collect()
@@ -89,19 +90,20 @@ class GoogleMapsViewModel @Inject constructor(
         locationRepository.currentZoom = zoom
     }
 
-    // Manage data sending in flows
-    private suspend fun dataSender(
-        positionWithZoom: LocationRepository.PositionWithZoom,
-        listRestaurants: List<RestaurantEntity>,
+    // Manage event message sending in flows
+    private suspend fun mapEvent(
         messageResId: Int
     ) {
-        // Send message if there is one to send
-        if (messageResId != 0) {
-            googleMapViewActionChannel.send(
-                GoogleMapViewAction.ResponseStatusMessage(R.string.no_response_message)
-            )
-        }
+        googleMapViewActionChannel.send(
+            GoogleMapViewAction.ResponseStatusMessage(R.string.no_response_message)
+        )
+    }
 
+    // Manage data sending in flows
+    private suspend fun mapData(
+        positionWithZoom: LocationRepository.PositionWithZoom,
+        listRestaurants: List<RestaurantEntity>,
+    ) {
         // Send cur position and list of around restaurants
         googleMapViewStateMutableSharedFlow.tryEmit(
             map(positionWithZoom, listRestaurants)
