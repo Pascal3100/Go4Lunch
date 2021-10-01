@@ -25,7 +25,7 @@ object RetrofitModule {
 
     @Singleton
     @Provides
-    fun provideNearbyParameters():NearbyParameters{
-        return NearbyParameters()
+    fun provideNearbyParameters():NearbyConstants{
+        return NearbyConstants()
     }
 }

@@ -12,33 +12,31 @@ import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantWith
 @Dao
 interface RestaurantDAO {
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertRestaurant(entity: RestaurantEntity)
+    // Insert a new restaurant reference
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertRestaurant(entity: RestaurantEntity)
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    // Insert a new query
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertQuery(query: RestaurantsQuery)
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    // Insert a new opening period
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRestaurantOpeningPeriod(openingPeriod: RestaurantOpeningPeriod)
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    // Insert the cross reference between restaurant and opening period because of n m relation
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRestaurantOpeningPeriodCrossReference(
         crossReference: RestaurantOpeningPeriodsCrossReference
     )
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    // Insert the cross reference between query and restaurants because of n m relation
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRestaurantQueriesCrossReference(
         crossReference: RestaurantQueriesCrossReference
     )
 
-    @Transaction
-    @Query("SELECT EXISTS(SELECT restaurant_id FROM restaurant_entity WHERE restaurant_id = :restaurant_id)")
-    suspend fun isRestaurantExist(restaurant_id: String): Boolean
-
-    @Transaction
-    @Query("SELECT EXISTS(SELECT period_id FROM restaurant_opening_period WHERE period_id = :period_id)")
-    suspend fun isPeriodExist(period_id: String): Boolean
-
+    // Get the list of restaurants near the current position if it was covered by a previous request
     @Transaction
     @Query(
         "SELECT * " +
@@ -47,7 +45,7 @@ interface RestaurantDAO {
                 "(:latitude-latitude)*(:latitude-latitude) + (:longitude-longitude)*(:longitude-longitude) < :displacementTol*:displacementTol " +
                 "LIMIT 1;"
     )
-    suspend fun getNearestRestaurants(latitude: Double, longitude: Double, displacementTol: Float): QueryWithRestaurants
+    suspend fun getNearestRestaurants(latitude: Double, longitude: Double, displacementTol: Float): List<QueryWithRestaurants>
 
     @Transaction
     @Query(

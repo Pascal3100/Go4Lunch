@@ -11,62 +11,78 @@ data class NearbyQueryResult(
 
 data class RestaurantQueryResponseItem (
     @SerializedName("business_status")
-    val businessStatus: String,
+    val businessStatus: String?,
 
-    val geometry: Geometry,
-    val icon: String,
+    @SerializedName("geometry")
+    val geometry: Geometry?,
+
+    @SerializedName("icon")
+    val icon: String?,
 
     @SerializedName("icon_background_color")
-    val iconBackgroundColor: String,
+    val iconBackgroundColor: String?,
 
     @SerializedName("icon_mask_base_uri")
-    val iconMaskBaseURI: String,
+    val iconMaskBaseURI: String?,
 
-    val name: String,
+    @SerializedName("name")
+    val name: String?,
 
-//    @SerializedName("opening_hours")
-//    val openingHours: OpeningHours,
-
-    val photos: List<Photo>,
+    @SerializedName("photos")
+    val photos: List<Photo>?,
 
     @SerializedName("place_id")
-    val placeID: String,
+    val placeID: String?,
 
     @SerializedName("plus_code")
-    val plusCode: PlusCode,
+    val plusCode: PlusCode?,
 
-    val rating: Double,
-    val reference: String,
-    val scope: String,
-    val types: List<String>,
+
+    @SerializedName("rating")
+    val rating: Double?,
+
+    @SerializedName("reference")
+    val reference: String?,
+
+    @SerializedName("scope")
+    val scope: String?,
+
+    @SerializedName("types")
+    val types: List<String>?,
 
     @SerializedName("user_ratings_total")
-    val userRatingsTotal: Long,
+    val userRatingsTotal: Long?,
 
-    val vicinity: String
+    @SerializedName("vicinity")
+    val vicinity: String?
 )
 
 data class Geometry (
+    @SerializedName("location")
     val location: Location,
+
+    @SerializedName("viewport")
     val viewport: Viewport
 )
 
 data class Location (
+    @SerializedName("lat")
     val lat: Double,
+
+    @SerializedName("lng")
     val lng: Double
 )
 
 data class Viewport (
+    @SerializedName("northeast")
     val northeast: Location,
+
+    @SerializedName("southwest")
     val southwest: Location
 )
 
-//data class OpeningHours (
-//    @SerializedName("open_now")
-//    val openNow: Boolean
-//)
-
 data class Photo (
+    @SerializedName("height")
     val height: Long,
 
     @SerializedName("html_attributions")
@@ -75,6 +91,7 @@ data class Photo (
     @SerializedName("photo_reference")
     val photoReference: String,
 
+    @SerializedName("width")
     val width: Long
 )
 
