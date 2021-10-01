@@ -56,7 +56,7 @@ class GoogleMapsViewModel @Inject constructor(
 
                 // TODO : detection radius can be a setting...
                 // Send a retrofit request to fetch restaurants around received position
-                val restaurantResponse = restaurantsRepository.getRestaurantsAroundPosition(
+                restaurantsRepository.getRestaurantsAroundPosition(
                     positionWithZoom.latitude.toString(),
                     positionWithZoom.longitude.toString(),
                     context.resources.getString(R.string.default_detection_radius_value)

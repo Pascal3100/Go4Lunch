@@ -5,10 +5,23 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
+import fr.plopez.go4lunch.view.main_activity.google_maps.GoogleMapsViewModel
+import fr.plopez.go4lunch.view.main_activity.list_restaurants.ListRestaurantsAdapter
+import fr.plopez.go4lunch.view.main_activity.list_restaurants.ListRestaurantsViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
+@ExperimentalCoroutinesApi
 class ListViewRestaurantFragment : Fragment() {
 
     //
@@ -18,11 +31,33 @@ class ListViewRestaurantFragment : Fragment() {
         }
     }
 
+    private val listRestaurantsViewModel: ListRestaurantsViewModel by viewModels()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_list_view_restaurant, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                initRecyclerView()
+            }
+        }
+    }
+
+    private suspend fun initRecyclerView(){
+        val adapter = ListRestaurantsAdapter()
+        val recyclerView = view?.findViewById<RecyclerView>(R.id.list_view_restaurant_recyclerview)
+        recyclerView?.adapter = adapter
+
+        listRestaurantsViewModel.restaurantsItemsStateFlow.collect {
+            adapter.updateRestaurantsList(it)
+        }
     }
 }

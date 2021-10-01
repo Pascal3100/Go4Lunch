@@ -50,5 +50,9 @@
     <string name="facebook_connection_failed_message">Facebook login failed</string>
     <string name="not_connected_message">Hey, you\'re not connected</string>
     <string name="google_connection_failed_message">Google sign in failed</string>
+    <string name="distance_unit">" m"</string>
+    <string name="closed_text">closed</string>
+    <string name="open_at_text">"open at "</string>
+    <string name="open_until_text">"open until "</string>
 
 </resources>

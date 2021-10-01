@@ -29,8 +29,6 @@ class RestaurantsRepository @Inject constructor(
 ) {
 
     companion object {
-        private const val MAX_WIDTH = "1080"
-
         // this value is calculated for a tol of 50 m
         private const val MAX_DISPLACEMENT_TOL = "0.000449"
 
@@ -96,15 +94,6 @@ class RestaurantsRepository @Inject constructor(
         } catch (e: HttpException) {
             emit(ResponseStatus.StatusError.HttpException)
         }
-    }
-
-    // TODO : this will go in a VM
-    // Retrieve photo Url per restaurant
-    private suspend fun mapRestaurantPhotoUrl(photoReference: String): String {
-        return "https://maps.googleapis.com/maps/api/place/photo?" +
-                "maxwidth=$MAX_WIDTH&" +
-                "photoreference=$photoReference&" +
-                "key=${nearbyConstants.key};"
     }
 
     // Retrieve opening hours per restaurant

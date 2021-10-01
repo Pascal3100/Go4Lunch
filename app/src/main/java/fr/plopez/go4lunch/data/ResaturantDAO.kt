@@ -50,7 +50,7 @@ interface RestaurantDAO {
     @Transaction
     @Query(
         "SELECT * " +
-                "FROM restaurent_entity " +
+                "FROM restaurant_entity " +
                 "WHERE restaurant_id = (" +
                     "SELECT restaurant_id " +
                     "FROM restaurant_queries_cross_ref " +

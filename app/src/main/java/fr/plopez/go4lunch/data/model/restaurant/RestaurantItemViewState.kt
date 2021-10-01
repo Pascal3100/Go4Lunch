@@ -5,7 +5,7 @@ data class RestaurantItemViewState(
     val address: String,
     val openingStateText: String,
     val distanceToUser: String,
-    val numberOfInterestedWorkmates: Int,
-    val rate: String,
+    val numberOfInterestedWorkmates: String,
+    val rate: Float,
     val photoUrl: String
 )

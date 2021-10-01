@@ -4,7 +4,9 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
@@ -14,6 +16,7 @@ import fr.plopez.go4lunch.utils.CustomSnackBar
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 
 @ExperimentalCoroutinesApi
@@ -58,57 +61,59 @@ class GoogleMapsFragment : SupportMapFragment(), OnMapReadyCallback {
             googleMapsViewModel.onZoomChanged(googleMap.cameraPosition.zoom)
         }
 
-        lifecycleScope.launchWhenStarted {
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
-            googleMapsViewModel.googleMapViewStateSharedFlow.collectLatest {
+                googleMapsViewModel.googleMapViewStateSharedFlow.collectLatest {
 
-                // TODO : eventually put a custom marker on the user position
+                    // TODO : eventually put a custom marker on the user position
 
-                // Just center the camera on the new position
-                // The onLoadFragment is used to not animate camera when map is loaded.
-                if (onLoadFragment) {
-                    onLoadFragment = false
-                    googleMap.moveCamera(
-                        CameraUpdateFactory.newLatLngZoom(
-                            LatLng(it.latitude, it.longitude),
-                            it.zoom
+                    // Just center the camera on the new position
+                    // The onLoadFragment is used to not animate camera when map is loaded.
+                    if (onLoadFragment) {
+                        onLoadFragment = false
+                        googleMap.moveCamera(
+                            CameraUpdateFactory.newLatLngZoom(
+                                LatLng(it.latitude, it.longitude),
+                                it.zoom
+                            )
                         )
-                    )
-                } else {
-                    googleMap.animateCamera(
-                        CameraUpdateFactory.newLatLngZoom(
-                            LatLng(it.latitude, it.longitude),
-                            it.zoom
-                        )
-                    )
-                }
-
-                // TODO : Put a custom marker on the restaurant position with .icon option
-
-                // Add markers for proxy restaurants
-                if (it.restaurantList.isNotEmpty()) {
-                    clearAllMarkers()
-                    it.restaurantList.forEach { restaurantViewSate ->
-
-                        // TODO @Nino Why???
-                        allMarkers += googleMap.addMarker(
-                            MarkerOptions()
-                                .position(
-                                    LatLng(
-                                        restaurantViewSate.latitude,
-                                        restaurantViewSate.longitude
-                                    )
-                                )
-                                .title(restaurantViewSate.name)
+                    } else {
+                        googleMap.animateCamera(
+                            CameraUpdateFactory.newLatLngZoom(
+                                LatLng(it.latitude, it.longitude),
+                                it.zoom
+                            )
                         )
                     }
-                }
-            }
 
-            googleMapsViewModel.googleMapViewActionFlow.collect {
-                when (it) {
-                    is GoogleMapsViewModel.GoogleMapViewAction.ResponseStatusMessage ->
-                        snackbar.showWarningSnackBar(getString(it.messageResId))
+                    // TODO : Put a custom marker on the restaurant position with .icon option
+
+                    // Add markers for proxy restaurants
+                    if (it.restaurantList.isNotEmpty()) {
+                        clearAllMarkers()
+                        it.restaurantList.forEach { restaurantViewSate ->
+
+                            // TODO @Nino Why???
+                            allMarkers += googleMap.addMarker(
+                                MarkerOptions()
+                                    .position(
+                                        LatLng(
+                                            restaurantViewSate.latitude,
+                                            restaurantViewSate.longitude
+                                        )
+                                    )
+                                    .title(restaurantViewSate.name)
+                            )
+                        }
+                    }
+                }
+
+                googleMapsViewModel.googleMapViewActionFlow.collect {
+                    when (it) {
+                        is GoogleMapsViewModel.GoogleMapViewAction.ResponseStatusMessage ->
+                            snackbar.showWarningSnackBar(getString(it.messageResId))
+                    }
                 }
             }
         }
