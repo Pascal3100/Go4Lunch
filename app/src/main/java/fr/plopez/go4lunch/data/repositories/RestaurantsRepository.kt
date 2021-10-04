@@ -230,6 +230,8 @@ class RestaurantsRepository @Inject constructor(
         }
     }
 
+    suspend fun getPositionForTimestamp(timestamp: Long) = restaurantsCacheDAO.getPositionForTimestamp(timestamp)
+
     sealed class ResponseStatus {
 
         object NoResponse : ResponseStatus()

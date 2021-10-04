@@ -9,16 +9,14 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.data.model.restaurant.RestaurantItemViewState
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantOpeningPeriod
+import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantsQuery
 import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantWithOpeningPeriods
 import fr.plopez.go4lunch.data.repositories.LocationRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.di.NearbyConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.util.*
@@ -37,32 +35,30 @@ class ListRestaurantsViewModel @Inject constructor(
         private const val MAX_WIDTH = "1080"
     }
 
+    private val initPositionWithZoom = LocationRepository.PositionWithZoom(0.0, 0.0, 0.0F)
     private val restaurantsItemsMutableStateFlow =
         MutableStateFlow(emptyList<RestaurantItemViewState>())
     val restaurantsItemsStateFlow = restaurantsItemsMutableStateFlow.asStateFlow()
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            combine(
-                restaurantsRepository.lastRequestTimeStampSharedFlow,
-                locationRepository.fetchUpdates()
-            ) { timeStamp, positionWithZoom ->
-                map(
-                    restaurantsRepository.getRestaurantsWithOpeningPeriods(timeStamp),
-                    positionWithZoom
-                )
+            restaurantsRepository.lastRequestTimeStampSharedFlow.map {
+                mapToViewState(restaurantsRepository.getRestaurantsWithOpeningPeriods(it),
+                    restaurantsRepository.getPositionForTimestamp(it))
             }.collect {
-                restaurantsItemsMutableStateFlow.emit(it)
+                restaurantsItemsMutableStateFlow.value = it
             }
         }
     }
 
-    private fun map(
+    private fun mapToViewState(
         restaurantsWithOpeningPeriods: List<RestaurantWithOpeningPeriods>,
-        positionWithZoom: LocationRepository.PositionWithZoom
+        restaurantsQuery: RestaurantsQuery
     ): List<RestaurantItemViewState> {
         if (restaurantsWithOpeningPeriods.isEmpty()) emptyList<RestaurantItemViewState>()
 
+
+        // TODO replace ths with .map
         val restaurantItemViewStateList = mutableListOf<RestaurantItemViewState>()
 
         restaurantsWithOpeningPeriods.forEach {
@@ -75,8 +71,8 @@ class ListRestaurantsViewModel @Inject constructor(
                     getDistanceToUser(
                         it.restaurant.latitude,
                         it.restaurant.longitude,
-                        positionWithZoom.latitude,
-                        positionWithZoom.longitude
+                        restaurantsQuery.latitude,
+                        restaurantsQuery.longitude
                     ),
                     getInterestedWorkmates(it.restaurant.name),
                     it.restaurant.rate,

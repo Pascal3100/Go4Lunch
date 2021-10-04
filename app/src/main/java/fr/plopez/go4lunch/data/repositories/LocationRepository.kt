@@ -9,10 +9,11 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.plopez.go4lunch.R
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -54,14 +55,14 @@ class LocationRepository @Inject constructor(
                 super.onLocationResult(locationResult)
                 val location = locationResult.lastLocation
 
-                // trySend replaces offer
-                trySend(
-                    PositionWithZoom(
-                        location.latitude,
-                        location.longitude,
-                        currentZoom
-                    )
+                val currentPositionWithZoom = PositionWithZoom(
+                    location.latitude,
+                    location.longitude,
+                    currentZoom
                 )
+
+                // trySend replaces offer
+                trySend(currentPositionWithZoom)
             }
         }
 
@@ -70,9 +71,9 @@ class LocationRepository @Inject constructor(
         awaitClose { client.removeLocationUpdates(callBack) }
     }
 
-    data class PositionWithZoom (
-        val latitude : Double,
-        val longitude : Double,
-        val zoom : Float
-        )
+    data class PositionWithZoom(
+        val latitude: Double,
+        val longitude: Double,
+        val zoom: Float
+    )
 }
