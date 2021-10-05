@@ -50,7 +50,8 @@ class GoogleMapsViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
 
             combine(
-                onMapReadyMutableStateFlow, locationRepository.fetchUpdates()) { isMapReady, positionWithZoom ->
+                onMapReadyMutableStateFlow, locationRepository.fetchUpdates()
+            ) { isMapReady, positionWithZoom ->
                 // Send an empty flow is map not ready
                 if (!isMapReady) return@combine null
 
@@ -97,18 +98,18 @@ class GoogleMapsViewModel @Inject constructor(
     }
 
     // Manage data sending in flows
-    private suspend fun mapData(
+    private fun mapData(
         positionWithZoom: LocationRepository.PositionWithZoom,
         listRestaurants: List<RestaurantEntity>,
     ) {
         // Send cur position and list of around restaurants
         googleMapViewStateMutableSharedFlow.tryEmit(
-            map(positionWithZoom, listRestaurants)
+            mapToViewState(positionWithZoom, listRestaurants)
         )
     }
 
     // Mapper for the ui view state
-    private fun map(
+    private fun mapToViewState(
         positionWithZoom: LocationRepository.PositionWithZoom,
         listRestaurants: List<RestaurantEntity>
     ): GoogleMapViewState {

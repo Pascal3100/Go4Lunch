@@ -55,14 +55,14 @@ class LocationRepository @Inject constructor(
                 super.onLocationResult(locationResult)
                 val location = locationResult.lastLocation
 
-                val currentPositionWithZoom = PositionWithZoom(
-                    location.latitude,
-                    location.longitude,
-                    currentZoom
-                )
-
                 // trySend replaces offer
-                trySend(currentPositionWithZoom)
+                trySend(
+                    PositionWithZoom(
+                        location.latitude,
+                        location.longitude,
+                        currentZoom
+                    )
+                )
             }
         }
 

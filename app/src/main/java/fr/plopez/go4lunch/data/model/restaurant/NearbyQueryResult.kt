@@ -34,10 +34,6 @@ data class RestaurantQueryResponseItem (
     @SerializedName("place_id")
     val placeID: String?,
 
-    @SerializedName("plus_code")
-    val plusCode: PlusCode?,
-
-
     @SerializedName("rating")
     val rating: Double?,
 
@@ -59,46 +55,39 @@ data class RestaurantQueryResponseItem (
 
 data class Geometry (
     @SerializedName("location")
-    val location: Location,
+    val location: Location?,
 
     @SerializedName("viewport")
-    val viewport: Viewport
+    val viewport: Viewport?
 )
 
 data class Location (
     @SerializedName("lat")
-    val lat: Double,
+    val lat: Double?,
 
     @SerializedName("lng")
-    val lng: Double
+    val lng: Double?
 )
 
 data class Viewport (
     @SerializedName("northeast")
-    val northeast: Location,
+    val northeast: Location?,
 
     @SerializedName("southwest")
-    val southwest: Location
+    val southwest: Location?
 )
 
 data class Photo (
     @SerializedName("height")
-    val height: Long,
+    val height: Long?,
 
     @SerializedName("html_attributions")
-    val htmlAttributions: List<String>,
+    val htmlAttributions: List<String>?,
 
     @SerializedName("photo_reference")
-    val photoReference: String,
+    val photoReference: String?,
 
     @SerializedName("width")
-    val width: Long
+    val width: Long?
 )
 
-data class PlusCode (
-    @SerializedName("compound_code")
-    val compoundCode: String,
-
-    @SerializedName("global_code")
-    val globalCode: String
-)

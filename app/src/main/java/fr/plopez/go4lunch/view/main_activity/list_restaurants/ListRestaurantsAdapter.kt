@@ -1,6 +1,7 @@
 package fr.plopez.go4lunch.view.main_activity.list_restaurants
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,7 @@ import android.widget.RatingBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.request.RequestOptions
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.data.model.restaurant.RestaurantItemViewState
@@ -60,12 +62,14 @@ class ListRestaurantsAdapter : RecyclerView.Adapter<ListRestaurantsAdapter.Resta
             openingText.text = restaurantItemViewState.openingStateText
             ratingBar.rating = restaurantItemViewState.rate
 
+//            Log.d("TAG", "#### photoUrl: ${restaurantItemViewState.photoUrl}")
             // Glide section
-            val requestOptions = RequestOptions()
-                .placeholder(R.drawable.no_pic_for_item_view)
-                .error(R.drawable.no_pic_for_item_view)
             Glide.with(itemView.context)
                 .load(restaurantItemViewState.photoUrl)
+                .placeholder(R.drawable.no_pic_for_item_view)
+                .error(R.drawable.no_pic_for_item_view)
+                .fallback(R.drawable.no_pic_for_item_view)
+                .centerCrop()
                 .into(photo)
         }
     }

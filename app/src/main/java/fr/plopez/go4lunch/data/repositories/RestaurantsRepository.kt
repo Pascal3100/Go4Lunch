@@ -1,5 +1,6 @@
 package fr.plopez.go4lunch.data.repositories
 
+import android.util.Log
 import fr.plopez.go4lunch.data.RestaurantDAO
 import fr.plopez.go4lunch.data.model.restaurant.RestaurantQueryResponseItem
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantEntity
@@ -20,8 +21,10 @@ import retrofit2.HttpException
 import java.io.IOException
 import java.time.LocalTime
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.math.round
 
+@Singleton
 class RestaurantsRepository @Inject constructor(
     private val restaurantService: RestaurantService,
     private val nearbyConstants: NearbyConstants,
@@ -109,7 +112,7 @@ class RestaurantsRepository @Inject constructor(
             val responseBody = response.body()
 
             return if (response.isSuccessful && responseBody != null) {
-                responseBody.result.opening_hours.periods
+                responseBody.result?.opening_hours?.periods ?: emptyList()
             } else {
                 emptyList()
             }
@@ -135,7 +138,7 @@ class RestaurantsRepository @Inject constructor(
         lastRequestTimeStampMutableSharedFlow.emit(timeStamp)
 
         // Store Request in cache
-        restaurantsCacheDAO.insertQuery(
+        restaurantsCacheDAO.upsertQuery(
             RestaurantsQuery(
                 timeStamp,
                 latitude.toDouble(),
@@ -147,7 +150,7 @@ class RestaurantsRepository @Inject constructor(
         restaurantEntityList.forEach {
 
             // Inserting restaurant queries cross ref
-            restaurantsCacheDAO.insertRestaurantQueriesCrossReference(
+            restaurantsCacheDAO.upsertRestaurantQueriesCrossReference(
                 RestaurantQueriesCrossReference(
                     timeStamp,
                     it.restaurantId
@@ -163,38 +166,43 @@ class RestaurantsRepository @Inject constructor(
             if (periodList.isNotEmpty()) {
                 periodList.forEach { period ->
 
-                    val day = period.open.day
-                    val openingHour = period.open.time
-                    val closingHour = period.close.time
-                    val periodId = "$day$openingHour$closingHour"
+                    val day = period.open?.day
+                    val openingHour = period.open?.time
+                    val closingHour = period.close?.time
 
-                    // Inserting Period
-                    restaurantsCacheDAO.insertRestaurantOpeningPeriod(
-                        RestaurantOpeningPeriod(
-                            periodId,
-                            LocalTime.of(
-                                openingHour.take(2).toInt(),
-                                openingHour.takeLast(2).toInt()
-                            ).toString(),
-                            LocalTime.of(
-                                closingHour.take(2).toInt(),
-                                closingHour.takeLast(2).toInt()
-                            ).toString(),
-                            day
-                        )
-                    )
+                    if (day != null &&
+                        openingHour != null &&
+                        closingHour != null
+                    ) {
+                        val periodId = "$day$openingHour$closingHour"
 
-                    // Inserting restaurant - period cross ref
-                    restaurantsCacheDAO.insertRestaurantOpeningPeriodCrossReference(
-                        RestaurantOpeningPeriodsCrossReference(
-                            it.restaurantId,
-                            periodId
+                        // Inserting Period
+                        restaurantsCacheDAO.upsertRestaurantOpeningPeriod(
+                            RestaurantOpeningPeriod(
+                                periodId,
+                                openingHour = LocalTime.of(
+                                    openingHour.take(2).toInt(),
+                                    openingHour.takeLast(2).toInt()
+                                ).toString(),
+                                closingHour = LocalTime.of(
+                                    closingHour.take(2).toInt(),
+                                    closingHour.takeLast(2).toInt()
+                                ).toString(),
+                                dayOfWeek = day
+                            )
                         )
-                    )
+
+                        // Inserting restaurant - period cross ref
+                        restaurantsCacheDAO.upsertRestaurantOpeningPeriodCrossReference(
+                            RestaurantOpeningPeriodsCrossReference(
+                                it.restaurantId,
+                                periodId
+                            )
+                        )
+                    }
                 }
             }
         }
-
     }
 
     // Map the query nearby object to domain object
@@ -205,7 +213,8 @@ class RestaurantsRepository @Inject constructor(
         if (it.placeID != null
             && it.name != null
             && it.vicinity != null
-            && it.geometry != null
+            && it.geometry?.location?.lat != null
+            && it.geometry.location.lng != null
             && it.rating != null
         ) {
             RestaurantEntity(
@@ -230,7 +239,8 @@ class RestaurantsRepository @Inject constructor(
         }
     }
 
-    suspend fun getPositionForTimestamp(timestamp: Long) = restaurantsCacheDAO.getPositionForTimestamp(timestamp)
+    suspend fun getPositionForTimestamp(timestamp: Long) =
+        restaurantsCacheDAO.getPositionForTimestamp(timestamp)
 
     sealed class ResponseStatus {
 

@@ -2,6 +2,7 @@ package fr.plopez.go4lunch.view.main_activity.list_restaurants
 
 import android.content.Context
 import android.location.Location
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +22,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.util.*
 import javax.inject.Inject
+import kotlin.math.round
 
 @ExperimentalCoroutinesApi
 @HiltViewModel
@@ -35,18 +37,20 @@ class ListRestaurantsViewModel @Inject constructor(
         private const val MAX_WIDTH = "1080"
     }
 
-    private val initPositionWithZoom = LocationRepository.PositionWithZoom(0.0, 0.0, 0.0F)
     private val restaurantsItemsMutableStateFlow =
         MutableStateFlow(emptyList<RestaurantItemViewState>())
     val restaurantsItemsStateFlow = restaurantsItemsMutableStateFlow.asStateFlow()
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            restaurantsRepository.lastRequestTimeStampSharedFlow.map {
-                mapToViewState(restaurantsRepository.getRestaurantsWithOpeningPeriods(it),
-                    restaurantsRepository.getPositionForTimestamp(it))
-            }.collect {
-                restaurantsItemsMutableStateFlow.value = it
+            restaurantsRepository.lastRequestTimeStampSharedFlow.collect {
+
+                val restaurantsWithOpeningPeriodsList = mapToViewState(
+                    restaurantsRepository.getRestaurantsWithOpeningPeriods(it),
+                    restaurantsRepository.getPositionForTimestamp(it)
+                )
+
+                restaurantsItemsMutableStateFlow.value = restaurantsWithOpeningPeriodsList
             }
         }
     }
@@ -57,43 +61,35 @@ class ListRestaurantsViewModel @Inject constructor(
     ): List<RestaurantItemViewState> {
         if (restaurantsWithOpeningPeriods.isEmpty()) emptyList<RestaurantItemViewState>()
 
+        return restaurantsWithOpeningPeriods.map {
 
-        // TODO replace ths with .map
-        val restaurantItemViewStateList = mutableListOf<RestaurantItemViewState>()
-
-        restaurantsWithOpeningPeriods.forEach {
-
-            restaurantItemViewStateList.add(
-                RestaurantItemViewState(
-                    it.restaurant.name,
-                    it.restaurant.address,
-                    createOpeningStateText(it.openingHours),
-                    getDistanceToUser(
-                        it.restaurant.latitude,
-                        it.restaurant.longitude,
-                        restaurantsQuery.latitude,
-                        restaurantsQuery.longitude
-                    ),
-                    getInterestedWorkmates(it.restaurant.name),
-                    it.restaurant.rate,
-                    mapRestaurantPhotoUrl(it.restaurant.photoUrl)
-                )
+            RestaurantItemViewState(
+                it.restaurant.name,
+                it.restaurant.address,
+                createOpeningStateText(it.openingHours),
+                getDistanceToUser(
+                    it.restaurant.latitude,
+                    it.restaurant.longitude,
+                    restaurantsQuery.latitude,
+                    restaurantsQuery.longitude
+                ),
+                getInterestedWorkmates(it.restaurant.name),
+                it.restaurant.rate,
+                mapRestaurantPhotoUrl(it.restaurant.photoUrl)
             )
         }
-
-        return restaurantItemViewStateList
     }
 
     // Retrieve photo Url per restaurant
     private fun mapRestaurantPhotoUrl(photoReference: String?): String {
-        return (if (photoReference != null) {
+        return if (photoReference != null) {
             "https://maps.googleapis.com/maps/api/place/photo?" +
                     "maxwidth=${MAX_WIDTH}&" +
                     "photoreference=$photoReference&" +
-                    "key=${nearbyConstants.key};"
+                    "key=${nearbyConstants.key}"
         } else {
             ""
-        })
+        }
     }
 
     // TODO how to do this??? surely another Flow buddy
@@ -115,27 +111,46 @@ class ListRestaurantsViewModel @Inject constructor(
         userLocation.latitude = userLatitude
         userLocation.longitude = userLongitude
 
-        return "${restaurantLocation.distanceTo(userLocation)}+${context.resources.getString(R.string.distance_unit)}"
+        val userDistance = round(restaurantLocation.distanceTo(userLocation)).toInt()
+
+        return "${userDistance}${context.resources.getString(R.string.distance_unit)}"
     }
 
     // Build the restaurant opening hour string
     private fun createOpeningStateText(
         openingHours: List<RestaurantOpeningPeriod>
     ): String {
+
+        val calendar = Calendar.getInstance()
+        var day = calendar.get(Calendar.DAY_OF_WEEK)
+
+        // Manage the difference of day index system between Place Details and Calendar
+        if (day > 1) {
+            day -= 1
+        } else {
+            day += 6
+        }
+
+        if (openingHours.isEmpty()) {
+            return "-"
+        }
+
         val currentTime = LocalTime.now()
         val listOfCandidates = mutableListOf<RestaurantOpeningPeriod>()
 
+
         // get all opening periods of the current day
         openingHours.forEach {
-            when (it.dayOfWeek) {
-                Calendar.DAY_OF_WEEK -> {
-                    listOfCandidates.add(it)
-                }
+            if (it.dayOfWeek == day) {
+                listOfCandidates.add(it)
             }
         }
 
+        if (listOfCandidates.isEmpty())
+            return context.resources.getString(R.string.closed_today_text)
+
         // Sort them
-        listOfCandidates.sortBy { it.periodId }
+        listOfCandidates.sortBy { it.periodId.toLong() }
 
         // check for extreme last hour
         if (LocalTime.parse(listOfCandidates.last().closingHour).isBefore(currentTime))
@@ -149,14 +164,14 @@ class ListRestaurantsViewModel @Inject constructor(
 
             // before opening case
             if (currentTime.isBefore(opening))
-                openingPeriodText = "${context.resources.getString(R.string.open_at_text)}+$opening"
+                openingPeriodText = "${context.resources.getString(R.string.open_at_text)}$opening"
 
             val closing = LocalTime.parse(it.closingHour)
 
             // in opening period case
             if (currentTime.isAfter(opening) && currentTime.isBefore(closing))
                 openingPeriodText =
-                    "${context.resources.getString(R.string.open_until_text)}+$closing"
+                    "${context.resources.getString(R.string.open_until_text)}$closing"
         }
 
         return openingPeriodText

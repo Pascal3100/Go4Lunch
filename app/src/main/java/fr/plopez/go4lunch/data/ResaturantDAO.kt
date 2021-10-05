@@ -18,21 +18,21 @@ interface RestaurantDAO {
 
     // Insert a new query
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertQuery(query: RestaurantsQuery)
+    suspend fun upsertQuery(query: RestaurantsQuery)
 
     // Insert a new opening period
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertRestaurantOpeningPeriod(openingPeriod: RestaurantOpeningPeriod)
+    suspend fun upsertRestaurantOpeningPeriod(openingPeriod: RestaurantOpeningPeriod)
 
     // Insert the cross reference between restaurant and opening period because of n m relation
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertRestaurantOpeningPeriodCrossReference(
+    suspend fun upsertRestaurantOpeningPeriodCrossReference(
         crossReference: RestaurantOpeningPeriodsCrossReference
     )
 
     // Insert the cross reference between query and restaurants because of n m relation
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertRestaurantQueriesCrossReference(
+    suspend fun upsertRestaurantQueriesCrossReference(
         crossReference: RestaurantQueriesCrossReference
     )
 
@@ -51,7 +51,7 @@ interface RestaurantDAO {
     @Query(
         "SELECT * " +
                 "FROM restaurant_entity " +
-                "WHERE restaurant_id = (" +
+                "WHERE restaurant_id IN (" +
                     "SELECT restaurant_id " +
                     "FROM restaurant_queries_cross_ref " +
                     "WHERE query_time_stamp = :queryTimeStamp" +

@@ -54,5 +54,6 @@
     <string name="closed_text">closed</string>
     <string name="open_at_text">"open at "</string>
     <string name="open_until_text">"open until "</string>
+    <string name="closed_today_text">closed today</string>
 
 </resources>

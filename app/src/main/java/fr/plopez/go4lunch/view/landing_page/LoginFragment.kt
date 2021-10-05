@@ -74,7 +74,6 @@ class LoginFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        Log.d(TAG, "#### onAttach: ${context.toString()}")
         if (context is OnLoginSuccessful) {
             onLoginSuccessful = context
         } else {
