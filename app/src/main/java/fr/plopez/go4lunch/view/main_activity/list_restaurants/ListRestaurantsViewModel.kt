@@ -14,6 +14,7 @@ import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantsQuery
 import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantWithOpeningPeriods
 import fr.plopez.go4lunch.data.repositories.LocationRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
+import fr.plopez.go4lunch.di.CoroutinesProvider
 import fr.plopez.go4lunch.di.NearbyConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -28,8 +29,8 @@ import kotlin.math.round
 @HiltViewModel
 class ListRestaurantsViewModel @Inject constructor(
     private val restaurantsRepository: RestaurantsRepository,
-    private val locationRepository: LocationRepository,
     private val nearbyConstants: NearbyConstants,
+    private val coroutinesProvider: CoroutinesProvider,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -42,7 +43,7 @@ class ListRestaurantsViewModel @Inject constructor(
     val restaurantsItemsStateFlow = restaurantsItemsMutableStateFlow.asStateFlow()
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(coroutinesProvider.ioCoroutineDispatcher) {
             restaurantsRepository.lastRequestTimeStampSharedFlow.collect {
 
                 val restaurantsWithOpeningPeriodsList = mapToViewState(

@@ -16,8 +16,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Go4Lunch" >
-        <activity android:name=".view.restaurant_details.RestaurantDetailsActivity" />
-        <activity android:name=".view.main_activity.MainActivity" />
+        <activity android:name=".view.restaurant_details.RestaurantDetailsActivity"
+            android:exported="false" />
+        <activity android:name=".view.main_activity.MainActivity"
+            android:exported="false" />
         <activity android:name=".view.landing_page.LandingPageActivity"
             android:exported="true">
             <intent-filter>

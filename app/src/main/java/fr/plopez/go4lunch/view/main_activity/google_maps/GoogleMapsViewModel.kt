@@ -11,6 +11,7 @@ import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantEntity
 import fr.plopez.go4lunch.data.repositories.LocationRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
+import fr.plopez.go4lunch.di.CoroutinesProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -25,6 +26,7 @@ import javax.inject.Inject
 class GoogleMapsViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
     private val restaurantsRepository: RestaurantsRepository,
+    private val coroutinesProvider: CoroutinesProvider,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -47,7 +49,7 @@ class GoogleMapsViewModel @Inject constructor(
     init {
 
         // Initialization of the flow at init of the viewModel
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(coroutinesProvider.ioCoroutineDispatcher) {
 
             combine(
                 onMapReadyMutableStateFlow, locationRepository.fetchUpdates()
