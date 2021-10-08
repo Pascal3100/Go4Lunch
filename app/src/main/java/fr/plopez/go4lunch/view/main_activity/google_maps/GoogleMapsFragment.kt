@@ -108,14 +108,20 @@ class GoogleMapsFragment : SupportMapFragment(), OnMapReadyCallback {
                         }
                     }
                 }
+            }
 
-                googleMapsViewModel.googleMapViewActionFlow.collect {
-                    when (it) {
-                        is GoogleMapsViewModel.GoogleMapViewAction.ResponseStatusMessage ->
-                            snackbar.showWarningSnackBar(getString(it.messageResId))
+            lifecycleScope.launch {
+                lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+
+                    googleMapsViewModel.googleMapViewActionFlow.collect {
+                        when (it) {
+                            is GoogleMapsViewModel.GoogleMapViewAction.ResponseStatusMessage ->
+                                snackbar.showWarningSnackBar(getString(it.messageResId))
+                        }
                     }
                 }
             }
+
         }
     }
 

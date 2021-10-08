@@ -218,13 +218,13 @@ class RestaurantsRepository @Inject constructor(
             && it.rating != null
         ) {
             RestaurantEntity(
-                it.placeID,
-                it.name,
-                it.vicinity,
-                it.geometry.location.lat,
-                it.geometry.location.lng,
-                it.photos?.firstOrNull()?.photoReference,
-                round((it.rating.toFloat() * 3.0f) / 5.0f)
+                restaurantId = it.placeID,
+                name = it.name,
+                address = it.vicinity,
+                latitude = it.geometry.location.lat,
+                longitude = it.geometry.location.lng,
+                photoUrl = it.photos?.firstOrNull()?.photoReference,
+                rate = round((it.rating.toFloat() * 3.0f) / 5.0f)
             )
         } else {
             null
@@ -233,7 +233,7 @@ class RestaurantsRepository @Inject constructor(
 
     suspend fun getRestaurantsWithOpeningPeriods(requestedTimeStamp: Long): List<RestaurantWithOpeningPeriods> {
         return if (requestedTimeStamp == 0L) {
-            emptyList<RestaurantWithOpeningPeriods>()
+            emptyList()
         } else {
             restaurantsCacheDAO.getCurrentRestaurants(requestedTimeStamp)
         }
