@@ -60,27 +60,6 @@ class RestaurantsRepositoryTest {
         // Coroutines provider mock - provides a specific dispatcher for tests
         every { coroutinesProviderMock.ioCoroutineDispatcher } returns testCoroutineRule.testCoroutineDispatcher
 
-        // service mockk
-        coEvery {
-            restaurantServiceMock.getOpeningPeriodsForRestaurant(
-                nearbyConstants.key,
-                PERIODS_SEARCH_FIELD,
-                any()
-            )
-        } returns Response.success(
-            DetailsQueryResult(
-                html_attributions = emptyList(),
-                result = Result(
-                    OpeningHours(
-                        open_now = true,
-                        periods = getPeriodList(),
-                        weekday_text = listOf("")
-                    )
-                ),
-                status = ""
-            )
-        )
-
         // DAO mockk
         coJustRun { restaurantsCacheDAOMock.upsertQuery(any()) }
         coJustRun { restaurantsCacheDAOMock.upsertRestaurant(any()) }
@@ -105,6 +84,8 @@ class RestaurantsRepositoryTest {
         // Given
         val restaurantQueryResponseItem =
             podamFactory.manufacturePojo(RestaurantQueryResponseItem::class.java)
+
+        setupServiceMockForFilledPeriods()
 
         coEvery {
             restaurantsCacheDAOMock.getNearestRestaurants(
@@ -152,6 +133,8 @@ class RestaurantsRepositoryTest {
         testCoroutineRule.runBlockingTest {
 
             // Given
+            setupServiceMockForFilledPeriods()
+
             coEvery {
                 restaurantsCacheDAOMock.getNearestRestaurants(
                     latitude = LATITUDE.toDouble(),
@@ -189,6 +172,8 @@ class RestaurantsRepositoryTest {
         testCoroutineRule.runBlockingTest {
 
             // Given
+            setupServiceMockForFilledPeriods()
+
             coEvery {
                 restaurantsCacheDAOMock.getNearestRestaurants(
                     latitude = LATITUDE.toDouble(),
@@ -235,6 +220,8 @@ class RestaurantsRepositoryTest {
         testCoroutineRule.runBlockingTest {
 
             // Given
+            setupServiceMockForFilledPeriods()
+
             coEvery {
                 restaurantsCacheDAOMock.getNearestRestaurants(
                     latitude = LATITUDE.toDouble(),
@@ -278,6 +265,8 @@ class RestaurantsRepositoryTest {
         testCoroutineRule.runBlockingTest {
 
             // Given
+            setupServiceMockForFilledPeriods()
+
             coEvery {
                 restaurantsCacheDAOMock.getNearestRestaurants(
                     latitude = LATITUDE.toDouble(),
@@ -323,6 +312,8 @@ class RestaurantsRepositoryTest {
         testCoroutineRule.runBlockingTest {
 
             // Given
+            setupServiceMockForFilledPeriods()
+
             coEvery {
                 restaurantsCacheDAOMock.getNearestRestaurants(
                     latitude = LATITUDE.toDouble(),
@@ -359,7 +350,6 @@ class RestaurantsRepositoryTest {
     fun `getRestaurantsAroundPosition from database case`() = testCoroutineRule.runBlockingTest {
 
         // Given
-
         val queryWithRestaurants = getQueryWithRestaurants()
 
         coEvery {
@@ -386,7 +376,110 @@ class RestaurantsRepositoryTest {
         assertEquals(expectedResponse, result)
     }
 
+    @Test
+    fun `opening periods not inserted in database when empty`() = testCoroutineRule.runBlockingTest {
+        val restaurantQueryResponseItem =
+            podamFactory.manufacturePojo(RestaurantQueryResponseItem::class.java)
+
+        coEvery {
+            restaurantsCacheDAOMock.getNearestRestaurants(
+                latitude = LATITUDE.toDouble(),
+                longitude = LONGITUDE.toDouble(),
+                displacementTol = MAX_DISPLACEMENT_TOL.toFloat()
+            )
+        } returns emptyList()
+
+        coEvery {
+            restaurantServiceMock.getNearbyRestaurants(
+                nearbyConstants.key,
+                nearbyConstants.type,
+                LOCATION,
+                RADIUS
+            )
+        } returns Response.success(
+            NearbyQueryResult(
+                html_attributions = emptyList(),
+                next_page_token = "",
+                results = listOf(restaurantQueryResponseItem),
+                ""
+            )
+        )
+
+        val restaurantsRepository = buildRestaurantRepository()
+
+        // When
+        val result = restaurantsRepository.getRestaurantsAroundPosition(
+            latitude = LATITUDE,
+            longitude = LONGITUDE,
+            radius = RADIUS
+        ).first()
+
+        // then
+
+
+    }
+
     // region IN
+
+    private fun setupServiceMockForFilledPeriods(){
+        // service mockk
+        coEvery {
+            restaurantServiceMock.getOpeningPeriodsForRestaurant(
+                nearbyConstants.key,
+                PERIODS_SEARCH_FIELD,
+                any()
+            )
+        } returns Response.success(
+            DetailsQueryResult(
+                html_attributions = emptyList(),
+                result = Result(
+                    OpeningHours(
+                        open_now = true,
+                        periods = getPeriodList(),
+                        weekday_text = listOf("")
+                    )
+                ),
+                status = ""
+            )
+        )
+    }
+
+    private fun setupServiceMockForEmptyPeriods(){
+        // service mockk
+        coEvery {
+            restaurantServiceMock.getOpeningPeriodsForRestaurant(
+                nearbyConstants.key,
+                PERIODS_SEARCH_FIELD,
+                any()
+            )
+        } returns Response.success(
+            DetailsQueryResult(
+                html_attributions = emptyList(),
+                result = Result(
+                    OpeningHours(
+                        open_now = true,
+                        periods = emptyList(),
+                        weekday_text = listOf("")
+                    )
+                ),
+                status = ""
+            )
+        )
+    }
+
+    private fun setupServiceMockForNullResponse(){
+        // service mockk
+        coEvery {
+            restaurantServiceMock.getOpeningPeriodsForRestaurant(
+                nearbyConstants.key,
+                PERIODS_SEARCH_FIELD,
+                any()
+            )
+        } returns Response.error(ERROR_CODE, null)
+    }
+
+
+
     private fun getExpectedRestaurantEntityList(
         restaurantQueryResponseItem: RestaurantQueryResponseItem
     ): List<RestaurantEntity> {
