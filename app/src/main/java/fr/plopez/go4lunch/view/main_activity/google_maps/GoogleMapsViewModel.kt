@@ -12,7 +12,6 @@ import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantEntity
 import fr.plopez.go4lunch.data.repositories.LocationRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
@@ -26,7 +25,7 @@ import javax.inject.Inject
 class GoogleMapsViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
     private val restaurantsRepository: RestaurantsRepository,
-    private val coroutinesProvider: CoroutinesProvider,
+    coroutinesProvider: CoroutinesProvider,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -54,10 +53,10 @@ class GoogleMapsViewModel @Inject constructor(
             combine(
                 onMapReadyMutableStateFlow, locationRepository.fetchUpdates()
             ) { isMapReady, positionWithZoom ->
+
                 // Send an empty flow is map not ready
                 if (!isMapReady) return@combine null
 
-                // TODO : detection radius can be a setting...
                 // Send a retrofit request to fetch restaurants around received position
                 restaurantsRepository.getRestaurantsAroundPosition(
                     positionWithZoom.latitude.toString(),
@@ -95,7 +94,7 @@ class GoogleMapsViewModel @Inject constructor(
         messageResId: Int
     ) {
         googleMapViewActionChannel.send(
-            GoogleMapViewAction.ResponseStatusMessage(R.string.no_response_message)
+            GoogleMapViewAction.ResponseStatusMessage(messageResId)
         )
     }
 

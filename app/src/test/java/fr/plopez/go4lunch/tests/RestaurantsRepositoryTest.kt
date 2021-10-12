@@ -52,376 +52,17 @@ class RestaurantsRepositoryTest {
     // Test variables
     private val nearbyConstants = NearbyConstants()
     private val podamFactory = PodamFactoryImpl()
+    private val restaurantQueryResponseItem =
+        podamFactory.manufacturePojo(RestaurantQueryResponseItem::class.java)
+    private val queryWithRestaurants = getQueryWithRestaurants()
+
+    private lateinit var restaurantsRepository :RestaurantsRepository
 
     @Before
     fun setUp() {
-        MockKAnnotations.init(this, relaxUnitFun = true)
-
         // Coroutines provider mock - provides a specific dispatcher for tests
         every { coroutinesProviderMock.ioCoroutineDispatcher } returns testCoroutineRule.testCoroutineDispatcher
 
-        // DAO mockk
-        coJustRun { restaurantsCacheDAOMock.upsertQuery(any()) }
-        coJustRun { restaurantsCacheDAOMock.upsertRestaurant(any()) }
-        coJustRun { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriod(any()) }
-        coJustRun {
-            restaurantsCacheDAOMock.upsertRestaurantOpeningPeriodCrossReference(
-                any()
-            )
-        }
-        coJustRun {
-            restaurantsCacheDAOMock.upsertRestaurantQueriesCrossReference(
-                any()
-            )
-        }
-    }
-
-    // returns some restaurants from the network because database is empty
-    // or do not contains the corresponding query
-    @Test
-    fun `getRestaurantsAroundPosition from network case`() = testCoroutineRule.runBlockingTest {
-
-        // Given
-        val restaurantQueryResponseItem =
-            podamFactory.manufacturePojo(RestaurantQueryResponseItem::class.java)
-
-        setupServiceMockForFilledPeriods()
-
-        coEvery {
-            restaurantsCacheDAOMock.getNearestRestaurants(
-                latitude = LATITUDE.toDouble(),
-                longitude = LONGITUDE.toDouble(),
-                displacementTol = MAX_DISPLACEMENT_TOL.toFloat()
-            )
-        } returns emptyList()
-
-        coEvery {
-            restaurantServiceMock.getNearbyRestaurants(
-                nearbyConstants.key,
-                nearbyConstants.type,
-                LOCATION,
-                RADIUS
-            )
-        } returns Response.success(
-            NearbyQueryResult(
-                html_attributions = emptyList(),
-                next_page_token = "",
-                results = listOf(restaurantQueryResponseItem),
-                ""
-            )
-        )
-
-        val restaurantsRepository = buildRestaurantRepository()
-
-        // When
-        val result = restaurantsRepository.getRestaurantsAroundPosition(
-            latitude = LATITUDE,
-            longitude = LONGITUDE,
-            radius = RADIUS
-        ).first()
-
-        // Then
-        val expectedResponse = RestaurantsRepository.ResponseStatus.Success(
-            getExpectedRestaurantEntityList(restaurantQueryResponseItem)
-        )
-        assertEquals(expectedResponse, result)
-    }
-
-    // returns exception message because IOException
-    @Test
-    fun `getRestaurantsAroundPosition IOException`() =
-        testCoroutineRule.runBlockingTest {
-
-            // Given
-            setupServiceMockForFilledPeriods()
-
-            coEvery {
-                restaurantsCacheDAOMock.getNearestRestaurants(
-                    latitude = LATITUDE.toDouble(),
-                    longitude = LONGITUDE.toDouble(),
-                    displacementTol = MAX_DISPLACEMENT_TOL.toFloat()
-                )
-            } returns emptyList()
-
-            coEvery {
-                restaurantServiceMock.getNearbyRestaurants(
-                    nearbyConstants.key,
-                    nearbyConstants.type,
-                    LOCATION,
-                    RADIUS
-                )
-            }.throws(IOException("this is a fake IO exception for testing purpose"))
-
-            val restaurantsRepository = buildRestaurantRepository()
-
-            // When
-            val result = restaurantsRepository.getRestaurantsAroundPosition(
-                latitude = LATITUDE,
-                longitude = LONGITUDE,
-                radius = RADIUS
-            ).first()
-
-            // Then
-            val expectedResponse = RestaurantsRepository.ResponseStatus.StatusError.IOException
-            assertEquals(expectedResponse, result)
-        }
-
-    // returns exception message because HttpException
-    @Test
-    fun `getRestaurantsAroundPosition HttpException`() =
-        testCoroutineRule.runBlockingTest {
-
-            // Given
-            setupServiceMockForFilledPeriods()
-
-            coEvery {
-                restaurantsCacheDAOMock.getNearestRestaurants(
-                    latitude = LATITUDE.toDouble(),
-                    longitude = LONGITUDE.toDouble(),
-                    displacementTol = MAX_DISPLACEMENT_TOL.toFloat()
-                )
-            } returns emptyList()
-
-            coEvery {
-                restaurantServiceMock.getNearbyRestaurants(
-                    nearbyConstants.key,
-                    nearbyConstants.type,
-                    LOCATION,
-                    RADIUS
-                )
-            }.throws(
-                HttpException(
-                    Response.error<Any>(
-                        ERROR_CODE,
-                        ResponseBody.create(
-                            MediaType.parse("plain/text"), "some content"
-                        )
-                    )
-                )
-            )
-
-            val restaurantsRepository = buildRestaurantRepository()
-
-            // When
-            val result = restaurantsRepository.getRestaurantsAroundPosition(
-                latitude = LATITUDE,
-                longitude = LONGITUDE,
-                radius = RADIUS
-            ).first()
-
-            // Then
-            val expectedResponse = RestaurantsRepository.ResponseStatus.StatusError.HttpException
-            assertEquals(expectedResponse, result)
-        }
-
-    // returns no response message because request not successful
-    @Test
-    fun `getRestaurantsAroundPosition no response because request not successful`() =
-        testCoroutineRule.runBlockingTest {
-
-            // Given
-            setupServiceMockForFilledPeriods()
-
-            coEvery {
-                restaurantsCacheDAOMock.getNearestRestaurants(
-                    latitude = LATITUDE.toDouble(),
-                    longitude = LONGITUDE.toDouble(),
-                    displacementTol = MAX_DISPLACEMENT_TOL.toFloat()
-                )
-            } returns emptyList()
-
-            coEvery {
-                restaurantServiceMock.getNearbyRestaurants(
-                    nearbyConstants.key,
-                    nearbyConstants.type,
-                    LOCATION,
-                    RADIUS
-                )
-            } returns Response.error(
-                ERROR_CODE,
-                ResponseBody.create(
-                    MediaType.parse("plain/text"), "some content"
-                )
-            )
-
-
-            val restaurantsRepository = buildRestaurantRepository()
-
-            // When
-            val result = restaurantsRepository.getRestaurantsAroundPosition(
-                latitude = LATITUDE,
-                longitude = LONGITUDE,
-                radius = RADIUS
-            ).first()
-
-            // Then
-            val expectedResponse = RestaurantsRepository.ResponseStatus.NoResponse
-            assertEquals(expectedResponse, result)
-        }
-
-    // returns no response message because request result is empty
-    @Test
-    fun `getRestaurantsAroundPosition no response because request result is empty`() =
-        testCoroutineRule.runBlockingTest {
-
-            // Given
-            setupServiceMockForFilledPeriods()
-
-            coEvery {
-                restaurantsCacheDAOMock.getNearestRestaurants(
-                    latitude = LATITUDE.toDouble(),
-                    longitude = LONGITUDE.toDouble(),
-                    displacementTol = MAX_DISPLACEMENT_TOL.toFloat()
-                )
-            } returns emptyList()
-
-            coEvery {
-                restaurantServiceMock.getNearbyRestaurants(
-                    nearbyConstants.key,
-                    nearbyConstants.type,
-                    LOCATION,
-                    RADIUS
-                )
-            } returns Response.success(
-                NearbyQueryResult(
-                    html_attributions = emptyList(),
-                    next_page_token = "",
-                    results = emptyList(),
-                    ""
-                )
-            )
-
-
-            val restaurantsRepository = buildRestaurantRepository()
-
-            // When
-            val result = restaurantsRepository.getRestaurantsAroundPosition(
-                latitude = LATITUDE,
-                longitude = LONGITUDE,
-                radius = RADIUS
-            ).first()
-
-            // Then
-            val expectedResponse = RestaurantsRepository.ResponseStatus.NoResponse
-            assertEquals(expectedResponse, result)
-        }
-
-    // returns no response message because request result is null
-    @Test
-    fun `getRestaurantsAroundPosition no response because request result is null`() =
-        testCoroutineRule.runBlockingTest {
-
-            // Given
-            setupServiceMockForFilledPeriods()
-
-            coEvery {
-                restaurantsCacheDAOMock.getNearestRestaurants(
-                    latitude = LATITUDE.toDouble(),
-                    longitude = LONGITUDE.toDouble(),
-                    displacementTol = MAX_DISPLACEMENT_TOL.toFloat()
-                )
-            } returns emptyList()
-
-            coEvery {
-                restaurantServiceMock.getNearbyRestaurants(
-                    nearbyConstants.key,
-                    nearbyConstants.type,
-                    LOCATION,
-                    RADIUS
-                )
-            } returns Response.success(null)
-
-            val restaurantsRepository = buildRestaurantRepository()
-
-            // When
-            val result = restaurantsRepository.getRestaurantsAroundPosition(
-                latitude = LATITUDE,
-                longitude = LONGITUDE,
-                radius = RADIUS
-            ).first()
-
-            // Then
-            val expectedResponse = RestaurantsRepository.ResponseStatus.NoResponse
-            assertEquals(expectedResponse, result)
-        }
-
-    // returns some restaurants from the database
-    @Test
-    fun `getRestaurantsAroundPosition from database case`() = testCoroutineRule.runBlockingTest {
-
-        // Given
-        val queryWithRestaurants = getQueryWithRestaurants()
-
-        coEvery {
-            restaurantsCacheDAOMock.getNearestRestaurants(
-                latitude = LATITUDE.toDouble(),
-                longitude = LONGITUDE.toDouble(),
-                displacementTol = MAX_DISPLACEMENT_TOL.toFloat()
-            )
-        } returns queryWithRestaurants
-
-        val restaurantsRepository = buildRestaurantRepository()
-
-        // When
-        val result = restaurantsRepository.getRestaurantsAroundPosition(
-            latitude = LATITUDE,
-            longitude = LONGITUDE,
-            radius = RADIUS
-        ).first()
-
-        // Then
-        val expectedResponse = RestaurantsRepository.ResponseStatus.Success(
-            queryWithRestaurants.first().restaurantList
-        )
-        assertEquals(expectedResponse, result)
-    }
-
-    @Test
-    fun `opening periods not inserted in database when empty`() = testCoroutineRule.runBlockingTest {
-        val restaurantQueryResponseItem =
-            podamFactory.manufacturePojo(RestaurantQueryResponseItem::class.java)
-
-        coEvery {
-            restaurantsCacheDAOMock.getNearestRestaurants(
-                latitude = LATITUDE.toDouble(),
-                longitude = LONGITUDE.toDouble(),
-                displacementTol = MAX_DISPLACEMENT_TOL.toFloat()
-            )
-        } returns emptyList()
-
-        coEvery {
-            restaurantServiceMock.getNearbyRestaurants(
-                nearbyConstants.key,
-                nearbyConstants.type,
-                LOCATION,
-                RADIUS
-            )
-        } returns Response.success(
-            NearbyQueryResult(
-                html_attributions = emptyList(),
-                next_page_token = "",
-                results = listOf(restaurantQueryResponseItem),
-                ""
-            )
-        )
-
-        val restaurantsRepository = buildRestaurantRepository()
-
-        // When
-        val result = restaurantsRepository.getRestaurantsAroundPosition(
-            latitude = LATITUDE,
-            longitude = LONGITUDE,
-            radius = RADIUS
-        ).first()
-
-        // then
-
-
-    }
-
-    // region IN
-
-    private fun setupServiceMockForFilledPeriods(){
         // service mockk
         coEvery {
             restaurantServiceMock.getOpeningPeriodsForRestaurant(
@@ -442,44 +83,382 @@ class RestaurantsRepositoryTest {
                 status = ""
             )
         )
-    }
 
-    private fun setupServiceMockForEmptyPeriods(){
-        // service mockk
-        coEvery {
-            restaurantServiceMock.getOpeningPeriodsForRestaurant(
-                nearbyConstants.key,
-                PERIODS_SEARCH_FIELD,
+        // DAO mockk
+        coJustRun { restaurantsCacheDAOMock.upsertQuery(any()) }
+        coJustRun { restaurantsCacheDAOMock.upsertRestaurant(any()) }
+        coJustRun { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriod(any()) }
+        coJustRun {
+            restaurantsCacheDAOMock.upsertRestaurantOpeningPeriodCrossReference(
                 any()
+            )
+        }
+        coJustRun {
+            restaurantsCacheDAOMock.upsertRestaurantQueriesCrossReference(
+                any()
+            )
+        }
+
+        coEvery {
+            restaurantsCacheDAOMock.getNearestRestaurants(
+                latitude = LATITUDE.toDouble(),
+                longitude = LONGITUDE.toDouble(),
+                displacementTol = MAX_DISPLACEMENT_TOL.toFloat()
+            )
+        } returns emptyList()
+
+        coEvery {
+            restaurantServiceMock.getNearbyRestaurants(
+                nearbyConstants.key,
+                nearbyConstants.type,
+                LOCATION,
+                RADIUS
             )
         } returns Response.success(
-            DetailsQueryResult(
+            NearbyQueryResult(
                 html_attributions = emptyList(),
-                result = Result(
-                    OpeningHours(
-                        open_now = true,
-                        periods = emptyList(),
-                        weekday_text = listOf("")
-                    )
-                ),
-                status = ""
+                next_page_token = "",
+                results = listOf(restaurantQueryResponseItem),
+                ""
             )
         )
+
+        restaurantsRepository = RestaurantsRepository(
+            restaurantService = restaurantServiceMock,
+            nearbyConstants = nearbyConstants,
+            restaurantsCacheDAO = restaurantsCacheDAOMock,
+            coroutinesProvider = coroutinesProviderMock
+        )
+
     }
 
-    private fun setupServiceMockForNullResponse(){
-        // service mockk
+    // returns some restaurants from the network because database is empty
+    // or do not contains the corresponding query
+    @Test
+    fun `getRestaurantsAroundPosition from network case`() = testCoroutineRule.runBlockingTest {
+
+        // Given
+
+        // When
+        val result = restaurantsRepository.getRestaurantsAroundPosition(
+            latitude = LATITUDE,
+            longitude = LONGITUDE,
+            radius = RADIUS
+        ).first()
+
+        // Then
+        val expectedResponse = RestaurantsRepository.ResponseStatus.Success(
+            getExpectedRestaurantEntityList(restaurantQueryResponseItem)
+        )
+        assertEquals(expectedResponse, result)
+        coVerify(exactly = 1) { restaurantsCacheDAOMock.upsertQuery(any()) }
+        coVerify(atLeast = 1) { restaurantsCacheDAOMock.upsertRestaurant(any()) }
+        coVerify(atLeast = 1) { restaurantsCacheDAOMock.upsertRestaurantQueriesCrossReference(any()) }
+        coVerify(atLeast = 1) { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriod(any()) }
+        coVerify(atLeast = 1) { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriodCrossReference(any()) }
+    }
+
+    // returns some restaurants from the database
+    @Test
+    fun `getRestaurantsAroundPosition from database case`() = testCoroutineRule.runBlockingTest {
+
+        // Given
         coEvery {
-            restaurantServiceMock.getOpeningPeriodsForRestaurant(
-                nearbyConstants.key,
-                PERIODS_SEARCH_FIELD,
-                any()
+            restaurantsCacheDAOMock.getNearestRestaurants(
+                latitude = LATITUDE.toDouble(),
+                longitude = LONGITUDE.toDouble(),
+                displacementTol = MAX_DISPLACEMENT_TOL.toFloat()
             )
-        } returns Response.error(ERROR_CODE, null)
+        } returns queryWithRestaurants
+
+        // When
+        val result = restaurantsRepository.getRestaurantsAroundPosition(
+            latitude = LATITUDE,
+            longitude = LONGITUDE,
+            radius = RADIUS
+        ).first()
+
+        // Then
+        val expectedResponse = RestaurantsRepository.ResponseStatus.Success(
+            queryWithRestaurants.first().restaurantList
+        )
+        assertEquals(expectedResponse, result)
+        coVerify(exactly = 0) { restaurantsCacheDAOMock.upsertQuery(any()) }
+        coVerify(exactly = 0) { restaurantsCacheDAOMock.upsertRestaurant(any()) }
+        coVerify(exactly = 0) { restaurantsCacheDAOMock.upsertRestaurantQueriesCrossReference(any()) }
+        coVerify(exactly = 0) { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriod(any()) }
+        coVerify(exactly = 0) { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriodCrossReference(any()) }
+
     }
 
+    // returns exception message because IOException
+    @Test
+    fun `getRestaurantsAroundPosition IOException`() =
+        testCoroutineRule.runBlockingTest {
 
+            // Given
+            coEvery {
+                restaurantServiceMock.getNearbyRestaurants(
+                    nearbyConstants.key,
+                    nearbyConstants.type,
+                    LOCATION,
+                    RADIUS
+                )
+            }.throws(IOException("this is a fake IO exception for testing purpose"))
 
+            // When
+            val result = restaurantsRepository.getRestaurantsAroundPosition(
+                latitude = LATITUDE,
+                longitude = LONGITUDE,
+                radius = RADIUS
+            ).first()
+
+            // Then
+            val expectedResponse = RestaurantsRepository.ResponseStatus.StatusError.IOException
+            assertEquals(expectedResponse, result)
+        }
+
+    // returns exception message because HttpException
+    @Test
+    fun `getRestaurantsAroundPosition HttpException`() =
+        testCoroutineRule.runBlockingTest {
+
+            // Given
+            coEvery {
+                restaurantServiceMock.getNearbyRestaurants(
+                    nearbyConstants.key,
+                    nearbyConstants.type,
+                    LOCATION,
+                    RADIUS
+                )
+            }.throws(
+                HttpException(
+                    Response.error<Any>(
+                        ERROR_CODE,
+                        ResponseBody.create(
+                            MediaType.parse("plain/text"), "some content"
+                        )
+                    )
+                )
+            )
+
+            // When
+            val result = restaurantsRepository.getRestaurantsAroundPosition(
+                latitude = LATITUDE,
+                longitude = LONGITUDE,
+                radius = RADIUS
+            ).first()
+
+            // Then
+            val expectedResponse = RestaurantsRepository.ResponseStatus.StatusError.HttpException
+            assertEquals(expectedResponse, result)
+        }
+
+    // returns no response message because request not successful
+    @Test
+    fun `getRestaurantsAroundPosition no response because request not successful`() =
+        testCoroutineRule.runBlockingTest {
+
+            // Given
+            coEvery {
+                restaurantServiceMock.getNearbyRestaurants(
+                    nearbyConstants.key,
+                    nearbyConstants.type,
+                    LOCATION,
+                    RADIUS
+                )
+            } returns Response.error(
+                ERROR_CODE,
+                ResponseBody.create(
+                    MediaType.parse("plain/text"), "some content"
+                )
+            )
+
+            // When
+            val result = restaurantsRepository.getRestaurantsAroundPosition(
+                latitude = LATITUDE,
+                longitude = LONGITUDE,
+                radius = RADIUS
+            ).first()
+
+            // Then
+            val expectedResponse = RestaurantsRepository.ResponseStatus.NoResponse
+            assertEquals(expectedResponse, result)
+        }
+
+    // returns no response message because request result is empty
+    @Test
+    fun `getRestaurantsAroundPosition no response because request result is empty`() =
+        testCoroutineRule.runBlockingTest {
+
+            // Given
+            coEvery {
+                restaurantServiceMock.getNearbyRestaurants(
+                    nearbyConstants.key,
+                    nearbyConstants.type,
+                    LOCATION,
+                    RADIUS
+                )
+            } returns Response.success(
+                NearbyQueryResult(
+                    html_attributions = emptyList(),
+                    next_page_token = "",
+                    results = emptyList(),
+                    ""
+                )
+            )
+
+            // When
+            val result = restaurantsRepository.getRestaurantsAroundPosition(
+                latitude = LATITUDE,
+                longitude = LONGITUDE,
+                radius = RADIUS
+            ).first()
+
+            // Then
+            val expectedResponse = RestaurantsRepository.ResponseStatus.NoResponse
+            assertEquals(expectedResponse, result)
+        }
+
+    // returns no response message because request result is null
+    @Test
+    fun `getRestaurantsAroundPosition no response because request result is null`() =
+        testCoroutineRule.runBlockingTest {
+
+            // Given
+            coEvery {
+                restaurantServiceMock.getNearbyRestaurants(
+                    nearbyConstants.key,
+                    nearbyConstants.type,
+                    LOCATION,
+                    RADIUS
+                )
+            } returns Response.success(null)
+
+            // When
+            val result = restaurantsRepository.getRestaurantsAroundPosition(
+                latitude = LATITUDE,
+                longitude = LONGITUDE,
+                radius = RADIUS
+            ).first()
+
+            // Then
+            val expectedResponse = RestaurantsRepository.ResponseStatus.NoResponse
+            assertEquals(expectedResponse, result)
+        }
+
+    // Verify that no periods are inserted in database if no data is available
+    @Test
+    fun `opening periods not inserted in database when empty`() =
+        testCoroutineRule.runBlockingTest {
+
+            // Given
+            coEvery {
+                restaurantServiceMock.getOpeningPeriodsForRestaurant(
+                    nearbyConstants.key,
+                    PERIODS_SEARCH_FIELD,
+                    any()
+                )
+            } returns Response.success(
+                DetailsQueryResult(
+                    html_attributions = emptyList(),
+                    result = Result(
+                        OpeningHours(
+                            open_now = true,
+                            periods = emptyList(),
+                            weekday_text = listOf("")
+                        )
+                    ),
+                    status = ""
+                )
+            )
+
+            // When
+            val result = restaurantsRepository.getRestaurantsAroundPosition(
+                latitude = LATITUDE,
+                longitude = LONGITUDE,
+                radius = RADIUS
+            ).first()
+
+            // then
+            val expectedResponse = RestaurantsRepository.ResponseStatus.Success(
+                getExpectedRestaurantEntityList(restaurantQueryResponseItem)
+            )
+            assertEquals(expectedResponse, result)
+            coVerify(exactly = 0) { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriod(any()) }
+            coVerify(exactly = 0) { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriodCrossReference(any()) }
+        }
+
+    // Verify that no periods are inserted in database if no data is available
+    @Test
+    fun `opening periods not inserted in database when null`() =
+        testCoroutineRule.runBlockingTest {
+
+            // Given
+            coEvery {
+                restaurantServiceMock.getOpeningPeriodsForRestaurant(
+                    nearbyConstants.key,
+                    PERIODS_SEARCH_FIELD,
+                    any()
+                )
+            } returns Response.success(null)
+
+            // When
+            val result = restaurantsRepository.getRestaurantsAroundPosition(
+                latitude = LATITUDE,
+                longitude = LONGITUDE,
+                radius = RADIUS
+            ).first()
+
+            // then
+            val expectedResponse = RestaurantsRepository.ResponseStatus.Success(
+                getExpectedRestaurantEntityList(restaurantQueryResponseItem)
+            )
+            assertEquals(expectedResponse, result)
+            coVerify(exactly = 0) { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriod(any()) }
+            coVerify(exactly = 0) { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriodCrossReference(any()) }
+        }
+
+    // Verify that no periods are inserted in database if no data is available
+    @Test
+    fun `opening periods not inserted in database when httpException`() =
+        testCoroutineRule.runBlockingTest {
+
+            // Given
+            coEvery {
+                restaurantServiceMock.getOpeningPeriodsForRestaurant(
+                    nearbyConstants.key,
+                    PERIODS_SEARCH_FIELD,
+                    any()
+                )
+            }.throws(
+                HttpException(
+                    Response.error<Any>(
+                        ERROR_CODE,
+                        ResponseBody.create(
+                            MediaType.parse("plain/text"), "some content"
+                        )
+                    )
+                )
+            )
+
+            // When
+            val result = restaurantsRepository.getRestaurantsAroundPosition(
+                latitude = LATITUDE,
+                longitude = LONGITUDE,
+                radius = RADIUS
+            ).first()
+
+            // then
+            val expectedResponse = RestaurantsRepository.ResponseStatus.Success(
+                getExpectedRestaurantEntityList(restaurantQueryResponseItem)
+            )
+            assertEquals(expectedResponse, result)
+            coVerify(exactly = 0) { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriod(any()) }
+            coVerify(exactly = 0) { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriodCrossReference(any()) }
+        }
+
+    // region IN
     private fun getExpectedRestaurantEntityList(
         restaurantQueryResponseItem: RestaurantQueryResponseItem
     ): List<RestaurantEntity> {
@@ -493,15 +472,6 @@ class RestaurantsRepositoryTest {
                 photoUrl = restaurantQueryResponseItem.photos?.firstOrNull()?.photoReference,
                 rate = round((restaurantQueryResponseItem.rating!!.toFloat() * 3.0f) / 5.0f)
             )
-        )
-    }
-
-    private fun buildRestaurantRepository(): RestaurantsRepository {
-        return RestaurantsRepository(
-            restaurantService = restaurantServiceMock,
-            nearbyConstants = nearbyConstants,
-            restaurantsCacheDAO = restaurantsCacheDAOMock,
-            coroutinesProvider = coroutinesProviderMock
         )
     }
 
@@ -544,18 +514,15 @@ class RestaurantsRepositoryTest {
             longitude = LONGITUDE.toDouble()
         )
 
-        val restaurantEntityList = getExpectedRestaurantEntityList(
-            podamFactory.manufacturePojo(RestaurantQueryResponseItem::class.java)
-        )
-
         return listOf(
             QueryWithRestaurants(
                 query = restaurantsQuery,
-                restaurantList = restaurantEntityList
+                restaurantList = getExpectedRestaurantEntityList(
+                    restaurantQueryResponseItem
+                )
             )
         )
     }
-
     // endregion
 }
 
