@@ -32,6 +32,8 @@ class GoogleMapsViewModelTest {
         private const val ADDRESS = "ADDRESS"
         private const val PHOTO_URL = "PHOTO_URL"
         private const val RATE = "5.0"
+        private const val PHONE_NUMBER = "+33 0 00 00 00 00"
+        private const val WEBSITE = "www.no-web-site.com"
     }
 
     // Rules
@@ -186,7 +188,9 @@ class GoogleMapsViewModelTest {
             latitude = LATITUDE.toDouble(),
             longitude = LONGITUDE.toDouble(),
             photoUrl = PHOTO_URL,
-            rate = RATE.toFloat()
+            rate = RATE.toFloat(),
+            phoneNumber = PHONE_NUMBER,
+            website = WEBSITE
         )
     )
 

@@ -22,7 +22,7 @@ interface RestaurantService {
     ): Response<NearbyQueryResult>
 
     @GET(DETAILS_REQUEST_PATH)
-    suspend fun getOpeningPeriodsForRestaurant(
+    suspend fun getDetailsForRestaurant(
         @Query("key") key : String,
         @Query("fields") fields : String,
         @Query("place_id") placeId : String

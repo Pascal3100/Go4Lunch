@@ -35,7 +35,7 @@ class RestaurantsRepository @Inject constructor(
         // this value is calculated for a tol of 50 m
         private const val MAX_DISPLACEMENT_TOL = "0.000449"
 
-        private const val PERIODS_SEARCH_FIELD = "opening_hours"
+        private const val DETAILS_SEARCH_FIELD = "opening_hours,international_phone_number,website"
     }
 
     // Store the last requested time stamp for others view models get the correct list of restaurants
@@ -77,12 +77,16 @@ class RestaurantsRepository @Inject constructor(
 
             if (response.isSuccessful && responseBody != null && responseBody.results.isNotEmpty()) {
 
+                // Getting details for restaurants
+                val restaurantDetailsList = getDetailsForRestaurants(responseBody.results)
+
                 // Map query result to domain model
-                val restaurantEntityList = mapRestaurantQueryToEntity(responseBody.results)
+                val restaurantEntityList =
+                    mapRestaurantQueryToEntity(responseBody.results, restaurantDetailsList)
 
                 // Store restaurants in database in a separate coroutine
                 withContext(coroutinesProvider.ioCoroutineDispatcher) {
-                    storeInDatabase(restaurantEntityList, latitude, longitude)
+                    storeInDatabase(restaurantEntityList, restaurantDetailsList, latitude, longitude)
                 }
 
                 // Emit the list of restaurant to the VM
@@ -99,34 +103,42 @@ class RestaurantsRepository @Inject constructor(
         }
     }
 
-    // Retrieve opening hours per restaurant
-    private suspend fun getRestaurantOpeningPeriods(placeId: String): List<fr.plopez.go4lunch.data.model.restaurant.Period> {
+    // Retrieve details for restaurants
+    private suspend fun getDetailsForRestaurants(
+        restaurantQueryResponseList: List<RestaurantQueryResponseItem>
+    ): List<RestaurantDetails> =
+        restaurantQueryResponseList.mapNotNull {
 
-        try {
-            val response = restaurantService.getOpeningPeriodsForRestaurant(
-                nearbyConstants.key,
-                PERIODS_SEARCH_FIELD,
-                placeId
-            )
+            try {
+                val response = restaurantService.getDetailsForRestaurant(
+                    key = nearbyConstants.key,
+                    fields = DETAILS_SEARCH_FIELD,
+                    placeId = it.placeID!!
+                )
 
-            val responseBody = response.body()
+                val responseBody = response.body()
 
-            return if (response.isSuccessful && responseBody != null) {
-                responseBody.result?.opening_hours?.periods ?: emptyList()
-            } else {
-                emptyList()
+                if (response.isSuccessful && responseBody != null)
+                    RestaurantDetails(
+                        restaurantId = it.placeID,
+                        website = responseBody.result?.website ?: "",
+                        phoneNumber = responseBody.result?.phone_number ?: "",
+                        periodList = responseBody.result?.opening_hours?.periods ?: emptyList(),
+                        statusOk = true
+                    )
+                else null
+
+            } catch (e: IOException) {
+                null
+
+            } catch (e: HttpException) {
+                null
             }
-
-        } catch (e: IOException) {
-            return emptyList()
-
-        } catch (e: HttpException) {
-            return emptyList()
         }
-    }
 
     private suspend fun storeInDatabase(
         restaurantEntityList: List<RestaurantEntity>,
+        restaurantDetailsList: List<RestaurantDetails>,
         latitude: String,
         longitude: String
     ) {
@@ -147,24 +159,27 @@ class RestaurantsRepository @Inject constructor(
         )
 
         // Store all the attached restaurants
-        restaurantEntityList.forEach {
+        restaurantEntityList.forEach {restaurant ->
 
             // Inserting restaurant queries cross ref
             restaurantsCacheDAO.upsertRestaurantQueriesCrossReference(
                 RestaurantQueriesCrossReference(
                     timeStamp,
-                    it.restaurantId
+                    restaurant.restaurantId
                 )
             )
 
             // Inserting restaurant entity
-            restaurantsCacheDAO.upsertRestaurant(it)
+            restaurantsCacheDAO.upsertRestaurant(restaurant)
+
+            // Getting restaurant details
+            val restaurantDetails =
+                restaurantDetailsList.find { it.restaurantId == restaurant.restaurantId }
+                    ?: RestaurantDetails()
 
             // Store all periods of opening for a restaurant
-            val periodList = getRestaurantOpeningPeriods(it.restaurantId)
-
-            if (periodList.isNotEmpty()) {
-                periodList.forEach { period ->
+            if (restaurantDetails.periodList.isNotEmpty()) {
+                restaurantDetails.periodList.forEach { period ->
 
                     val day = period.open?.day
                     val openingHour = period.open?.time
@@ -195,7 +210,7 @@ class RestaurantsRepository @Inject constructor(
                         // Inserting restaurant - period cross ref
                         restaurantsCacheDAO.upsertRestaurantOpeningPeriodCrossReference(
                             RestaurantOpeningPeriodsCrossReference(
-                                it.restaurantId,
+                                restaurant.restaurantId,
                                 periodId
                             )
                         )
@@ -207,29 +222,36 @@ class RestaurantsRepository @Inject constructor(
 
     // Map the query nearby object to domain object
     private fun mapRestaurantQueryToEntity(
-        restaurantQueryResponseItemList: List<RestaurantQueryResponseItem>
-    ): List<RestaurantEntity> = restaurantQueryResponseItemList.mapNotNull {
+        restaurantQueryResponseItemList: List<RestaurantQueryResponseItem>,
+        restaurantDetailsList: List<RestaurantDetails>
+    ): List<RestaurantEntity> =
+        restaurantQueryResponseItemList.mapNotNull { restaurantQueryResponse ->
+            if (restaurantQueryResponse.placeID != null
+                && restaurantQueryResponse.name != null
+                && restaurantQueryResponse.vicinity != null
+                && restaurantQueryResponse.geometry?.location?.lat != null
+                && restaurantQueryResponse.geometry.location.lng != null
+            ) {
+                val rate = restaurantQueryResponse.rating?.toFloat() ?: 0.0F
+                val restaurantDetails =
+                    restaurantDetailsList.find { it.restaurantId == restaurantQueryResponse.placeID }
+                        ?: RestaurantDetails()
 
-        if (it.placeID != null
-            && it.name != null
-            && it.vicinity != null
-            && it.geometry?.location?.lat != null
-            && it.geometry.location.lng != null
-            && it.rating != null
-        ) {
-            RestaurantEntity(
-                restaurantId = it.placeID,
-                name = it.name,
-                address = it.vicinity,
-                latitude = it.geometry.location.lat,
-                longitude = it.geometry.location.lng,
-                photoUrl = it.photos?.firstOrNull()?.photoReference,
-                rate = round((it.rating.toFloat() * 3.0f) / 5.0f)
-            )
-        } else {
-            null
+                RestaurantEntity(
+                    restaurantId = restaurantQueryResponse.placeID,
+                    name = restaurantQueryResponse.name,
+                    address = restaurantQueryResponse.vicinity,
+                    latitude = restaurantQueryResponse.geometry.location.lat,
+                    longitude = restaurantQueryResponse.geometry.location.lng,
+                    photoUrl = restaurantQueryResponse.photos?.firstOrNull()?.photoReference ?: "",
+                    rate = round((rate * 3.0f) / 5.0f),
+                    phoneNumber = restaurantDetails.phoneNumber,
+                    website = restaurantDetails.website
+                )
+            } else {
+                null
+            }
         }
-    }
 
     suspend fun getRestaurantsWithOpeningPeriods(requestedTimeStamp: Long): List<RestaurantWithOpeningPeriods> {
         return if (requestedTimeStamp == 0L) {
@@ -254,6 +276,13 @@ class RestaurantsRepository @Inject constructor(
             object IOException : StatusError()
             object HttpException : StatusError()
         }
-
     }
+
+    data class RestaurantDetails(
+        val restaurantId: String = "",
+        val website: String = "",
+        val phoneNumber: String = "",
+        val periodList: List<fr.plopez.go4lunch.data.model.restaurant.Period> = emptyList(),
+        val statusOk: Boolean = false
+    )
 }

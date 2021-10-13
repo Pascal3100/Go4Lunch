@@ -31,12 +31,14 @@ class RestaurantsRepositoryTest {
     // Constants
     companion object {
         private const val QUERY_TIME_STAMP = 66666666L
+        private const val PHONE_NUMBER = "+33 0 00 00 00 00"
+        private const val WEBSITE = "www.no-web-site.com"
         private const val LATITUDE = "90.0"
         private const val LONGITUDE = "0.0"
         private const val LOCATION = "$LATITUDE,$LONGITUDE"
         private const val RADIUS = "1000"
         private const val MAX_DISPLACEMENT_TOL = "0.000449"
-        private const val PERIODS_SEARCH_FIELD = "opening_hours"
+        private const val PERIODS_SEARCH_FIELD = "opening_hours,international_phone_number,website"
         private const val ERROR_CODE = 404
     }
 
@@ -65,7 +67,7 @@ class RestaurantsRepositoryTest {
 
         // service mockk
         coEvery {
-            restaurantServiceMock.getOpeningPeriodsForRestaurant(
+            restaurantServiceMock.getDetailsForRestaurant(
                 nearbyConstants.key,
                 PERIODS_SEARCH_FIELD,
                 any()
@@ -74,11 +76,13 @@ class RestaurantsRepositoryTest {
             DetailsQueryResult(
                 html_attributions = emptyList(),
                 result = Result(
-                    OpeningHours(
+                    opening_hours = OpeningHours(
                         open_now = true,
                         periods = getPeriodList(),
                         weekday_text = listOf("")
-                    )
+                    ),
+                    phone_number = PHONE_NUMBER,
+                    website = WEBSITE
                 ),
                 status = ""
             )
@@ -88,16 +92,8 @@ class RestaurantsRepositoryTest {
         coJustRun { restaurantsCacheDAOMock.upsertQuery(any()) }
         coJustRun { restaurantsCacheDAOMock.upsertRestaurant(any()) }
         coJustRun { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriod(any()) }
-        coJustRun {
-            restaurantsCacheDAOMock.upsertRestaurantOpeningPeriodCrossReference(
-                any()
-            )
-        }
-        coJustRun {
-            restaurantsCacheDAOMock.upsertRestaurantQueriesCrossReference(
-                any()
-            )
-        }
+        coJustRun {restaurantsCacheDAOMock.upsertRestaurantOpeningPeriodCrossReference(any())}
+        coJustRun {restaurantsCacheDAOMock.upsertRestaurantQueriesCrossReference(any())}
 
         coEvery {
             restaurantsCacheDAOMock.getNearestRestaurants(
@@ -354,7 +350,7 @@ class RestaurantsRepositoryTest {
 
             // Given
             coEvery {
-                restaurantServiceMock.getOpeningPeriodsForRestaurant(
+                restaurantServiceMock.getDetailsForRestaurant(
                     nearbyConstants.key,
                     PERIODS_SEARCH_FIELD,
                     any()
@@ -363,11 +359,14 @@ class RestaurantsRepositoryTest {
                 DetailsQueryResult(
                     html_attributions = emptyList(),
                     result = Result(
-                        OpeningHours(
+                        opening_hours = OpeningHours(
                             open_now = true,
                             periods = emptyList(),
                             weekday_text = listOf("")
-                        )
+                        ),
+                        phone_number = PHONE_NUMBER,
+                        website = WEBSITE
+
                     ),
                     status = ""
                 )
@@ -396,7 +395,7 @@ class RestaurantsRepositoryTest {
 
             // Given
             coEvery {
-                restaurantServiceMock.getOpeningPeriodsForRestaurant(
+                restaurantServiceMock.getDetailsForRestaurant(
                     nearbyConstants.key,
                     PERIODS_SEARCH_FIELD,
                     any()
@@ -412,7 +411,7 @@ class RestaurantsRepositoryTest {
 
             // then
             val expectedResponse = RestaurantsRepository.ResponseStatus.Success(
-                getExpectedRestaurantEntityList(restaurantQueryResponseItem)
+                getExpectedRestaurantEntityListNoDetails(restaurantQueryResponseItem)
             )
             assertEquals(expectedResponse, result)
             coVerify(exactly = 0) { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriod(any()) }
@@ -426,7 +425,7 @@ class RestaurantsRepositoryTest {
 
             // Given
             coEvery {
-                restaurantServiceMock.getOpeningPeriodsForRestaurant(
+                restaurantServiceMock.getDetailsForRestaurant(
                     nearbyConstants.key,
                     PERIODS_SEARCH_FIELD,
                     any()
@@ -451,7 +450,7 @@ class RestaurantsRepositoryTest {
 
             // then
             val expectedResponse = RestaurantsRepository.ResponseStatus.Success(
-                getExpectedRestaurantEntityList(restaurantQueryResponseItem)
+                getExpectedRestaurantEntityListNoDetails(restaurantQueryResponseItem)
             )
             assertEquals(expectedResponse, result)
             coVerify(exactly = 0) { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriod(any()) }
@@ -470,7 +469,27 @@ class RestaurantsRepositoryTest {
                 latitude = restaurantQueryResponseItem.geometry!!.location!!.lat!!,
                 longitude = restaurantQueryResponseItem.geometry!!.location!!.lng!!,
                 photoUrl = restaurantQueryResponseItem.photos?.firstOrNull()?.photoReference,
-                rate = round((restaurantQueryResponseItem.rating!!.toFloat() * 3.0f) / 5.0f)
+                rate = round((restaurantQueryResponseItem.rating!!.toFloat() * 3.0f) / 5.0f),
+                phoneNumber = PHONE_NUMBER,
+                website = WEBSITE
+            )
+        )
+    }
+
+    private fun getExpectedRestaurantEntityListNoDetails(
+        restaurantQueryResponseItem: RestaurantQueryResponseItem
+    ): List<RestaurantEntity> {
+        return listOf(
+            RestaurantEntity(
+                restaurantId = restaurantQueryResponseItem.placeID!!,
+                name = restaurantQueryResponseItem.name!!,
+                address = restaurantQueryResponseItem.vicinity!!,
+                latitude = restaurantQueryResponseItem.geometry!!.location!!.lat!!,
+                longitude = restaurantQueryResponseItem.geometry!!.location!!.lng!!,
+                photoUrl = restaurantQueryResponseItem.photos?.firstOrNull()?.photoReference,
+                rate = round((restaurantQueryResponseItem.rating!!.toFloat() * 3.0f) / 5.0f),
+                phoneNumber = "",
+                website = ""
             )
         )
     }

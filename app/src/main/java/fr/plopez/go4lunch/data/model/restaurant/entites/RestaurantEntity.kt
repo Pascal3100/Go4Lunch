@@ -7,7 +7,8 @@ import androidx.room.ForeignKey.CASCADE
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "restaurant_entity")
+    tableName = "restaurant_entity"
+)
 data class RestaurantEntity(
     @PrimaryKey(autoGenerate = false)
     @ColumnInfo(name = "restaurant_id")
@@ -30,5 +31,11 @@ data class RestaurantEntity(
     val photoUrl: String?,
 
     @ColumnInfo(name = "rate")
-    val rate: Float
-    )
+    val rate: Float,
+
+    @ColumnInfo(name = "phone_number")
+    val phoneNumber: String,
+
+    @ColumnInfo(name = "website")
+    val website: String
+)

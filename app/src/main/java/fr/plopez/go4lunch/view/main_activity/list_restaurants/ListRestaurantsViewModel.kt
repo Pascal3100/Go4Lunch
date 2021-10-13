@@ -83,7 +83,7 @@ class ListRestaurantsViewModel @Inject constructor(
 
     // Retrieve photo Url per restaurant
     private fun mapRestaurantPhotoUrl(photoReference: String?): String {
-        return if (photoReference != null) {
+        return if (photoReference != null && photoReference != "") {
             "https://maps.googleapis.com/maps/api/place/photo?" +
                     "maxwidth=${MAX_WIDTH}&" +
                     "photoreference=$photoReference&" +
