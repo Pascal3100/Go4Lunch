@@ -1,7 +1,5 @@
 package fr.plopez.go4lunch.view.main_activity.list_restaurants
 
-import android.annotation.SuppressLint
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,12 +8,13 @@ import android.widget.RatingBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.model.GlideUrl
-import com.bumptech.glide.request.RequestOptions
 import fr.plopez.go4lunch.R
-import fr.plopez.go4lunch.data.model.restaurant.RestaurantItemViewState
+import fr.plopez.go4lunch.view.model.RestaurantItemViewState
+import fr.plopez.go4lunch.interfaces.OnClickRestaurantListener
 
-class ListRestaurantsAdapter : RecyclerView.Adapter<ListRestaurantsAdapter.RestaurantViewHolder>() {
+class ListRestaurantsAdapter(
+    private val onClickRestaurantListener: OnClickRestaurantListener
+) : RecyclerView.Adapter<ListRestaurantsAdapter.RestaurantViewHolder>() {
 
     private val restaurantItemViewStateList = mutableListOf<RestaurantItemViewState>()
 
@@ -25,7 +24,8 @@ class ListRestaurantsAdapter : RecyclerView.Adapter<ListRestaurantsAdapter.Resta
                 R.layout.list_view_restaurant_recyclerview_item,
                 parent,
                 false
-            )
+            ),
+            onClickRestaurantListener
         )
     }
 
@@ -44,15 +44,28 @@ class ListRestaurantsAdapter : RecyclerView.Adapter<ListRestaurantsAdapter.Resta
     }
 
 
-    class RestaurantViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val name: TextView = itemView.findViewById(R.id.lvr_item_restaurant_name)
-        val distance: TextView = itemView.findViewById(R.id.lvr_item_restaurant_distance)
-        val address: TextView = itemView.findViewById(R.id.lvr_item_restaurant_subtitle)
-        val numberOfUsers: TextView =
+    class RestaurantViewHolder(
+        itemView: View,
+        private val onClickRestaurantListener: OnClickRestaurantListener
+    ) : RecyclerView.ViewHolder(itemView) {
+
+        private val name: TextView = itemView.findViewById(R.id.lvr_item_restaurant_name)
+        private val distance: TextView = itemView.findViewById(R.id.lvr_item_restaurant_distance)
+        private val address: TextView = itemView.findViewById(R.id.lvr_item_restaurant_subtitle)
+        private val numberOfUsers: TextView =
             itemView.findViewById(R.id.lvr_item_restaurant_number_of_users)
-        val openingText: TextView = itemView.findViewById(R.id.lvr_item_restaurant_opening)
-        val ratingBar: RatingBar = itemView.findViewById(R.id.lvr_item_restaurant_rating_bar)
-        val photo: ImageView = itemView.findViewById(R.id.lvr_item_restaurant_image)
+        private val openingText: TextView = itemView.findViewById(R.id.lvr_item_restaurant_opening)
+        private val ratingBar: RatingBar =
+            itemView.findViewById(R.id.lvr_item_restaurant_rating_bar)
+        private val photo: ImageView = itemView.findViewById(R.id.lvr_item_restaurant_image)
+        lateinit var id: String
+
+
+        init {
+            itemView.setOnClickListener {
+                onClickRestaurantListener.onClickRestaurant(id)
+            }
+        }
 
         fun bind(restaurantItemViewState: RestaurantItemViewState) {
             name.text = restaurantItemViewState.name
@@ -61,8 +74,8 @@ class ListRestaurantsAdapter : RecyclerView.Adapter<ListRestaurantsAdapter.Resta
             numberOfUsers.text = restaurantItemViewState.numberOfInterestedWorkmates
             openingText.text = restaurantItemViewState.openingStateText
             ratingBar.rating = restaurantItemViewState.rate
+            id = restaurantItemViewState.id
 
-//            Log.d("TAG", "#### photoUrl: ${restaurantItemViewState.photoUrl}")
             // Glide section
             Glide.with(itemView.context)
                 .load(restaurantItemViewState.photoUrl)
@@ -73,6 +86,4 @@ class ListRestaurantsAdapter : RecyclerView.Adapter<ListRestaurantsAdapter.Resta
                 .into(photo)
         }
     }
-
-
 }

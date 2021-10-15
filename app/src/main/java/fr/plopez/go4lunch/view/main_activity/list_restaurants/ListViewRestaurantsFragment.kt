@@ -1,5 +1,6 @@
 package fr.plopez.go4lunch.view.main_activity
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -10,16 +11,16 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
-import fr.plopez.go4lunch.view.main_activity.google_maps.GoogleMapsViewModel
+import fr.plopez.go4lunch.interfaces.OnClickRestaurantListener
 import fr.plopez.go4lunch.view.main_activity.list_restaurants.ListRestaurantsAdapter
 import fr.plopez.go4lunch.view.main_activity.list_restaurants.ListRestaurantsViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import java.lang.ClassCastException
 
 @AndroidEntryPoint
 @ExperimentalCoroutinesApi
@@ -33,6 +34,20 @@ class ListViewRestaurantFragment : Fragment() {
     }
 
     private val listRestaurantsViewModel: ListRestaurantsViewModel by viewModels()
+    private lateinit var onClickRestaurantListener: OnClickRestaurantListener
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is MainActivity) {
+            onClickRestaurantListener = context
+        } else {
+            throw ClassCastException(
+                context.toString()
+                        + " must implement MainActivity"
+            )
+        }
+
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,7 +68,7 @@ class ListViewRestaurantFragment : Fragment() {
     }
 
     private suspend fun initRecyclerView(){
-        val adapter = ListRestaurantsAdapter()
+        val adapter = ListRestaurantsAdapter(onClickRestaurantListener)
         val recyclerView = view?.findViewById<RecyclerView>(R.id.list_view_restaurant_recyclerview)
         recyclerView?.adapter = adapter
 

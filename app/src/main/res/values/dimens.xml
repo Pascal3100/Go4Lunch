@@ -20,7 +20,7 @@
     <dimen name="app_bar_title_text_size">24sp</dimen>
 
     <dimen name="custom_rating_stars_height">16dp</dimen>
-    <dimen name="restaurant_details_fragment_appbar_height">250dp</dimen>
+    <dimen name="restaurant_details_activity_appbar_height">250dp</dimen>
     <dimen name="item_text_max_width">210dp</dimen>
 
 </resources>

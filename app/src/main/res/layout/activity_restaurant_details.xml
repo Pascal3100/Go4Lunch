@@ -1,11 +1,204 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    android:id="@+id/restaurant_details_container"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/restaurant_details_activity_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".view.restaurant_details.RestaurantDetailsActivity">
+    android:layout_height="match_parent">
 
-</FrameLayout>
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/restaurant_details_activity_appbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/restaurant_details_activity_appbar_height">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/restaurant_details_activity_restaurant_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                tools:src="@tools:sample/backgrounds/scenic" />
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/restaurant_details_activity_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
+                app:navigationIconTint="@color/light_grey" />
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/restaurant_details_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primary_diner_orange"
+        android:padding="16dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <TextView
+            android:id="@+id/restaurant_details_activity_restaurant_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/restaurantDetailsWhiteTitleTextAppearance"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Le Zinc" />
+
+        <RatingBar
+            android:id="@+id/restaurant_details_activity_restaurant_rating_bar"
+            style="@style/customStarsRatingBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:numStars="@string/number_of_rating_stars"
+            android:stepSize="0.5"
+            app:layout_constraintBottom_toTopOf="@+id/restaurant_details_activity_subtitle"
+            app:layout_constraintStart_toEndOf="@+id/restaurant_details_activity_restaurant_name"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:rating="1.5" />
+
+        <TextView
+            android:id="@+id/restaurant_details_activity_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="8dp"
+            android:textAppearance="@style/restaurantDetailsWhiteSubtitleTextAppearance"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/restaurant_details_activity_restaurant_name"
+            tools:text="Mexican - 552 calle de los gringos" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        app:layout_anchor="@id/restaurant_details_container"
+        app:layout_anchorGravity="bottom">
+
+        <LinearLayout
+            android:id="@+id/phone_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/rating_container"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_baseline_phone_24"
+                app:tint="@color/primary_diner_orange" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:text="@string/frd_call_item_text"
+                android:textAppearance="@style/restaurantDetailsOrangeTextAppearance"
+                />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/rating_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/website_container"
+            app:layout_constraintStart_toEndOf="@+id/phone_container"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_baseline_star_rate_24"
+                app:tint="@color/primary_diner_orange" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:text="@string/frd_rate_item_text"
+                android:textAppearance="@style/restaurantDetailsOrangeTextAppearance" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/website_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/rating_container"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_global"
+                app:tint="@color/primary_diner_orange" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:text="@string/frd_website_item_text"
+                android:textAppearance="@style/restaurantDetailsOrangeTextAppearance" />
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/divider"
+            style="@style/Divider.Horizontal"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/list_workmates_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_anchor="@id/divider"
+        app:layout_anchorGravity="bottom"
+        android:layout_gravity="bottom"
+        tools:itemCount="2"
+        tools:listitem="@layout/workmates_list_view_item"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/add_favorite_fab_neighbour_details_activity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/ic_pin_24"
+        app:backgroundTint="@color/white"
+        app:borderWidth="0dp"
+        app:elevation="8dp"
+        app:layout_anchor="@id/restaurant_details_activity_toolbar"
+        app:layout_anchorGravity="bottom|end"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

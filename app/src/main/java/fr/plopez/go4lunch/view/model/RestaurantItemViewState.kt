@@ -1,4 +1,4 @@
-package fr.plopez.go4lunch.data.model.restaurant
+package fr.plopez.go4lunch.view.model
 
 data class RestaurantItemViewState(
     val name: String,
@@ -7,5 +7,6 @@ data class RestaurantItemViewState(
     val distanceToUser: String,
     val numberOfInterestedWorkmates: String,
     val rate: Float,
-    val photoUrl: String
+    val photoUrl: String,
+    val id: String
 )

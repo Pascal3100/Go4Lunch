@@ -2,21 +2,18 @@ package fr.plopez.go4lunch.view.main_activity.list_restaurants
 
 import android.content.Context
 import android.location.Location
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.plopez.go4lunch.R
-import fr.plopez.go4lunch.data.model.restaurant.RestaurantItemViewState
+import fr.plopez.go4lunch.view.model.RestaurantItemViewState
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantOpeningPeriod
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantsQuery
 import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantWithOpeningPeriods
-import fr.plopez.go4lunch.data.repositories.LocationRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
 import fr.plopez.go4lunch.di.NearbyConstants
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -30,7 +27,7 @@ import kotlin.math.round
 class ListRestaurantsViewModel @Inject constructor(
     private val restaurantsRepository: RestaurantsRepository,
     private val nearbyConstants: NearbyConstants,
-    private val coroutinesProvider: CoroutinesProvider,
+    coroutinesProvider: CoroutinesProvider,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -76,7 +73,8 @@ class ListRestaurantsViewModel @Inject constructor(
                 ),
                 getInterestedWorkmates(it.restaurant.name),
                 it.restaurant.rate,
-                mapRestaurantPhotoUrl(it.restaurant.photoUrl)
+                mapRestaurantPhotoUrl(it.restaurant.photoUrl),
+                it.restaurant.restaurantId
             )
         }
     }
@@ -84,7 +82,7 @@ class ListRestaurantsViewModel @Inject constructor(
     // Retrieve photo Url per restaurant
     private fun mapRestaurantPhotoUrl(photoReference: String?): String {
         return if (photoReference != null && photoReference != "") {
-            "https://maps.googleapis.com/maps/api/place/photo?" +
+            context.resources.getString(R.string.place_photo_api_url) +
                     "maxwidth=${MAX_WIDTH}&" +
                     "photoreference=$photoReference&" +
                     "key=${nearbyConstants.key}"

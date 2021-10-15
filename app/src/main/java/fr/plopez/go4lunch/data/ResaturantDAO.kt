@@ -59,6 +59,10 @@ interface RestaurantDAO {
     )
     suspend fun getCurrentRestaurants(queryTimeStamp:Long): List<RestaurantWithOpeningPeriods>
 
-    @Query("SELECT * FROM restaurant_query WHERE query_time_stamp = :timestamp LIMIT 1")
+    @Query("SELECT * FROM restaurant_query WHERE query_time_stamp = :timestamp")
     suspend fun getPositionForTimestamp(timestamp: Long): RestaurantsQuery
+
+
+    @Query("SELECT * FROM restaurant_entity WHERE restaurant_id = :id")
+    suspend fun getRestaurantFromId(id: String): RestaurantEntity
 }

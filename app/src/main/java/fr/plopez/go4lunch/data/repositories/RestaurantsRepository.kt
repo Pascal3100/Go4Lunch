@@ -264,6 +264,9 @@ class RestaurantsRepository @Inject constructor(
     suspend fun getPositionForTimestamp(timestamp: Long) =
         restaurantsCacheDAO.getPositionForTimestamp(timestamp)
 
+    suspend fun getRestaurantFromId(id: String) =
+        restaurantsCacheDAO.getRestaurantFromId(id)
+
     sealed class ResponseStatus {
 
         object NoResponse : ResponseStatus()

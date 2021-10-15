@@ -1,51 +1,51 @@
 package fr.plopez.go4lunch.data.model.restaurant
 
-//import com.google.gson.annotations.SerializedName
+import com.google.gson.annotations.SerializedName
 
 data class DetailsQueryResult(
-//    @SerializedName("html_attributions")
+    @SerializedName("html_attributions")
     val html_attributions: List<Any>?,
-//    @SerializedName("result")
+    @SerializedName("result")
     val result: Result?,
-//    @SerializedName("status")
+    @SerializedName("status")
     val status: String?
 )
 
 data class Result(
-//    @SerializedName("opening_hours")
+    @SerializedName("opening_hours")
     val opening_hours: OpeningHours?,
-//    @SerializedName("international_phone_number")
+    @SerializedName("international_phone_number")
     val phone_number: String,
-//    @SerializedName("website")
+    @SerializedName("website")
     val website: String
 )
 
 data class OpeningHours(
-//    @SerializedName("open_now")
+    @SerializedName("open_now")
     val open_now: Boolean?,
-//    @SerializedName("website")
+    @SerializedName("periods")
     val periods: List<Period>?,
-//    @SerializedName("weekday_text")
+    @SerializedName("weekday_text")
     val weekday_text: List<String>?
 )
 
 data class Period(
-//    @SerializedName("close")
+    @SerializedName("close")
     val close: Close?,
-//    @SerializedName("open")
+    @SerializedName("open")
     val open: Open?
 )
 
 data class Open(
-//    @SerializedName("day")
+    @SerializedName("day")
     val day: Int?,
-//    @SerializedName("time")
+    @SerializedName("time")
     val time: String?
 )
 
 data class Close(
-//    @SerializedName("day")
+    @SerializedName("day")
     val day: Int?,
-//    @SerializedName("time")
+    @SerializedName("time")
     val time: String?
 )

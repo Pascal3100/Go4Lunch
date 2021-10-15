@@ -17,18 +17,23 @@ import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.ActivityMainBinding
+import fr.plopez.go4lunch.interfaces.OnClickRestaurantListener
 import fr.plopez.go4lunch.view.landing_page.LandingPageActivity
 import fr.plopez.go4lunch.view.main_activity.google_maps.GoogleMapsFragment
 import fr.plopez.go4lunch.view.main_activity.list_workmates.ListWorkmatesFragment
+import fr.plopez.go4lunch.view.restaurant_details.RestaurantDetailsActivity
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(R.layout.activity_main) {
+@ExperimentalCoroutinesApi
+class MainActivity : AppCompatActivity(R.layout.activity_main), OnClickRestaurantListener {
 
     companion object {
         fun navigate(activity: FragmentActivity): Intent {
             return Intent(activity, MainActivity::class.java)
         }
+        private const val PLACE_ID = "PLACE_ID"
     }
 
     private lateinit var binding: ActivityMainBinding
@@ -160,6 +165,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     // Set the fragment to replace in view
+    @ExperimentalCoroutinesApi
     private fun setActivePage(@IdRes itemId: Int) {
         val container = binding.activityMainFragmentContainer.id
 
@@ -180,5 +186,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putCharSequence("appBarCurTitle", binding.mainActivityTopAppbar.title.toString())
+    }
+
+    override fun onClickRestaurant(placeId: String) {
+        val intent = RestaurantDetailsActivity.navigate(this)
+        intent.putExtra(PLACE_ID,placeId)
+        startActivity(intent)
     }
 }
