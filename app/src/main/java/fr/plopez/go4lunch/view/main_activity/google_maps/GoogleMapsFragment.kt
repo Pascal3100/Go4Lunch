@@ -20,7 +20,6 @@ import fr.plopez.go4lunch.utils.CustomSnackBar
 import fr.plopez.go4lunch.view.main_activity.MainActivity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.lang.ClassCastException
 
@@ -92,28 +91,23 @@ class GoogleMapsFragment :
         googleMap.setOnInfoWindowClickListener(this)
 
         // Manage camera and map the markers on the map
+        googleMapsViewModel.googleMapViewStateLiveData.observe(requireActivity()) {
+
+            // Just center the camera on the new position
+            // The onLoadFragment is used to not animate camera when map is loaded.
+            manageCamera(googleMap, it)
+
+            // Add markers for proxy restaurants
+            mapMarkersOnMap(googleMap, it)
+        }
+
+        // Manage to spawn the toasts messages
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-
-                googleMapsViewModel.googleMapViewStateSharedFlow.collectLatest {
-
-                    // Just center the camera on the new position
-                    // The onLoadFragment is used to not animate camera when map is loaded.
-                    manageCamera(googleMap, it)
-
-                    // Add markers for proxy restaurants
-                    mapMarkersOnMap(googleMap, it)
-                }
-            }
-
-            // Manage to spawn the toasts messages
-            lifecycleScope.launch {
-                lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    googleMapsViewModel.googleMapViewActionFlow.collect {
-                        when (it) {
-                            is GoogleMapsViewModel.GoogleMapViewAction.ResponseStatusMessage ->
-                                snackbar.showWarningSnackBar(getString(it.messageResId))
-                        }
+                googleMapsViewModel.googleMapViewActionFlow.collect {
+                    when (it) {
+                        is GoogleMapsViewModel.GoogleMapViewAction.ResponseStatusMessage ->
+                            snackbar.showWarningSnackBar(getString(it.messageResId))
                     }
                 }
             }
@@ -126,8 +120,8 @@ class GoogleMapsFragment :
         googleMap: GoogleMap,
         googleMapViewState: GoogleMapsViewModel.GoogleMapViewState
     ) {
+        clearAllMarkers()
         if (googleMapViewState.restaurantList.isNotEmpty()) {
-            clearAllMarkers()
             allMarkers = googleMapViewState.restaurantList.mapNotNull { restaurantViewSate ->
 
                 val icon = when (restaurantViewSate.rate) {

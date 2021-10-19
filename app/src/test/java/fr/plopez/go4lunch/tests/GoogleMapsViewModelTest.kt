@@ -1,6 +1,7 @@
 package fr.plopez.go4lunch.tests
 
 import android.content.Context
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantEntity
 import fr.plopez.go4lunch.data.repositories.LocationRepository
@@ -39,6 +40,8 @@ class GoogleMapsViewModelTest {
     // Rules
     @get:Rule
     val testCoroutineRule = TestCoroutineRule()
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     // Mocks
     private val coroutinesProviderMock = mockk<CoroutinesProvider>()
@@ -97,36 +100,11 @@ class GoogleMapsViewModelTest {
 
             // When
             googleMapsViewModel.onMapReady()
-            val result = googleMapsViewModel.googleMapViewStateSharedFlow.first()
-
-            // Then
-            val expectedResult = getExpectedGoogleMapViewState()
-            assertEquals(expectedResult, result)
-        }
-
-    @Test
-    fun `no restaurant message when no response is returned`() =
-        testCoroutineRule.runBlockingTest {
-            // Given
-            coEvery {
-                restaurantsRepositoryMockK.getRestaurantsAroundPosition(
-                    LATITUDE,
-                    LONGITUDE,
-                    RADIUS
-                )
-            } returns flowOf(
-                RestaurantsRepository.ResponseStatus.NoResponse
-            )
-
-            // When
-            googleMapsViewModel.onMapReady()
-            val result = googleMapsViewModel.googleMapViewActionFlow.first()
-
-            // Then
-            val expectedResult = GoogleMapsViewModel.GoogleMapViewAction.ResponseStatusMessage(
-                R.string.no_response_message
-            )
-            assertEquals(expectedResult, result)
+            googleMapsViewModel.googleMapViewStateLiveData.observeForever{
+                // Then
+                val expectedResult = getExpectedGoogleMapViewState()
+                assertEquals(expectedResult, it)
+            }
         }
 
     @Test
@@ -202,7 +180,9 @@ class GoogleMapsViewModelTest {
                 GoogleMapsViewModel.RestaurantViewState(
                     latitude = LATITUDE.toDouble(),
                     longitude = LONGITUDE.toDouble(),
-                    name = NAME
+                    name = NAME,
+                    id = PLACE_ID,
+                    rate = RATE.toFloat()
                 )
             ))
 

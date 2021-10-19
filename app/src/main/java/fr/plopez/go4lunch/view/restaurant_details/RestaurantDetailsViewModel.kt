@@ -1,8 +1,8 @@
 package fr.plopez.go4lunch.view.restaurant_details
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -11,7 +11,6 @@ import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantEntity
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
 import fr.plopez.go4lunch.di.NearbyConstants
-import fr.plopez.go4lunch.view.main_activity.list_restaurants.ListRestaurantsViewModel
 import fr.plopez.go4lunch.view.model.RestaurantDetailsViewState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -36,7 +35,9 @@ class RestaurantDetailsViewModel @Inject constructor(
 
     private val restaurantDetailsViewStateMutableSharedFlow =
         MutableSharedFlow<RestaurantDetailsViewState>(replay = 1)
-    val restaurantDetailsViewStateFlow = restaurantDetailsViewStateMutableSharedFlow.asSharedFlow()
+    val restaurantDetailsViewLiveData = restaurantDetailsViewStateMutableSharedFlow.asLiveData(
+        coroutinesProvider.ioCoroutineDispatcher
+    )
 
     init {
         viewModelScope.launch(coroutinesProvider.ioCoroutineDispatcher) {

@@ -14,8 +14,10 @@ import fr.plopez.go4lunch.interfaces.OnLoginSuccessful
 import fr.plopez.go4lunch.interfaces.OnPermissionsAccepted
 import fr.plopez.go4lunch.utils.CustomSnackBar
 import fr.plopez.go4lunch.view.main_activity.MainActivity
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @AndroidEntryPoint
+@ExperimentalCoroutinesApi
 class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page), OnLoginSuccessful, OnPermissionsAccepted {
 
     companion object {

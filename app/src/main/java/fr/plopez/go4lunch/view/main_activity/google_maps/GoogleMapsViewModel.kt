@@ -3,8 +3,7 @@ package fr.plopez.go4lunch.view.main_activity.google_maps
 import android.annotation.SuppressLint
 import android.content.Context
 import androidx.annotation.StringRes
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.plopez.go4lunch.R
@@ -36,9 +35,12 @@ class GoogleMapsViewModel @Inject constructor(
     // Position with zoom and restaurants flow
     private val googleMapViewStateMutableSharedFlow =
         MutableSharedFlow<GoogleMapViewState>(replay = 1)
-    val googleMapViewStateSharedFlow = googleMapViewStateMutableSharedFlow.asSharedFlow()
+    val googleMapViewStateLiveData = googleMapViewStateMutableSharedFlow.asLiveData(
+        coroutinesProvider.ioCoroutineDispatcher
+    )
 
     // Equivalent SingleLiveEvent with Flows
+    // TODO @Nino to replace with Single Live Event?
     private val googleMapViewActionChannel = Channel<GoogleMapViewAction>(Channel.BUFFERED)
     val googleMapViewActionFlow = googleMapViewActionChannel.receiveAsFlow()
 
@@ -46,7 +48,6 @@ class GoogleMapsViewModel @Inject constructor(
     private val onMapReadyMutableStateFlow = MutableStateFlow(false)
 
     init {
-
         // Initialization of the flow at init of the viewModel
         viewModelScope.launch(coroutinesProvider.ioCoroutineDispatcher) {
 
@@ -62,13 +63,14 @@ class GoogleMapsViewModel @Inject constructor(
                     positionWithZoom.latitude.toString(),
                     positionWithZoom.longitude.toString(),
                     context.resources.getString(R.string.default_detection_radius_value)
-                ).collect {
+                // the flow will be collected only if the response is different from previous ones
+                ).distinctUntilChanged().collect {
                     when (it) {
                         is RestaurantsRepository.ResponseStatus.Success ->
                             mapData(positionWithZoom, it.data)
                         is RestaurantsRepository.ResponseStatus.NoUpdate -> Unit
                         is RestaurantsRepository.ResponseStatus.NoResponse ->
-                            mapEvent(R.string.no_response_message)
+                            mapData(positionWithZoom, emptyList())
                         is RestaurantsRepository.ResponseStatus.StatusError.HttpException ->
                             mapEvent(R.string.network_error_message)
                         is RestaurantsRepository.ResponseStatus.StatusError.IOException ->
@@ -114,25 +116,20 @@ class GoogleMapsViewModel @Inject constructor(
         positionWithZoom: LocationRepository.PositionWithZoom,
         listRestaurants: List<RestaurantEntity>
     ): GoogleMapViewState {
-        val restaurantViewStateMutableList = mutableListOf<RestaurantViewState>()
-
-        listRestaurants.forEach {
-            restaurantViewStateMutableList.add(
-                RestaurantViewState(
-                    it.latitude,
-                    it.longitude,
-                    it.name,
-                    it.restaurantId,
-                    it.rate
-                )
-            )
+        val restaurantViewStateList = listRestaurants.map {
+            RestaurantViewState(
+                it.latitude,
+                it.longitude,
+                it.name,
+                it.restaurantId,
+                it.rate)
         }
 
         return GoogleMapViewState(
             positionWithZoom.latitude,
             positionWithZoom.longitude,
             positionWithZoom.zoom,
-            Collections.unmodifiableList(restaurantViewStateMutableList)
+            Collections.unmodifiableList(restaurantViewStateList)
         )
     }
 

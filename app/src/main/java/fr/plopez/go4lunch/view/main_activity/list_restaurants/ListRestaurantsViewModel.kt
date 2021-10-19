@@ -2,8 +2,7 @@ package fr.plopez.go4lunch.view.main_activity.list_restaurants
 
 import android.content.Context
 import android.location.Location
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.plopez.go4lunch.R
@@ -37,7 +36,9 @@ class ListRestaurantsViewModel @Inject constructor(
 
     private val restaurantsItemsMutableStateFlow =
         MutableStateFlow(emptyList<RestaurantItemViewState>())
-    val restaurantsItemsStateFlow = restaurantsItemsMutableStateFlow.asStateFlow()
+    val restaurantsItemsLiveData = restaurantsItemsMutableStateFlow.asLiveData(
+        coroutinesProvider.ioCoroutineDispatcher
+    )
 
     init {
         viewModelScope.launch(coroutinesProvider.ioCoroutineDispatcher) {

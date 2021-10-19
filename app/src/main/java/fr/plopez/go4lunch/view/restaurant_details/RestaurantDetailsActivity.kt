@@ -3,7 +3,6 @@ package fr.plopez.go4lunch.view.restaurant_details
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import androidx.activity.viewModels
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
@@ -13,7 +12,6 @@ import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.ActivityRestaurantDetailsBinding
-import fr.plopez.go4lunch.view.main_activity.MainActivity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -47,23 +45,19 @@ class RestaurantDetailsActivity : AppCompatActivity() {
 
         restaurantDetailsViewModel.onPlaceIdRequest(placeId)
 
-        lifecycleScope.launch {
-            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                restaurantDetailsViewModel.restaurantDetailsViewStateFlow.collect {
-                    // Glide section
-                    Glide.with(binding.root)
-                        .load(it.photoUrl)
-                        .placeholder(R.drawable.no_pic_for_item_view)
-                        .error(R.drawable.no_pic_for_item_view)
-                        .fallback(R.drawable.no_pic_for_item_view)
-                        .centerCrop()
-                        .into(binding.restaurantDetailsActivityRestaurantImage)
+        restaurantDetailsViewModel.restaurantDetailsViewLiveData.observe(this@RestaurantDetailsActivity) {
+            // Glide section
+            Glide.with(binding.root)
+                .load(it.photoUrl)
+                .placeholder(R.drawable.no_pic_for_item_view)
+                .error(R.drawable.no_pic_for_item_view)
+                .fallback(R.drawable.no_pic_for_item_view)
+                .centerCrop()
+                .into(binding.restaurantDetailsActivityRestaurantImage)
 
-                    binding.restaurantDetailsActivityRestaurantName.text = it.name
-                    binding.restaurantDetailsActivityRestaurantRatingBar.rating = it.rate
-                    binding.restaurantDetailsActivitySubtitle.text = it.address
-                }
-            }
+            binding.restaurantDetailsActivityRestaurantName.text = it.name
+            binding.restaurantDetailsActivityRestaurantRatingBar.rating = it.rate
+            binding.restaurantDetailsActivitySubtitle.text = it.address
         }
 
         binding.restaurantDetailsActivityToolbar.setNavigationOnClickListener {

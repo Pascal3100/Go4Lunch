@@ -75,18 +75,29 @@ class RestaurantsRepository @Inject constructor(
 
             val responseBody = response.body()
 
-            if (response.isSuccessful && responseBody != null && responseBody.results.isNotEmpty()) {
+            if (response.isSuccessful && responseBody != null) {
 
-                // Getting details for restaurants
-                val restaurantDetailsList = getDetailsForRestaurants(responseBody.results)
+                val restaurantDetailsList: List<RestaurantDetails>
+                val restaurantEntityList: List<RestaurantEntity>
 
-                // Map query result to domain model
-                val restaurantEntityList =
-                    mapRestaurantQueryToEntity(responseBody.results, restaurantDetailsList)
+                if (responseBody.results.isNotEmpty()) {
+                        // Getting details for restaurants
+                        restaurantDetailsList = getDetailsForRestaurants(responseBody.results)
+
+                        // Map query result to domain model
+                        restaurantEntityList = mapRestaurantQueryToEntity(responseBody.results, restaurantDetailsList)
+                    } else {
+                        restaurantDetailsList = getDetailsForRestaurants(responseBody.results)
+                        restaurantEntityList = mapRestaurantQueryToEntity(responseBody.results, restaurantDetailsList)
+                    }
 
                 // Store restaurants in database in a separate coroutine
                 withContext(coroutinesProvider.ioCoroutineDispatcher) {
-                    storeInDatabase(restaurantEntityList, restaurantDetailsList, latitude, longitude)
+                    storeInDatabase(
+                        restaurantEntityList = restaurantEntityList,
+                        restaurantDetailsList = restaurantDetailsList,
+                        latitude = latitude,
+                        longitude = longitude)
                 }
 
                 // Emit the list of restaurant to the VM

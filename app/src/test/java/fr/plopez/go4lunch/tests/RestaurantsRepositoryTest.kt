@@ -312,7 +312,7 @@ class RestaurantsRepositoryTest {
             ).first()
 
             // Then
-            val expectedResponse = RestaurantsRepository.ResponseStatus.NoResponse
+            val expectedResponse = RestaurantsRepository.ResponseStatus.Success(emptyList())
             assertEquals(expectedResponse, result)
         }
 
