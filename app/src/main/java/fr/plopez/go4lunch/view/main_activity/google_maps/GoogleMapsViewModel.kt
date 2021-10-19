@@ -121,7 +121,9 @@ class GoogleMapsViewModel @Inject constructor(
                 RestaurantViewState(
                     it.latitude,
                     it.longitude,
-                    it.name
+                    it.name,
+                    it.restaurantId,
+                    it.rate
                 )
             )
         }
@@ -146,7 +148,9 @@ class GoogleMapsViewModel @Inject constructor(
     data class RestaurantViewState(
         val latitude: Double,
         val longitude: Double,
-        val name: String
+        val name: String,
+        val id: String,
+        val rate: Float
     )
 
     sealed class GoogleMapViewAction {

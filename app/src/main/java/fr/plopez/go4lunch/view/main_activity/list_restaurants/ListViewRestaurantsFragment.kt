@@ -46,7 +46,6 @@ class ListViewRestaurantFragment : Fragment() {
                         + " must implement MainActivity"
             )
         }
-
     }
 
     override fun onCreateView(

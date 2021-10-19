@@ -1,6 +1,7 @@
 package fr.plopez.go4lunch.view.main_activity.google_maps
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
@@ -8,20 +9,29 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.gms.maps.*
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import dagger.hilt.android.AndroidEntryPoint
+import fr.plopez.go4lunch.R
+import fr.plopez.go4lunch.interfaces.OnClickRestaurantListener
 import fr.plopez.go4lunch.utils.CustomSnackBar
+import fr.plopez.go4lunch.view.main_activity.MainActivity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.lang.ClassCastException
 
 
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
-class GoogleMapsFragment : SupportMapFragment(), OnMapReadyCallback {
+class GoogleMapsFragment :
+    SupportMapFragment(),
+    OnMapReadyCallback,
+    GoogleMap.OnMarkerClickListener,
+    GoogleMap.OnInfoWindowClickListener {
     //
     companion object {
         fun newInstance(): GoogleMapsFragment {
@@ -32,11 +42,25 @@ class GoogleMapsFragment : SupportMapFragment(), OnMapReadyCallback {
     // TODO @Nino Builder pattern let's go
     private lateinit var snackbar: CustomSnackBar
 
+    private lateinit var onClickRestaurantListener: OnClickRestaurantListener
+
     private val googleMapsViewModel: GoogleMapsViewModel by viewModels()
 
     private var onLoadFragment = true
 
-    private val allMarkers = mutableListOf<Marker>()
+    private var allMarkers = listOf<Marker>()
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is MainActivity) {
+            onClickRestaurantListener = context
+        } else {
+            throw ClassCastException(
+                context.toString()
+                        + " must implement MainActivity"
+            )
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -61,58 +85,30 @@ class GoogleMapsFragment : SupportMapFragment(), OnMapReadyCallback {
             googleMapsViewModel.onZoomChanged(googleMap.cameraPosition.zoom)
         }
 
+        // Listener to show restaurant name above marker
+        googleMap.setOnMarkerClickListener(this)
+
+        // Listener to show restaurant details on click on marker title
+        googleMap.setOnInfoWindowClickListener(this)
+
+        // Manage camera and map the markers on the map
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
                 googleMapsViewModel.googleMapViewStateSharedFlow.collectLatest {
 
-                    // TODO : eventually put a custom marker on the user position
-
                     // Just center the camera on the new position
                     // The onLoadFragment is used to not animate camera when map is loaded.
-                    if (onLoadFragment) {
-                        onLoadFragment = false
-                        googleMap.moveCamera(
-                            CameraUpdateFactory.newLatLngZoom(
-                                LatLng(it.latitude, it.longitude),
-                                it.zoom
-                            )
-                        )
-                    } else {
-                        googleMap.animateCamera(
-                            CameraUpdateFactory.newLatLngZoom(
-                                LatLng(it.latitude, it.longitude),
-                                it.zoom
-                            )
-                        )
-                    }
-
-                    // TODO : Put a custom marker on the restaurant position with .icon option
+                    manageCamera(googleMap, it)
 
                     // Add markers for proxy restaurants
-                    if (it.restaurantList.isNotEmpty()) {
-                        clearAllMarkers()
-                        it.restaurantList.forEach { restaurantViewSate ->
-
-                            // TODO @Nino Why???
-                            allMarkers += googleMap.addMarker(
-                                MarkerOptions()
-                                    .position(
-                                        LatLng(
-                                            restaurantViewSate.latitude,
-                                            restaurantViewSate.longitude
-                                        )
-                                    )
-                                    .title(restaurantViewSate.name)
-                            )
-                        }
-                    }
+                    mapMarkersOnMap(googleMap, it)
                 }
             }
 
+            // Manage to spawn the toasts messages
             lifecycleScope.launch {
                 lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-
                     googleMapsViewModel.googleMapViewActionFlow.collect {
                         when (it) {
                             is GoogleMapsViewModel.GoogleMapViewAction.ResponseStatusMessage ->
@@ -125,10 +121,86 @@ class GoogleMapsFragment : SupportMapFragment(), OnMapReadyCallback {
         }
     }
 
+    // Add markers for proxy restaurants
+    private fun mapMarkersOnMap(
+        googleMap: GoogleMap,
+        googleMapViewState: GoogleMapsViewModel.GoogleMapViewState
+    ) {
+        if (googleMapViewState.restaurantList.isNotEmpty()) {
+            clearAllMarkers()
+            allMarkers = googleMapViewState.restaurantList.mapNotNull { restaurantViewSate ->
+
+                val icon = when (restaurantViewSate.rate) {
+                    1.0f -> BitmapDescriptorFactory.fromResource(R.drawable.red_pin_128px)
+                    2.0f -> BitmapDescriptorFactory.fromResource(R.drawable.orange_pin_128px)
+                    3.0f -> BitmapDescriptorFactory.fromResource(R.drawable.green_pin_128px)
+                    else -> BitmapDescriptorFactory.fromResource(R.drawable.grey_pin_128px)
+                }
+
+                googleMap.addMarker(
+                    MarkerOptions()
+                        .position(
+                            LatLng(
+                                restaurantViewSate.latitude,
+                                restaurantViewSate.longitude
+                            )
+                        )
+                        .title(restaurantViewSate.name)
+                        .icon(icon)
+                ).also { marker -> marker?.tag = restaurantViewSate.id }
+            }
+        }
+    }
+
+    // Just center the camera on the new position
+    // The onLoadFragment is used to not animate camera when map is loaded.
+    private fun manageCamera(
+        googleMap: GoogleMap,
+        googleMapViewState: GoogleMapsViewModel.GoogleMapViewState
+    ) {
+        if (onLoadFragment) {
+            onLoadFragment = false
+            googleMap.moveCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    LatLng(googleMapViewState.latitude, googleMapViewState.longitude),
+                    googleMapViewState.zoom
+                )
+            )
+        } else {
+            googleMap.animateCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    LatLng(googleMapViewState.latitude, googleMapViewState.longitude),
+                    googleMapViewState.zoom
+                )
+            )
+        }
+    }
+
     private fun clearAllMarkers() {
         allMarkers.forEach {
             it.remove()
         }
-        allMarkers.clear()
+        allMarkers = emptyList()
     }
+
+    // Listener to show restaurant details on click on marker
+    override fun onMarkerClick(marker: Marker): Boolean {
+        marker.showInfoWindow()
+        return true
+    }
+
+    override fun onInfoWindowClick(marker: Marker) {
+        onClickRestaurantListener.onClickRestaurant(marker.tag as String)
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+    }
+
 }
