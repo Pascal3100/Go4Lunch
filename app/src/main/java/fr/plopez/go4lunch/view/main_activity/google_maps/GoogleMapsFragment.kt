@@ -46,6 +46,7 @@ class GoogleMapsFragment :
     private val googleMapsViewModel: GoogleMapsViewModel by viewModels()
 
     private var onLoadFragment = true
+    private var backToMapsFragment = false
 
     private var allMarkers = listOf<Marker>()
 
@@ -160,7 +161,7 @@ class GoogleMapsFragment :
                     googleMapViewState.zoom
                 )
             )
-        } else {
+        } else if (!backToMapsFragment) {
             googleMap.animateCamera(
                 CameraUpdateFactory.newLatLngZoom(
                     LatLng(googleMapViewState.latitude, googleMapViewState.longitude),
@@ -168,6 +169,7 @@ class GoogleMapsFragment :
                 )
             )
         }
+        if (backToMapsFragment) backToMapsFragment = false
     }
 
     private fun clearAllMarkers() {
@@ -187,14 +189,9 @@ class GoogleMapsFragment :
         onClickRestaurantListener.onClickRestaurant(marker.tag as String)
     }
 
-    override fun onStop() {
-        super.onStop()
-
-    }
-
     override fun onStart() {
         super.onStart()
-
+        backToMapsFragment = true
     }
 
 }
