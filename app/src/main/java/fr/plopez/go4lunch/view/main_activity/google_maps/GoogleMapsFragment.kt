@@ -112,7 +112,6 @@ class GoogleMapsFragment :
                     }
                 }
             }
-
         }
     }
 
@@ -125,13 +124,6 @@ class GoogleMapsFragment :
         if (googleMapViewState.restaurantList.isNotEmpty()) {
             allMarkers = googleMapViewState.restaurantList.mapNotNull { restaurantViewSate ->
 
-                val icon = when (restaurantViewSate.rate) {
-                    1.0f -> BitmapDescriptorFactory.fromResource(R.drawable.red_pin_128px)
-                    2.0f -> BitmapDescriptorFactory.fromResource(R.drawable.orange_pin_128px)
-                    3.0f -> BitmapDescriptorFactory.fromResource(R.drawable.green_pin_128px)
-                    else -> BitmapDescriptorFactory.fromResource(R.drawable.grey_pin_128px)
-                }
-
                 googleMap.addMarker(
                     MarkerOptions()
                         .position(
@@ -141,7 +133,7 @@ class GoogleMapsFragment :
                             )
                         )
                         .title(restaurantViewSate.name)
-                        .icon(icon)
+                        .icon(BitmapDescriptorFactory.fromResource(restaurantViewSate.iconDrawable))
                 ).also { marker -> marker?.tag = restaurantViewSate.id }
             }
         }

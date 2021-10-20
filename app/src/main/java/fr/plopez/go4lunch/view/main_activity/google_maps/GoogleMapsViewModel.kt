@@ -2,8 +2,10 @@ package fr.plopez.go4lunch.view.main_activity.google_maps
 
 import android.annotation.SuppressLint
 import android.content.Context
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.lifecycle.*
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.plopez.go4lunch.R
@@ -40,7 +42,6 @@ class GoogleMapsViewModel @Inject constructor(
     )
 
     // Equivalent SingleLiveEvent with Flows
-    // TODO @Nino to replace with Single Live Event?
     private val googleMapViewActionChannel = Channel<GoogleMapViewAction>(Channel.BUFFERED)
     val googleMapViewActionFlow = googleMapViewActionChannel.receiveAsFlow()
 
@@ -117,12 +118,20 @@ class GoogleMapsViewModel @Inject constructor(
         listRestaurants: List<RestaurantEntity>
     ): GoogleMapViewState {
         val restaurantViewStateList = listRestaurants.map {
+            @DrawableRes
+            val iconDrawable = when (it.rate) {
+                1.0f -> R.drawable.red_pin_128px
+                2.0f -> R.drawable.orange_pin_128px
+                3.0f -> R.drawable.green_pin_128px
+                else -> R.drawable.grey_pin_128px
+            }
+
             RestaurantViewState(
-                it.latitude,
-                it.longitude,
-                it.name,
-                it.restaurantId,
-                it.rate)
+                latitude = it.latitude,
+                longitude = it.longitude,
+                name = it.name,
+                id = it.restaurantId,
+                iconDrawable = iconDrawable)
         }
 
         return GoogleMapViewState(
@@ -147,7 +156,8 @@ class GoogleMapsViewModel @Inject constructor(
         val longitude: Double,
         val name: String,
         val id: String,
-        val rate: Float
+        @DrawableRes
+        val iconDrawable: Int
     )
 
     sealed class GoogleMapViewAction {
