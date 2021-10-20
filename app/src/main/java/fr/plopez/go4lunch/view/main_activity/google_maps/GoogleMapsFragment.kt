@@ -92,7 +92,7 @@ class GoogleMapsFragment :
         googleMap.setOnInfoWindowClickListener(this)
 
         // Manage camera and map the markers on the map
-        googleMapsViewModel.googleMapViewStateLiveData.observe(requireActivity()) {
+        googleMapsViewModel.googleMapViewStateLiveData.observe(this) {
 
             // Just center the camera on the new position
             // The onLoadFragment is used to not animate camera when map is loaded.

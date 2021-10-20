@@ -62,9 +62,8 @@ class ListViewRestaurantFragment : Fragment() {
 
         recyclerView?.adapter = adapter
 
-        listRestaurantsViewModel.restaurantsItemsLiveData.observe(requireActivity()) {
+        listRestaurantsViewModel.restaurantsItemsLiveData.observe(viewLifecycleOwner) {
             adapter.updateRestaurantsList(it)
         }
-
     }
 }
