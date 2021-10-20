@@ -4,6 +4,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import androidx.annotation.StringRes
 import androidx.lifecycle.*
+import com.google.android.gms.maps.CameraUpdate
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.plopez.go4lunch.R
@@ -63,7 +66,7 @@ class GoogleMapsViewModel @Inject constructor(
                     positionWithZoom.latitude.toString(),
                     positionWithZoom.longitude.toString(),
                     context.resources.getString(R.string.default_detection_radius_value)
-                // the flow will be collected only if the response is different from previous ones
+                    // the flow will be collected only if the response is different from previous ones
                 ).distinctUntilChanged().collect {
                     when (it) {
                         is RestaurantsRepository.ResponseStatus.Success ->
@@ -79,6 +82,18 @@ class GoogleMapsViewModel @Inject constructor(
                 }
             }.collect()
         }
+
+        googleMapViewActionChannel.trySend(
+            GoogleMapViewAction.MoveCamera(
+                data = CameraUpdateFactory.newLatLngZoom(
+                    LatLng(
+                        googleMapViewState.latitude,
+                        googleMapViewState.longitude
+                    ),
+                    googleMapViewState.zoom
+                )
+            )
+        )
     }
 
     // Track Map status
@@ -122,7 +137,8 @@ class GoogleMapsViewModel @Inject constructor(
                 it.longitude,
                 it.name,
                 it.restaurantId,
-                it.rate)
+                it.rate
+            )
         }
 
         return GoogleMapViewState(
@@ -151,6 +167,8 @@ class GoogleMapsViewModel @Inject constructor(
     )
 
     sealed class GoogleMapViewAction {
+        data class MoveCamera(val data: CameraUpdate) : GoogleMapViewAction()
+        data class AnimateCamera(val data: CameraUpdate) : GoogleMapViewAction()
         data class ResponseStatusMessage(@StringRes val messageResId: Int) : GoogleMapViewAction()
     }
 

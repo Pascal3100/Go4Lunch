@@ -17,7 +17,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.interfaces.OnClickRestaurantListener
 import fr.plopez.go4lunch.utils.CustomSnackBar
+import fr.plopez.go4lunch.utils.exhaustive
 import fr.plopez.go4lunch.view.main_activity.MainActivity
+import fr.plopez.go4lunch.view.main_activity.google_maps.GoogleMapsViewModel.GoogleMapViewAction
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -93,11 +95,6 @@ class GoogleMapsFragment :
 
         // Manage camera and map the markers on the map
         googleMapsViewModel.googleMapViewStateLiveData.observe(requireActivity()) {
-
-            // Just center the camera on the new position
-            // The onLoadFragment is used to not animate camera when map is loaded.
-            manageCamera(googleMap, it)
-
             // Add markers for proxy restaurants
             mapMarkersOnMap(googleMap, it)
         }
@@ -107,12 +104,12 @@ class GoogleMapsFragment :
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 googleMapsViewModel.googleMapViewActionFlow.collect {
                     when (it) {
-                        is GoogleMapsViewModel.GoogleMapViewAction.ResponseStatusMessage ->
-                            snackbar.showWarningSnackBar(getString(it.messageResId))
-                    }
+                        is GoogleMapViewAction.ResponseStatusMessage -> snackbar.showWarningSnackBar(getString(it.messageResId))
+                        is GoogleMapViewAction.AnimateCamera -> googleMap.animateCamera(it.data)
+                        is GoogleMapViewAction.MoveCamera -> googleMap.moveCamera(it.data)
+                    }.exhaustive
                 }
             }
-
         }
     }
 
@@ -147,30 +144,30 @@ class GoogleMapsFragment :
         }
     }
 
-    // Just center the camera on the new position
-    // The onLoadFragment is used to not animate camera when map is loaded.
-    private fun manageCamera(
-        googleMap: GoogleMap,
-        googleMapViewState: GoogleMapsViewModel.GoogleMapViewState
-    ) {
-        if (onLoadFragment) {
-            onLoadFragment = false
-            googleMap.moveCamera(
-                CameraUpdateFactory.newLatLngZoom(
-                    LatLng(googleMapViewState.latitude, googleMapViewState.longitude),
-                    googleMapViewState.zoom
-                )
-            )
-        } else if (!backToMapsFragment) {
-            googleMap.animateCamera(
-                CameraUpdateFactory.newLatLngZoom(
-                    LatLng(googleMapViewState.latitude, googleMapViewState.longitude),
-                    googleMapViewState.zoom
-                )
-            )
-        }
-        if (backToMapsFragment) backToMapsFragment = false
-    }
+//    // Just center the camera on the new position
+//    // The onLoadFragment is used to not animate camera when map is loaded.
+//    private fun manageCamera(
+//        googleMap: GoogleMap,
+//        googleMapViewState: GoogleMapsViewModel.GoogleMapViewState
+//    ) {
+//        if (onLoadFragment) {
+//            onLoadFragment = false
+//            googleMap.moveCamera(
+//                CameraUpdateFactory.newLatLngZoom(
+//                    LatLng(googleMapViewState.latitude, googleMapViewState.longitude),
+//                    googleMapViewState.zoom
+//                )
+//            )
+//        } else if (!backToMapsFragment) {
+//            googleMap.animateCamera(
+//                CameraUpdateFactory.newLatLngZoom(
+//                    LatLng(googleMapViewState.latitude, googleMapViewState.longitude),
+//                    googleMapViewState.zoom
+//                )
+//            )
+//        }
+//        if (backToMapsFragment) backToMapsFragment = false
+//    }
 
     private fun clearAllMarkers() {
         allMarkers.forEach {

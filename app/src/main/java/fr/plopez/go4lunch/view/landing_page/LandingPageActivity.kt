@@ -13,6 +13,7 @@ import fr.plopez.go4lunch.databinding.ActivityLandingPageBinding
 import fr.plopez.go4lunch.interfaces.OnLoginSuccessful
 import fr.plopez.go4lunch.interfaces.OnPermissionsAccepted
 import fr.plopez.go4lunch.utils.CustomSnackBar
+import fr.plopez.go4lunch.utils.CustomSnackbar2
 import fr.plopez.go4lunch.view.main_activity.MainActivity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
@@ -30,8 +31,6 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page), O
     // View binding
     private lateinit var binding: ActivityLandingPageBinding
 
-    private lateinit var snack: CustomSnackBar
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -42,8 +41,6 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page), O
         binding = ActivityLandingPageBinding.inflate(layoutInflater)
 
         setContentView(binding.root)
-
-        snack = CustomSnackBar(findViewById(android.R.id.content), this)
 
         supportFragmentManager.commit {
             replace(R.id.landing_page_fragment_container, LoginFragment.newInstance())
@@ -77,6 +74,9 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page), O
                 replace(R.id.landing_page_fragment_container, LoginFragment.newInstance())
                 setReorderingAllowed(true)
             }
+
+            CustomSnackbar2.Builder()
+
             snack.showWarningSnackBar(getString(R.string.accept_permissions_message))
         }
     }
