@@ -30,8 +30,6 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page), O
     // View binding
     private lateinit var binding: ActivityLandingPageBinding
 
-    private lateinit var snack: CustomSnackBar
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -42,8 +40,6 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page), O
         binding = ActivityLandingPageBinding.inflate(layoutInflater)
 
         setContentView(binding.root)
-
-        snack = CustomSnackBar(findViewById(android.R.id.content), this)
 
         supportFragmentManager.commit {
             replace(R.id.landing_page_fragment_container, LoginFragment.newInstance())
@@ -77,7 +73,13 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page), O
                 replace(R.id.landing_page_fragment_container, LoginFragment.newInstance())
                 setReorderingAllowed(true)
             }
-            snack.showWarningSnackBar(getString(R.string.accept_permissions_message))
+
+            CustomSnackBar.with(binding.root)
+                .setMessage(getString(R.string.accept_permissions_message))
+                .setType(CustomSnackBar.Type.WARNING)
+                .build()
+                .show()
+
         }
     }
 

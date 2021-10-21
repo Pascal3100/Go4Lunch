@@ -17,6 +17,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.interfaces.OnClickRestaurantListener
 import fr.plopez.go4lunch.utils.CustomSnackBar
+import fr.plopez.go4lunch.utils.exhaustive
 import fr.plopez.go4lunch.view.main_activity.MainActivity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
@@ -38,15 +39,9 @@ class GoogleMapsFragment :
         }
     }
 
-    // TODO @Nino Builder pattern let's go
-    private lateinit var snackbar: CustomSnackBar
-
     private lateinit var onClickRestaurantListener: OnClickRestaurantListener
 
     private val googleMapsViewModel: GoogleMapsViewModel by viewModels()
-
-    private var onLoadFragment = true
-    private var backToMapsFragment = false
 
     private var allMarkers = listOf<Marker>()
 
@@ -62,14 +57,16 @@ class GoogleMapsFragment :
         }
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        googleMapsViewModel.onFirstMapLoading()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         // Get notified when the map is ready to be used.
         getMapAsync(this)
-
-        // TODO @Nino Builder pattern let's go
-        snackbar = CustomSnackBar(requireView(), requireContext())
     }
 
     @SuppressLint("MissingPermission")
@@ -94,10 +91,6 @@ class GoogleMapsFragment :
         // Manage camera and map the markers on the map
         googleMapsViewModel.googleMapViewStateLiveData.observe(this) {
 
-            // Just center the camera on the new position
-            // The onLoadFragment is used to not animate camera when map is loaded.
-            manageCamera(googleMap, it)
-
             // Add markers for proxy restaurants
             mapMarkersOnMap(googleMap, it)
         }
@@ -105,11 +98,20 @@ class GoogleMapsFragment :
         // Manage to spawn the toasts messages
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                googleMapsViewModel.googleMapViewActionFlow.collect {
-                    when (it) {
+                googleMapsViewModel.googleMapViewActionFlow.collect { googleMapViewAction ->
+                    when (googleMapViewAction) {
                         is GoogleMapsViewModel.GoogleMapViewAction.ResponseStatusMessage ->
-                            snackbar.showWarningSnackBar(getString(it.messageResId))
-                    }
+                            CustomSnackBar.with(requireView())
+                                .setMessage(getString(googleMapViewAction.messageResId))
+                                .setType(CustomSnackBar.Type.WARNING)
+                                .build()
+                                .show()
+
+                        is GoogleMapsViewModel.GoogleMapViewAction.MoveCamera ->
+                            googleMap.moveCamera(googleMapViewAction.data)
+                        is GoogleMapsViewModel.GoogleMapViewAction.AnimateCamera ->
+                            googleMap.animateCamera(googleMapViewAction.data)
+                    }.exhaustive
                 }
             }
         }
@@ -139,31 +141,6 @@ class GoogleMapsFragment :
         }
     }
 
-    // Just center the camera on the new position
-    // The onLoadFragment is used to not animate camera when map is loaded.
-    private fun manageCamera(
-        googleMap: GoogleMap,
-        googleMapViewState: GoogleMapsViewModel.GoogleMapViewState
-    ) {
-        if (onLoadFragment) {
-            onLoadFragment = false
-            googleMap.moveCamera(
-                CameraUpdateFactory.newLatLngZoom(
-                    LatLng(googleMapViewState.latitude, googleMapViewState.longitude),
-                    googleMapViewState.zoom
-                )
-            )
-        } else if (!backToMapsFragment) {
-            googleMap.animateCamera(
-                CameraUpdateFactory.newLatLngZoom(
-                    LatLng(googleMapViewState.latitude, googleMapViewState.longitude),
-                    googleMapViewState.zoom
-                )
-            )
-        }
-        if (backToMapsFragment) backToMapsFragment = false
-    }
-
     private fun clearAllMarkers() {
         allMarkers.forEach {
             it.remove()
@@ -180,10 +157,4 @@ class GoogleMapsFragment :
     override fun onInfoWindowClick(marker: Marker) {
         onClickRestaurantListener.onClickRestaurant(marker.tag as String)
     }
-
-    override fun onStart() {
-        super.onStart()
-        backToMapsFragment = true
-    }
-
 }

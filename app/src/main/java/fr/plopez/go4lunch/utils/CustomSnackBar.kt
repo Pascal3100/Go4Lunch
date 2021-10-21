@@ -1,101 +1,54 @@
 package fr.plopez.go4lunch.utils
 
-import android.content.Context
 import android.view.View
-import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
 import fr.plopez.go4lunch.R
 
-class CustomSnackBar constructor(private val parentView: View,
-                                 private val parentContext: Context) {
+class CustomSnackBar {
 
-    private lateinit var snackbar: Snackbar
-
-    private fun initSnackBar(message: String) {
-        snackbar = Snackbar.make(
-            parentView,
-            message,
-            Snackbar.LENGTH_SHORT
-        )
+    companion object {
+        fun with(view: View) = Builder(view)
     }
 
-    fun showNormalSnackBar(message: String) {
-        initSnackBar(message)
-
-        snackbar.setBackgroundTint(ContextCompat.getColor(parentContext, R.color.grey))
-        snackbar.setTextColor(ContextCompat.getColor(parentContext, R.color.white))
-
-        snackbar.show()
-    }
-
-    fun showWarningSnackBar(message: String) {
-        initSnackBar(message)
-
-        snackbar.setBackgroundTint(ContextCompat.getColor(parentContext, R.color.yellow_warning))
-        snackbar.setTextColor(ContextCompat.getColor(parentContext, R.color.light_grey))
-
-        snackbar.show()
-    }
-
-    fun showErrorSnackBar(message: String) {
-        initSnackBar(message)
-
-        snackbar.setBackgroundTint(ContextCompat.getColor(parentContext, R.color.redish_whisky))
-        snackbar.setTextColor(ContextCompat.getColor(parentContext, R.color.white))
-
-        snackbar.show()
-    }
-
-}
-
-
-class CustomSnackBar2 {
-    data class Builder(
-        var message: String? = null,
-        @get:ColorInt
-        var backgroundTintColorInt: Int = R.color.grey,
-        @get:ColorInt
-        var textColorInt: Int = R.color.white,
-
-        var parentView: View,
-        var parentContext: Context
+    enum class Type(
+        @get:ColorRes
+        val backgroundTintColorInt: Int,
+        @get:ColorRes
+        val textColorInt: Int
     ) {
+        WARNING(backgroundTintColorInt = R.color.yellow_warning, textColorInt = R.color.white),
+        ERROR(backgroundTintColorInt = R.color.redish_whisky, textColorInt = R.color.white),
+        DEFAULT(backgroundTintColorInt = R.color.grey, textColorInt = R.color.white)
+    }
+
+    class Builder(private val view: View) {
+
+        private var message: String? = null
+
+        @ColorRes
+        private var backgroundTintColorInt: Int = Type.DEFAULT.backgroundTintColorInt
+
+        @ColorRes
+        private var textColorInt: Int = Type.DEFAULT.textColorInt
+
         fun setMessage(message: String) = apply {
             this.message = message
         }
 
-        fun setMessageType(type: String) = apply {
-            when (type) {
-                "warning" -> {
-                    backgroundTintColorInt = R.color.yellow_warning
-                    textColorInt = R.color.white
-                }
-                "error" -> {
-                    backgroundTintColorInt = R.color.redish_whisky
-                    textColorInt = R.color.white
-                }
-                else -> {
-                    backgroundTintColorInt = R.color.grey
-                    textColorInt = R.color.white
-                }
-            }
+        fun setType(type: Type) = apply {
+            backgroundTintColorInt = type.backgroundTintColorInt
+            textColorInt = type.textColorInt
         }
 
-        fun setParentView(view: View) = apply {
-            parentView = view
-        }
-
-        fun setParentContext(context: Context) = apply {
-            parentContext = context
-        }
-
-        fun build() = Snackbar.make(
-            parentView,
+        fun build(): Snackbar = Snackbar.make(
+            view,
             requireNotNull(message, { "require not null message" }),
             Snackbar.LENGTH_SHORT
-        ).setBackgroundTint(ContextCompat.getColor(parentContext, backgroundTintColorInt))
-            .setTextColor(ContextCompat.getColor(parentContext, textColorInt))
-            .show()
+        ).apply {
+            setBackgroundTint(ContextCompat.getColor(view.context, backgroundTintColorInt))
+            setTextColor(ContextCompat.getColor(view.context, textColorInt))
+        }
     }
 }

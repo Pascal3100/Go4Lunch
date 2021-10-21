@@ -53,10 +53,6 @@ class LoginFragment : Fragment() {
         private const val IS_LOADING_STATE = "IS_LOADING_STATE"
     }
 
-    // TODO @Nino better solution?
-    //Initialize custom snackBar
-    private lateinit var snack : CustomSnackBar
-
     // Loading state
     private var isLoading = false
 
@@ -64,10 +60,12 @@ class LoginFragment : Fragment() {
     private lateinit var binding: FragmentLoginBinding
 
     // Facebook callManager
-    @Inject lateinit var callbackManager : CallbackManager
+    @Inject
+    lateinit var callbackManager: CallbackManager
 
     // Firebase Auth
-    @Inject lateinit var firebaseAuth: FirebaseAuth
+    @Inject
+    lateinit var firebaseAuth: FirebaseAuth
 
     // ViewModel provided by delegate
     private val landingPageViewModel by viewModels<LandingPageViewModel>()
@@ -96,8 +94,6 @@ class LoginFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
-        snack = CustomSnackBar(requireView(), requireContext())
 
         // Restore the previous loading state or initialize it
         if (savedInstanceState != null) {
@@ -151,18 +147,26 @@ class LoginFragment : Fragment() {
             }
 
             override fun onCancel() {
-                snack.showWarningSnackBar(getString(R.string.facebook_canceled_connection_message))
+                CustomSnackBar.with(requireView())
+                    .setMessage(getString(R.string.facebook_canceled_connection_message))
+                    .setType(CustomSnackBar.Type.WARNING)
+                    .build()
+                    .show()
             }
 
             override fun onError(error: FacebookException?) {
-                snack.showErrorSnackBar(getString(R.string.facebook_connection_failed_message))
+                CustomSnackBar.with(requireView())
+                    .setMessage(getString(R.string.facebook_connection_failed_message))
+                    .setType(CustomSnackBar.Type.ERROR)
+                    .build()
+                    .show()
             }
         })
     }
 
     // FaceBook authentication on Firebase
-    private fun firebaseAuthWithFacebook(token: AccessToken){
-        val credential :AuthCredential = FacebookAuthProvider.getCredential(token.token)
+    private fun firebaseAuthWithFacebook(token: AccessToken) {
+        val credential: AuthCredential = FacebookAuthProvider.getCredential(token.token)
         signInToFirebase(credential)
     }
 
@@ -205,7 +209,11 @@ class LoginFragment : Fragment() {
 
                 } else {
                     loading(false)
-                    snack.showWarningSnackBar(getString(R.string.not_connected_message))
+                    CustomSnackBar.with(requireView())
+                        .setMessage(getString(R.string.not_connected_message))
+                        .setType(CustomSnackBar.Type.WARNING)
+                        .build()
+                        .show()
                     onLoginSuccessful.onLoginSuccessful(false)
                 }
             }
@@ -229,13 +237,18 @@ class LoginFragment : Fragment() {
             try {
                 val account: GoogleSignInAccount = task.getResult(ApiException::class.java)
 
-                    firebaseAuthWithGoogle(account)
+                firebaseAuthWithGoogle(account)
 
             } catch (e: ApiException) {
                 // The ApiException status code indicates the detailed failure reason.
                 // Please refer to the GoogleSignInStatusCodes class reference for more information.
                 loading(false)
-                snack.showErrorSnackBar(getString(R.string.google_connection_failed_message))
+                CustomSnackBar.with(requireView())
+                    .setMessage(getString(R.string.google_connection_failed_message))
+                    .setType(CustomSnackBar.Type.ERROR)
+                    .build()
+                    .show()
+
             }
         }
     }

@@ -59,7 +59,8 @@ class RestaurantsRepository @Inject constructor(
         if (restaurantsFromDatabase.isNotEmpty()) {
             // Update the shared Flow to allow other view Models to request the right restaurants list
             lastRequestTimeStampMutableSharedFlow.emit(restaurantsFromDatabase.first().query.queryTimeStamp)
-            emit(ResponseStatus.Success(restaurantsFromDatabase.first().restaurantList))
+            if (restaurantsFromDatabase.first().restaurantList.isEmpty()) emit(ResponseStatus.NoRestaurants)
+            else emit(ResponseStatus.Success(restaurantsFromDatabase.first().restaurantList))
             return@flow
         }
 
@@ -77,19 +78,11 @@ class RestaurantsRepository @Inject constructor(
 
             if (response.isSuccessful && responseBody != null) {
 
-                val restaurantDetailsList: List<RestaurantDetails>
-                val restaurantEntityList: List<RestaurantEntity>
+                // Getting details for restaurants
+                val restaurantDetailsList: List<RestaurantDetails> = getDetailsForRestaurants(responseBody.results)
 
-                if (responseBody.results.isNotEmpty()) {
-                        // Getting details for restaurants
-                        restaurantDetailsList = getDetailsForRestaurants(responseBody.results)
-
-                        // Map query result to domain model
-                        restaurantEntityList = mapRestaurantQueryToEntity(responseBody.results, restaurantDetailsList)
-                    } else {
-                        restaurantDetailsList = getDetailsForRestaurants(responseBody.results)
-                        restaurantEntityList = mapRestaurantQueryToEntity(responseBody.results, restaurantDetailsList)
-                    }
+                // Map query result to domain model
+                val restaurantEntityList: List<RestaurantEntity> = mapRestaurantQueryToEntity(responseBody.results, restaurantDetailsList)
 
                 // Store restaurants in database in a separate coroutine
                 withContext(coroutinesProvider.ioCoroutineDispatcher) {
@@ -101,7 +94,9 @@ class RestaurantsRepository @Inject constructor(
                 }
 
                 // Emit the list of restaurant to the VM
-                emit(ResponseStatus.Success(restaurantEntityList))
+                if (restaurantEntityList.isNotEmpty()) emit(ResponseStatus.Success(restaurantEntityList))
+                else emit(ResponseStatus.NoRestaurants)
+
             } else {
                 emit(ResponseStatus.NoResponse)
             }
@@ -282,7 +277,7 @@ class RestaurantsRepository @Inject constructor(
 
         object NoResponse : ResponseStatus()
 
-        object NoUpdate : ResponseStatus()
+        object NoRestaurants : ResponseStatus()
 
         data class Success(val data: List<RestaurantEntity>) : ResponseStatus()
 

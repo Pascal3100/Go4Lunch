@@ -5,7 +5,10 @@ import android.content.Context
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.lifecycle.*
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.CameraUpdate
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.plopez.go4lunch.R
@@ -48,6 +51,10 @@ class GoogleMapsViewModel @Inject constructor(
     // Map state Flow
     private val onMapReadyMutableStateFlow = MutableStateFlow(false)
 
+    // Booleans to manage camera
+    private var onFirstMapLoading = false
+    private var onComingBack = false
+
     init {
         // Initialization of the flow at init of the viewModel
         viewModelScope.launch(coroutinesProvider.ioCoroutineDispatcher) {
@@ -64,14 +71,20 @@ class GoogleMapsViewModel @Inject constructor(
                     positionWithZoom.latitude.toString(),
                     positionWithZoom.longitude.toString(),
                     context.resources.getString(R.string.default_detection_radius_value)
-                // the flow will be collected only if the response is different from previous ones
+                    // the flow will be collected only if the response is different from previous ones
                 ).distinctUntilChanged().collect {
                     when (it) {
-                        is RestaurantsRepository.ResponseStatus.Success ->
+                        is RestaurantsRepository.ResponseStatus.Success -> {
                             mapData(positionWithZoom, it.data)
-                        is RestaurantsRepository.ResponseStatus.NoUpdate -> Unit
-                        is RestaurantsRepository.ResponseStatus.NoResponse ->
+                            mapCamera(positionWithZoom)
+                        }
+                        is RestaurantsRepository.ResponseStatus.NoRestaurants -> {
                             mapData(positionWithZoom, emptyList())
+                            mapCamera(positionWithZoom)
+                            mapEvent(R.string.no_restaurants_message)
+                        }
+                        is RestaurantsRepository.ResponseStatus.NoResponse ->
+                            mapEvent(R.string.no_response_message)
                         is RestaurantsRepository.ResponseStatus.StatusError.HttpException ->
                             mapEvent(R.string.network_error_message)
                         is RestaurantsRepository.ResponseStatus.StatusError.IOException ->
@@ -79,6 +92,26 @@ class GoogleMapsViewModel @Inject constructor(
                     }
                 }
             }.collect()
+        }
+    }
+
+    // Just center the camera on the new position
+    // The onFirstMapLoading is used to not animate camera when map is loaded. Only at first time.
+    private suspend fun mapCamera(positionWithZoom: LocationRepository.PositionWithZoom) {
+
+        val data = CameraUpdateFactory.newLatLngZoom(
+            LatLng(
+                positionWithZoom.latitude,
+                positionWithZoom.longitude
+            ),
+            positionWithZoom.zoom
+        )
+
+        if (onFirstMapLoading) {
+            onFirstMapLoading = false
+            googleMapViewActionChannel.send(GoogleMapViewAction.MoveCamera(data))
+        } else {
+            googleMapViewActionChannel.send(GoogleMapViewAction.AnimateCamera(data))
         }
     }
 
@@ -131,7 +164,8 @@ class GoogleMapsViewModel @Inject constructor(
                 longitude = it.longitude,
                 name = it.name,
                 id = it.restaurantId,
-                iconDrawable = iconDrawable)
+                iconDrawable = iconDrawable
+            )
         }
 
         return GoogleMapViewState(
@@ -140,6 +174,10 @@ class GoogleMapsViewModel @Inject constructor(
             positionWithZoom.zoom,
             Collections.unmodifiableList(restaurantViewStateList)
         )
+    }
+
+    fun onFirstMapLoading() {
+        onFirstMapLoading = true
     }
 
     // Data Class to emit to the UI
@@ -162,6 +200,8 @@ class GoogleMapsViewModel @Inject constructor(
 
     sealed class GoogleMapViewAction {
         data class ResponseStatusMessage(@StringRes val messageResId: Int) : GoogleMapViewAction()
+        data class MoveCamera(val data: CameraUpdate) : GoogleMapViewAction()
+        data class AnimateCamera(val data: CameraUpdate) : GoogleMapViewAction()
     }
 
 }
