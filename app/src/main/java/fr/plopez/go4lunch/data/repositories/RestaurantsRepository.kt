@@ -94,8 +94,11 @@ class RestaurantsRepository @Inject constructor(
                 }
 
                 // Emit the list of restaurant to the VM
-                if (restaurantEntityList.isNotEmpty()) emit(ResponseStatus.Success(restaurantEntityList))
-                else emit(ResponseStatus.NoRestaurants)
+                if (restaurantEntityList.isNotEmpty()) {
+                    emit(ResponseStatus.Success(restaurantEntityList))
+                } else{
+                    emit(ResponseStatus.NoRestaurants)
+                }
 
             } else {
                 emit(ResponseStatus.NoResponse)

@@ -2,7 +2,6 @@ package fr.plopez.go4lunch.tests
 
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.data.repositories.LocationRepository
@@ -17,10 +16,14 @@ import fr.plopez.go4lunch.tests.utils.CommonsUtils.ZOOM
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.getDefaultRestaurantEntityList
 import fr.plopez.go4lunch.utils.TestCoroutineRule
 import fr.plopez.go4lunch.view.main_activity.google_maps.GoogleMapsViewModel
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -101,39 +104,40 @@ class GoogleMapsViewModelTest {
 
     // TODO @Nino this test not working
     @Test
-    fun `NoRestaurant response when list of restaurant is empty`() =
-        testCoroutineRule.runBlockingTest {
-            // Given
-            coEvery {
-                restaurantsRepositoryMockK.getRestaurantsAroundPosition(
-                    LATITUDE,
-                    LONGITUDE,
-                    RADIUS
-                )
-            } returns flowOf(
-                RestaurantsRepository.ResponseStatus.NoRestaurants
+    fun `NoRestaurant response when list of restaurant is empty`() = runBlocking {
+        // Given
+        coEvery {
+            restaurantsRepositoryMockK.getRestaurantsAroundPosition(
+                LATITUDE,
+                LONGITUDE,
+                RADIUS
             )
+        } returns flowOf(RestaurantsRepository.ResponseStatus.NoRestaurants)
 
-            // When
-            googleMapsViewModel.onMapReady()
+        // When
+        googleMapsViewModel.onMapReady()
+        googleMapsViewModel.googleMapViewStateLiveData.observeForever { }
 
-            // Verify that right camera module is called first time
-            val cameraResult = googleMapsViewModel.googleMapViewActionFlow.first()
-            val expectedCamera = getDefaultCamera()
-            assertEquals(expectedCamera, cameraResult)
+        // Then
+        // Verify that right camera module is called first time
+        val results = googleMapsViewModel.googleMapViewActionFlow.toList()
 
-            // Verify that right message is called
-            val messageResult = googleMapsViewModel.googleMapViewActionFlow.first()
-            assertEquals(GoogleMapsViewModel.Messages.NO_RESTAURANT, messageResult)
+        assertEquals(
+            results,
+            listOf(
+                GoogleMapsViewModel.GoogleMapViewAction.AnimateCamera(
+                    getDefaultLatLng(),
+                    ZOOM.toFloat()
+                ),
+                GoogleMapsViewModel.GoogleMapViewAction.ResponseStatusMessage(
+                    GoogleMapsViewModel.Messages.NO_RESTAURANT.messageResId
+                )
+            )
+        )
 
-            googleMapsViewModel.googleMapViewStateLiveData.observeForever {
-                // Then
-                // Verify that mapData sends the right stuff
-                val expectedResult =
-                    getDefaultGoogleMapViewState(restaurantViewStateList = emptyList())
-                assertEquals(expectedResult, it)
-            }
-        }
+        // Verify that mapData sends the right stuff
+        assertEquals(getDefaultGoogleMapViewState(restaurantViewStateList = emptyList()), googleMapsViewModel.googleMapViewStateLiveData.value)
+    }
 
     @Test
     fun `http error message when http exception is returned`() =
@@ -207,20 +211,19 @@ class GoogleMapsViewModelTest {
             )
         )
 
-    private fun getDefaultCamera(
-        camera: GoogleMapsViewModel.GoogleMapViewAction = GoogleMapsViewModel.GoogleMapViewAction.MoveCamera(
-            getDefaultCameraUpdateFactory()
-        )
-    ) = camera
-
-    private fun getDefaultCameraUpdateFactory() =
-        CameraUpdateFactory.newLatLngZoom(
-            LatLng(
-                LATITUDE.toDouble(),
-                LONGITUDE.toDouble()
-            ),
-            ZOOM.toFloat()
-        )
+    private fun getDefaultLatLng() = LatLng(
+        LATITUDE.toDouble(),
+        LONGITUDE.toDouble()
+    )
 
     // endregion
+
+    // TODO NINO
+    //        CameraUpdateFactory.newLatLngZoom(
+    //            LatLng(
+    //                LATITUDE.toDouble(),
+    //                LONGITUDE.toDouble()
+    //            ),
+    //            ZOOM.toFloat()
+    //        )
 }

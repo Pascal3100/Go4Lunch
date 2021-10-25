@@ -103,9 +103,19 @@ class GoogleMapsFragment :
                                 .show()
 
                         is GoogleMapsViewModel.GoogleMapViewAction.MoveCamera ->
-                            googleMap.moveCamera(googleMapViewAction.data)
+                            googleMap.moveCamera(
+                                CameraUpdateFactory.newLatLngZoom(
+                                    googleMapViewAction.latLng,
+                                    googleMapViewAction.zoom,
+                                )
+                            )
                         is GoogleMapsViewModel.GoogleMapViewAction.AnimateCamera ->
-                            googleMap.animateCamera(googleMapViewAction.data)
+                            googleMap.animateCamera(
+                                CameraUpdateFactory.newLatLngZoom(
+                                    googleMapViewAction.latLng,
+                                    googleMapViewAction.zoom,
+                                )
+                            )
                     }.exhaustive
                 }
             }
