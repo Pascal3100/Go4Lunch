@@ -260,7 +260,7 @@ class RestaurantsRepository @Inject constructor(
         }
 
     suspend fun getRestaurantsWithOpeningPeriods(requestedTimeStamp: Long): List<RestaurantWithOpeningPeriods> {
-        return if (requestedTimeStamp == 0L) {
+        return if (requestedTimeStamp == 0L || requestedTimeStamp == null) {
             emptyList()
         } else {
             restaurantsCacheDAO.getCurrentRestaurants(requestedTimeStamp)

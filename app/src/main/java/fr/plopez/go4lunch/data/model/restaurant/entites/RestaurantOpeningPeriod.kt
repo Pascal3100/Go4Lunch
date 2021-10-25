@@ -2,11 +2,7 @@ package fr.plopez.go4lunch.data.model.restaurant.entites
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.ForeignKey.CASCADE
 import androidx.room.PrimaryKey
-import java.time.DayOfWeek
-import java.time.LocalTime
 
 @Entity(tableName = "restaurant_opening_period",)
 data class RestaurantOpeningPeriod (

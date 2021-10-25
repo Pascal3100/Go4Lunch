@@ -2,16 +2,22 @@ package fr.plopez.go4lunch.tests
 
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.LatLng
 import fr.plopez.go4lunch.R
-import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantEntity
 import fr.plopez.go4lunch.data.repositories.LocationRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.LATITUDE
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.LONGITUDE
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.NAME
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_ID
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.RADIUS
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.ZOOM
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.getDefaultRestaurantEntityList
 import fr.plopez.go4lunch.utils.TestCoroutineRule
 import fr.plopez.go4lunch.view.main_activity.google_maps.GoogleMapsViewModel
-import io.mockk.coEvery
-import io.mockk.every
-import io.mockk.mockk
+import io.mockk.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
@@ -22,24 +28,11 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class GoogleMapsViewModelTest {
-    companion object {
-        private const val LATITUDE = "90.0"
-        private const val LONGITUDE = "0.0"
-        private const val ZOOM = "15.0"
-        private const val RADIUS = "1000"
-
-        private const val PLACE_ID = "PLACE_ID"
-        private const val NAME = "NAME"
-        private const val ADDRESS = "ADDRESS"
-        private const val PHOTO_URL = "PHOTO_URL"
-        private const val RATE = "5.0"
-        private const val PHONE_NUMBER = "+33 0 00 00 00 00"
-        private const val WEBSITE = "www.no-web-site.com"
-    }
 
     // Rules
     @get:Rule
     val testCoroutineRule = TestCoroutineRule()
+
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
@@ -50,7 +43,6 @@ class GoogleMapsViewModelTest {
     private val contextMockK = mockk<Context>()
 
     // Test variables
-
     private lateinit var googleMapsViewModel: GoogleMapsViewModel
 
     @Before
@@ -76,7 +68,7 @@ class GoogleMapsViewModelTest {
             )
         } returns flowOf(
             RestaurantsRepository.ResponseStatus.Success(
-                getExpectedRestaurantEntityList()
+                getDefaultRestaurantEntityList()
             )
         )
 
@@ -100,9 +92,45 @@ class GoogleMapsViewModelTest {
 
             // When
             googleMapsViewModel.onMapReady()
-            googleMapsViewModel.googleMapViewStateLiveData.observeForever{
+            googleMapsViewModel.googleMapViewStateLiveData.observeForever {
                 // Then
-                val expectedResult = getExpectedGoogleMapViewState()
+                val expectedResult = getDefaultGoogleMapViewState()
+                assertEquals(expectedResult, it)
+            }
+        }
+
+    // TODO @Nino this test not working
+    @Test
+    fun `NoRestaurant response when list of restaurant is empty`() =
+        testCoroutineRule.runBlockingTest {
+            // Given
+            coEvery {
+                restaurantsRepositoryMockK.getRestaurantsAroundPosition(
+                    LATITUDE,
+                    LONGITUDE,
+                    RADIUS
+                )
+            } returns flowOf(
+                RestaurantsRepository.ResponseStatus.NoRestaurants
+            )
+
+            // When
+            googleMapsViewModel.onMapReady()
+
+            // Verify that right camera module is called first time
+            val cameraResult = googleMapsViewModel.googleMapViewActionFlow.first()
+            val expectedCamera = getDefaultCamera()
+            assertEquals(expectedCamera, cameraResult)
+
+            // Verify that right message is called
+            val messageResult = googleMapsViewModel.googleMapViewActionFlow.first()
+            assertEquals(GoogleMapsViewModel.Messages.NO_RESTAURANT, messageResult)
+
+            googleMapsViewModel.googleMapViewStateLiveData.observeForever {
+                // Then
+                // Verify that mapData sends the right stuff
+                val expectedResult =
+                    getDefaultGoogleMapViewState(restaurantViewStateList = emptyList())
                 assertEquals(expectedResult, it)
             }
         }
@@ -158,33 +186,41 @@ class GoogleMapsViewModelTest {
         }
 
     // region IN
-    private fun getExpectedRestaurantEntityList() = listOf(
-        RestaurantEntity(
-            restaurantId = PLACE_ID,
-            name = NAME,
-            address = ADDRESS,
-            latitude = LATITUDE.toDouble(),
-            longitude = LONGITUDE.toDouble(),
-            photoUrl = PHOTO_URL,
-            rate = RATE.toFloat(),
-            phoneNumber = PHONE_NUMBER,
-            website = WEBSITE
-        )
+
+    private fun getDefaultGoogleMapViewState(
+        restaurantViewStateList: List<GoogleMapsViewModel.RestaurantViewState> = getDefaultRestaurantViewStateList()
+    ) = GoogleMapsViewModel.GoogleMapViewState(
+        LATITUDE.toDouble(),
+        LONGITUDE.toDouble(),
+        ZOOM.toFloat(),
+        restaurantViewStateList
     )
 
-    private fun getExpectedGoogleMapViewState() = GoogleMapsViewModel.GoogleMapViewState(
-            LATITUDE.toDouble(),
-            LONGITUDE.toDouble(),
-            ZOOM.toFloat(),
-            listOf(
-                GoogleMapsViewModel.RestaurantViewState(
-                    latitude = LATITUDE.toDouble(),
-                    longitude = LONGITUDE.toDouble(),
-                    name = NAME,
-                    id = PLACE_ID,
-                    rate = RATE.toFloat()
-                )
-            ))
+    private fun getDefaultRestaurantViewStateList() =
+        listOf(
+            GoogleMapsViewModel.RestaurantViewState(
+                latitude = LATITUDE.toDouble(),
+                longitude = LONGITUDE.toDouble(),
+                name = NAME,
+                id = PLACE_ID,
+                iconDrawable = R.drawable.grey_pin_128px
+            )
+        )
+
+    private fun getDefaultCamera(
+        camera: GoogleMapsViewModel.GoogleMapViewAction = GoogleMapsViewModel.GoogleMapViewAction.MoveCamera(
+            getDefaultCameraUpdateFactory()
+        )
+    ) = camera
+
+    private fun getDefaultCameraUpdateFactory() =
+        CameraUpdateFactory.newLatLngZoom(
+            LatLng(
+                LATITUDE.toDouble(),
+                LONGITUDE.toDouble()
+            ),
+            ZOOM.toFloat()
+        )
 
     // endregion
 }

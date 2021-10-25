@@ -9,6 +9,17 @@ import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
 import fr.plopez.go4lunch.di.NearbyConstants
 import fr.plopez.go4lunch.retrofit.RestaurantService
+import fr.plopez.go4lunch.tests.utils.CommonsUtils
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.ERROR_CODE
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.LATITUDE
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.LOCATION
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.LONGITUDE
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.MAX_DISPLACEMENT_TOL
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.PERIODS_SEARCH_FIELD
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.PHONE_NUMBER
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.QUERY_TIME_STAMP
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.RADIUS
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.WEBSITE
 import fr.plopez.go4lunch.utils.TestCoroutineRule
 import io.mockk.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -28,20 +39,6 @@ import kotlin.math.round
 @ExperimentalCoroutinesApi
 class RestaurantsRepositoryTest {
 
-    // Constants
-    companion object {
-        private const val QUERY_TIME_STAMP = 66666666L
-        private const val PHONE_NUMBER = "+33 0 00 00 00 00"
-        private const val WEBSITE = "www.no-web-site.com"
-        private const val LATITUDE = "90.0"
-        private const val LONGITUDE = "0.0"
-        private const val LOCATION = "$LATITUDE,$LONGITUDE"
-        private const val RADIUS = "1000"
-        private const val MAX_DISPLACEMENT_TOL = "0.000449"
-        private const val PERIODS_SEARCH_FIELD = "opening_hours,international_phone_number,website"
-        private const val ERROR_CODE = 404
-    }
-
     // Rules
     @get:Rule
     val testCoroutineRule = TestCoroutineRule()
@@ -58,7 +55,7 @@ class RestaurantsRepositoryTest {
         podamFactory.manufacturePojo(RestaurantQueryResponseItem::class.java)
     private val queryWithRestaurants = getQueryWithRestaurants()
 
-    private lateinit var restaurantsRepository :RestaurantsRepository
+    private lateinit var restaurantsRepository: RestaurantsRepository
 
     @Before
     fun setUp() {
@@ -78,7 +75,7 @@ class RestaurantsRepositoryTest {
                 result = Result(
                     opening_hours = OpeningHours(
                         open_now = true,
-                        periods = getPeriodList(),
+                        periods = CommonsUtils.getDefaultPeriodList(),
                         weekday_text = listOf("")
                     ),
                     phone_number = PHONE_NUMBER,
@@ -92,8 +89,8 @@ class RestaurantsRepositoryTest {
         coJustRun { restaurantsCacheDAOMock.upsertQuery(any()) }
         coJustRun { restaurantsCacheDAOMock.upsertRestaurant(any()) }
         coJustRun { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriod(any()) }
-        coJustRun {restaurantsCacheDAOMock.upsertRestaurantOpeningPeriodCrossReference(any())}
-        coJustRun {restaurantsCacheDAOMock.upsertRestaurantQueriesCrossReference(any())}
+        coJustRun { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriodCrossReference(any()) }
+        coJustRun { restaurantsCacheDAOMock.upsertRestaurantQueriesCrossReference(any()) }
 
         coEvery {
             restaurantsCacheDAOMock.getNearestRestaurants(
@@ -151,7 +148,11 @@ class RestaurantsRepositoryTest {
         coVerify(atLeast = 1) { restaurantsCacheDAOMock.upsertRestaurant(any()) }
         coVerify(atLeast = 1) { restaurantsCacheDAOMock.upsertRestaurantQueriesCrossReference(any()) }
         coVerify(atLeast = 1) { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriod(any()) }
-        coVerify(atLeast = 1) { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriodCrossReference(any()) }
+        coVerify(atLeast = 1) {
+            restaurantsCacheDAOMock.upsertRestaurantOpeningPeriodCrossReference(
+                any()
+            )
+        }
     }
 
     // returns some restaurants from the database
@@ -183,8 +184,11 @@ class RestaurantsRepositoryTest {
         coVerify(exactly = 0) { restaurantsCacheDAOMock.upsertRestaurant(any()) }
         coVerify(exactly = 0) { restaurantsCacheDAOMock.upsertRestaurantQueriesCrossReference(any()) }
         coVerify(exactly = 0) { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriod(any()) }
-        coVerify(exactly = 0) { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriodCrossReference(any()) }
-
+        coVerify(exactly = 0) {
+            restaurantsCacheDAOMock.upsertRestaurantOpeningPeriodCrossReference(
+                any()
+            )
+        }
     }
 
     // returns exception message because IOException
@@ -312,7 +316,7 @@ class RestaurantsRepositoryTest {
             ).first()
 
             // Then
-            val expectedResponse = RestaurantsRepository.ResponseStatus.Success(emptyList())
+            val expectedResponse = RestaurantsRepository.ResponseStatus.NoRestaurants
             assertEquals(expectedResponse, result)
         }
 
@@ -385,7 +389,11 @@ class RestaurantsRepositoryTest {
             )
             assertEquals(expectedResponse, result)
             coVerify(exactly = 0) { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriod(any()) }
-            coVerify(exactly = 0) { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriodCrossReference(any()) }
+            coVerify(exactly = 0) {
+                restaurantsCacheDAOMock.upsertRestaurantOpeningPeriodCrossReference(
+                    any()
+                )
+            }
         }
 
     // Verify that no periods are inserted in database if no data is available
@@ -415,7 +423,11 @@ class RestaurantsRepositoryTest {
             )
             assertEquals(expectedResponse, result)
             coVerify(exactly = 0) { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriod(any()) }
-            coVerify(exactly = 0) { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriodCrossReference(any()) }
+            coVerify(exactly = 0) {
+                restaurantsCacheDAOMock.upsertRestaurantOpeningPeriodCrossReference(
+                    any()
+                )
+            }
         }
 
     // Verify that no periods are inserted in database if no data is available
@@ -454,7 +466,11 @@ class RestaurantsRepositoryTest {
             )
             assertEquals(expectedResponse, result)
             coVerify(exactly = 0) { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriod(any()) }
-            coVerify(exactly = 0) { restaurantsCacheDAOMock.upsertRestaurantOpeningPeriodCrossReference(any()) }
+            coVerify(exactly = 0) {
+                restaurantsCacheDAOMock.upsertRestaurantOpeningPeriodCrossReference(
+                    any()
+                )
+            }
         }
 
     // region IN
@@ -492,37 +508,6 @@ class RestaurantsRepositoryTest {
                 website = ""
             )
         )
-    }
-
-    private fun getPeriodList(): List<Period> {
-        val listOfPeriods = mutableListOf<Period>()
-        for (i in 1..7) {
-            listOfPeriods.add(
-                Period(
-                    Close(
-                        day = i,
-                        time = "08:00"
-                    ),
-                    Open(
-                        day = i,
-                        time = "12:00"
-                    )
-                )
-            )
-            listOfPeriods.add(
-                Period(
-                    Close(
-                        day = i,
-                        time = "14:00"
-                    ),
-                    Open(
-                        day = i,
-                        time = "18:30"
-                    )
-                )
-            )
-        }
-        return listOfPeriods
     }
 
     private fun getQueryWithRestaurants(): List<QueryWithRestaurants> {

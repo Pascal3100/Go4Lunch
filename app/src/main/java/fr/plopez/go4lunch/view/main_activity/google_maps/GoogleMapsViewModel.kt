@@ -52,8 +52,18 @@ class GoogleMapsViewModel @Inject constructor(
     private val onMapReadyMutableStateFlow = MutableStateFlow(false)
 
     // Booleans to manage camera
-    private var onFirstMapLoading = false
-    private var onComingBack = false
+    private var onFirstMapLoading = true
+    private var noRestaurantMessageAlreadyDisplayed = false
+
+    enum class Messages(
+        @get:StringRes
+        val messageResId: Int
+    ) {
+        NO_RESTAURANT(messageResId = R.string.no_restaurants_message),
+        NO_RESPONSE(messageResId = R.string.no_response_message),
+        NO_INTERNET(messageResId = R.string.network_error_message),
+        NETWORK_ERROR(messageResId = R.string.no_internet_message)
+    }
 
     init {
         // Initialization of the flow at init of the viewModel
@@ -81,14 +91,14 @@ class GoogleMapsViewModel @Inject constructor(
                         is RestaurantsRepository.ResponseStatus.NoRestaurants -> {
                             mapData(positionWithZoom, emptyList())
                             mapCamera(positionWithZoom)
-                            mapEvent(R.string.no_restaurants_message)
+                            mapEvent(Messages.NO_RESTAURANT)
                         }
                         is RestaurantsRepository.ResponseStatus.NoResponse ->
-                            mapEvent(R.string.no_response_message)
+                            mapEvent(Messages.NO_RESPONSE)
                         is RestaurantsRepository.ResponseStatus.StatusError.HttpException ->
-                            mapEvent(R.string.network_error_message)
+                            mapEvent(Messages.NETWORK_ERROR)
                         is RestaurantsRepository.ResponseStatus.StatusError.IOException ->
-                            mapEvent(R.string.no_internet_message)
+                            mapEvent(Messages.NO_INTERNET)
                     }
                 }
             }.collect()
@@ -127,11 +137,14 @@ class GoogleMapsViewModel @Inject constructor(
 
     // Manage event message sending in flows
     private suspend fun mapEvent(
-        messageResId: Int
+        message: Messages
     ) {
-        googleMapViewActionChannel.send(
-            GoogleMapViewAction.ResponseStatusMessage(messageResId)
-        )
+        if (!noRestaurantMessageAlreadyDisplayed) {
+            googleMapViewActionChannel.send(
+                GoogleMapViewAction.ResponseStatusMessage(message.messageResId)
+            )
+        }
+        noRestaurantMessageAlreadyDisplayed = message == Messages.NO_RESTAURANT
     }
 
     // Manage data sending in flows

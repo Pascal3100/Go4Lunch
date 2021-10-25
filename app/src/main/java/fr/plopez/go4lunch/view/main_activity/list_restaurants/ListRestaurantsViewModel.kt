@@ -13,11 +13,11 @@ import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantWith
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
 import fr.plopez.go4lunch.di.NearbyConstants
+import fr.plopez.go4lunch.utils.DateTimeUtils
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.LocalTime
-import java.util.*
 import javax.inject.Inject
 import kotlin.math.round
 
@@ -27,6 +27,7 @@ class ListRestaurantsViewModel @Inject constructor(
     private val restaurantsRepository: RestaurantsRepository,
     private val nearbyConstants: NearbyConstants,
     coroutinesProvider: CoroutinesProvider,
+    private val dateTimeUtils: DateTimeUtils,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -42,14 +43,13 @@ class ListRestaurantsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(coroutinesProvider.ioCoroutineDispatcher) {
+            // Update the restaurant list and expose the view State
             restaurantsRepository.lastRequestTimeStampSharedFlow.collect {
 
-                val restaurantsWithOpeningPeriodsList = mapToViewState(
+                restaurantsItemsMutableStateFlow.value = mapToViewState(
                     restaurantsRepository.getRestaurantsWithOpeningPeriods(it),
                     restaurantsRepository.getPositionForTimestamp(it)
                 )
-
-                restaurantsItemsMutableStateFlow.value = restaurantsWithOpeningPeriodsList
             }
         }
     }
@@ -121,8 +121,7 @@ class ListRestaurantsViewModel @Inject constructor(
         openingHours: List<RestaurantOpeningPeriod>
     ): String {
 
-        val calendar = Calendar.getInstance()
-        var day = calendar.get(Calendar.DAY_OF_WEEK)
+        var day = dateTimeUtils.getCurrentDay()
 
         // Manage the difference of day index system between Place Details and Calendar
         if (day > 1) {
@@ -135,45 +134,33 @@ class ListRestaurantsViewModel @Inject constructor(
             return "-"
         }
 
-        val currentTime = LocalTime.now()
-        val listOfCandidates = mutableListOf<RestaurantOpeningPeriod>()
-
+        val currentTime = dateTimeUtils.getCurrentTime()
 
         // get all opening periods of the current day
-        openingHours.forEach {
-            if (it.dayOfWeek == day) {
-                listOfCandidates.add(it)
-            }
-        }
+        val listOfCandidates = openingHours.filter { it.dayOfWeek == day }
 
         if (listOfCandidates.isEmpty())
             return context.resources.getString(R.string.closed_today_text)
 
         // Sort them
-        listOfCandidates.sortBy { it.periodId.toLong() }
+        val sortedListOfCandidates = listOfCandidates.sortedBy { it.periodId.toLong() }
 
         // check for extreme last hour
-        if (LocalTime.parse(listOfCandidates.last().closingHour).isBefore(currentTime))
+        if (LocalTime.parse(sortedListOfCandidates.last().closingHour).isBefore(currentTime))
             return context.resources.getString(R.string.closed_text)
 
-        var openingPeriodText = ""
-
         // Find the good one for comparison
-        listOfCandidates.forEach {
+        return sortedListOfCandidates.mapNotNull {
             val opening = LocalTime.parse(it.openingHour)
-
-            // before opening case
-            if (currentTime.isBefore(opening))
-                openingPeriodText = "${context.resources.getString(R.string.open_at_text)}$opening"
-
             val closing = LocalTime.parse(it.closingHour)
 
-            // in opening period case
-            if (currentTime.isAfter(opening) && currentTime.isBefore(closing))
-                openingPeriodText =
-                    "${context.resources.getString(R.string.open_until_text)}$closing"
-        }
-
-        return openingPeriodText
+            // before opening case
+            if (currentTime.isBefore(opening)) {
+                "${context.resources.getString(R.string.open_at_text)}$opening"
+                // in opening period case
+            } else if (currentTime.isAfter(opening) && currentTime.isBefore(closing)) {
+                "${context.resources.getString(R.string.open_until_text)}$closing"
+            } else null
+        }.first()
     }
 }
