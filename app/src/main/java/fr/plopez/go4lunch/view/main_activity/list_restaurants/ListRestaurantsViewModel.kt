@@ -35,20 +35,17 @@ class ListRestaurantsViewModel @Inject constructor(
         private const val MAX_WIDTH = "1080"
     }
 
-    private val restaurantsItemsMutableStateFlow =
-        MutableStateFlow(emptyList<RestaurantItemViewState>())
-    val restaurantsItemsLiveData = restaurantsItemsMutableStateFlow.asLiveData(
-        coroutinesProvider.ioCoroutineDispatcher
-    )
+    val restaurantsItemsLiveData: LiveData<List<RestaurantItemViewState>>
 
     init {
-        viewModelScope.launch(coroutinesProvider.ioCoroutineDispatcher) {
+        restaurantsItemsLiveData = liveData(coroutinesProvider.ioCoroutineDispatcher) {
             // Update the restaurant list and expose the view State
             restaurantsRepository.lastRequestTimeStampSharedFlow.collect {
-
-                restaurantsItemsMutableStateFlow.value = mapToViewState(
-                    restaurantsRepository.getRestaurantsWithOpeningPeriods(it),
-                    restaurantsRepository.getPositionForTimestamp(it)
+                emit(
+                    mapToViewState(
+                        restaurantsRepository.getRestaurantsWithOpeningPeriods(it),
+                        restaurantsRepository.getPositionForTimestamp(it)
+                    )
                 )
             }
         }

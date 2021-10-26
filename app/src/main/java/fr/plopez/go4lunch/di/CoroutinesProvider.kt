@@ -7,5 +7,6 @@ import javax.inject.Singleton
 
 @Singleton
 class CoroutinesProvider @Inject constructor() {
+    val mainCoroutineDispatcher: CoroutineDispatcher = Dispatchers.Main
     val ioCoroutineDispatcher: CoroutineDispatcher = Dispatchers.IO
 }

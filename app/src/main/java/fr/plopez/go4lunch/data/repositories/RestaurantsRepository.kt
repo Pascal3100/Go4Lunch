@@ -79,10 +79,12 @@ class RestaurantsRepository @Inject constructor(
             if (response.isSuccessful && responseBody != null) {
 
                 // Getting details for restaurants
-                val restaurantDetailsList: List<RestaurantDetails> = getDetailsForRestaurants(responseBody.results)
+                val restaurantDetailsList: List<RestaurantDetails> =
+                    getDetailsForRestaurants(responseBody.results)
 
                 // Map query result to domain model
-                val restaurantEntityList: List<RestaurantEntity> = mapRestaurantQueryToEntity(responseBody.results, restaurantDetailsList)
+                val restaurantEntityList: List<RestaurantEntity> =
+                    mapRestaurantQueryToEntity(responseBody.results, restaurantDetailsList)
 
                 // Store restaurants in database in a separate coroutine
                 withContext(coroutinesProvider.ioCoroutineDispatcher) {
@@ -90,12 +92,16 @@ class RestaurantsRepository @Inject constructor(
                         restaurantEntityList = restaurantEntityList,
                         restaurantDetailsList = restaurantDetailsList,
                         latitude = latitude,
-                        longitude = longitude)
+                        longitude = longitude
+                    )
                 }
 
                 // Emit the list of restaurant to the VM
-                if (restaurantEntityList.isNotEmpty()) emit(ResponseStatus.Success(restaurantEntityList))
-                else emit(ResponseStatus.NoRestaurants)
+                if (restaurantEntityList.isNotEmpty()) {
+                    emit(ResponseStatus.Success(restaurantEntityList))
+                } else {
+                    emit(ResponseStatus.NoRestaurants)
+                }
 
             } else {
                 emit(ResponseStatus.NoResponse)
@@ -165,7 +171,7 @@ class RestaurantsRepository @Inject constructor(
         )
 
         // Store all the attached restaurants
-        restaurantEntityList.forEach {restaurant ->
+        restaurantEntityList.forEach { restaurant ->
 
             // Inserting restaurant queries cross ref
             restaurantsCacheDAO.upsertRestaurantQueriesCrossReference(

@@ -14,13 +14,11 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import dagger.hilt.android.AndroidEntryPoint
-import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.interfaces.OnClickRestaurantListener
 import fr.plopez.go4lunch.utils.CustomSnackBar
 import fr.plopez.go4lunch.utils.exhaustive
 import fr.plopez.go4lunch.view.main_activity.MainActivity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.lang.ClassCastException
 
@@ -93,7 +91,7 @@ class GoogleMapsFragment :
         // Manage to spawn the toasts messages
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                googleMapsViewModel.googleMapViewActionFlow.collect { googleMapViewAction ->
+                googleMapsViewModel.googleMapViewActionLiveData.observe(this@GoogleMapsFragment) { googleMapViewAction ->
                     when (googleMapViewAction) {
                         is GoogleMapsViewModel.GoogleMapViewAction.ResponseStatusMessage ->
                             CustomSnackBar.with(requireView())
@@ -103,9 +101,19 @@ class GoogleMapsFragment :
                                 .show()
 
                         is GoogleMapsViewModel.GoogleMapViewAction.MoveCamera ->
-                            googleMap.moveCamera(googleMapViewAction.data)
+                            googleMap.moveCamera(
+                                CameraUpdateFactory.newLatLngZoom(
+                                    googleMapViewAction.latLng,
+                                    googleMapViewAction.zoom,
+                                )
+                            )
                         is GoogleMapsViewModel.GoogleMapViewAction.AnimateCamera ->
-                            googleMap.animateCamera(googleMapViewAction.data)
+                            googleMap.animateCamera(
+                                CameraUpdateFactory.newLatLngZoom(
+                                    googleMapViewAction.latLng,
+                                    googleMapViewAction.zoom,
+                                )
+                            )
                     }.exhaustive
                 }
             }
