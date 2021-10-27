@@ -15,10 +15,8 @@ import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
 import fr.plopez.go4lunch.utils.SingleLiveEvent
 import fr.plopez.go4lunch.utils.exhaustive
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -43,7 +41,7 @@ class GoogleMapsViewModel @Inject constructor(
 
     // Booleans to manage camera
     private var isSmoothCameraUpdateDone = false
-    private var noRestaurantMessageAlreadyDisplayed = false
+    private var isRestaurantMessageAlreadyDisplayed = false
 
     enum class Messages(
         @get:StringRes
@@ -84,15 +82,12 @@ class GoogleMapsViewModel @Inject constructor(
                                     mapEvent(Messages.NO_RESTAURANT)
                                 }
                             }
-                            is RestaurantsRepository.ResponseStatus.NoResponse -> mapEvent(
-                                Messages.NO_RESPONSE
-                            )
-                            is RestaurantsRepository.ResponseStatus.StatusError.HttpException -> mapEvent(
-                                Messages.NETWORK_ERROR
-                            )
-                            is RestaurantsRepository.ResponseStatus.StatusError.IOException -> mapEvent(
-                                Messages.NO_INTERNET
-                            )
+                            is RestaurantsRepository.ResponseStatus.NoResponse ->
+                                mapEvent(Messages.NO_RESPONSE)
+                            is RestaurantsRepository.ResponseStatus.StatusError.HttpException ->
+                                mapEvent(Messages.NETWORK_ERROR)
+                            is RestaurantsRepository.ResponseStatus.StatusError.IOException ->
+                                mapEvent(Messages.NO_INTERNET)
                         }.exhaustive
                     }
                 }
@@ -142,11 +137,11 @@ class GoogleMapsViewModel @Inject constructor(
     private fun mapEvent(
         message: Messages
     ) {
-        if (!noRestaurantMessageAlreadyDisplayed) {
+        if (!isRestaurantMessageAlreadyDisplayed) {
             googleMapViewActionSingleLiveEvent.value =
                 GoogleMapViewAction.ResponseStatusMessage(message.messageResId)
         }
-        noRestaurantMessageAlreadyDisplayed = message == Messages.NO_RESTAURANT
+        isRestaurantMessageAlreadyDisplayed = message == Messages.NO_RESTAURANT
     }
 
     // Mapper for the ui view state
