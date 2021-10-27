@@ -1,5 +1,6 @@
 package fr.plopez.go4lunch.data.repositories
 
+import androidx.lifecycle.asLiveData
 import fr.plopez.go4lunch.data.RestaurantDAO
 import fr.plopez.go4lunch.data.model.restaurant.RestaurantQueryResponseItem
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantEntity
@@ -40,7 +41,7 @@ class RestaurantsRepository @Inject constructor(
 
     // Store the last requested time stamp for others view models get the correct list of restaurants
     private val lastRequestTimeStampMutableSharedFlow = MutableSharedFlow<Long>(replay = 1)
-    val lastRequestTimeStampSharedFlow = lastRequestTimeStampMutableSharedFlow.asSharedFlow()
+    val lastRequestTimeStampSharedFlow:Flow<Long> = lastRequestTimeStampMutableSharedFlow.asSharedFlow()
 
     suspend fun getRestaurantsAroundPosition(
         latitude: String,

@@ -16,7 +16,6 @@ import fr.plopez.go4lunch.di.NearbyConstants
 import fr.plopez.go4lunch.utils.DateTimeUtils
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import java.time.LocalTime
 import javax.inject.Inject
 import kotlin.math.round
@@ -128,7 +127,7 @@ class ListRestaurantsViewModel @Inject constructor(
         }
 
         if (openingHours.isEmpty()) {
-            return "-"
+            return context.resources.getString(R.string.no_available_hours)
         }
 
         val currentTime = dateTimeUtils.getCurrentTime()

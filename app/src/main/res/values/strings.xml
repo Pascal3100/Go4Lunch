@@ -51,11 +51,12 @@
     <string name="facebook_connection_failed_message">Facebook login failed</string>
     <string name="not_connected_message">Hey, you\'re not connected</string>
     <string name="google_connection_failed_message">Google sign in failed</string>
-    <string name="distance_unit">" m"</string>
+    <string name="distance_unit"> m</string>
     <string name="closed_text">closed</string>
-    <string name="open_at_text">"open at "</string>
-    <string name="open_until_text">"open until "</string>
+    <string name="open_at_text">open at </string>
+    <string name="open_until_text">"open until </string>
     <string name="closed_today_text">closed today</string>
     <string name="place_photo_api_url">https://maps.googleapis.com/maps/api/place/photo?</string>
+    <string name="no_available_hours">no opening hours available</string>
 
 </resources>

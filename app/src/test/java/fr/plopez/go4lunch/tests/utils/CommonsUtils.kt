@@ -59,7 +59,7 @@ object CommonsUtils {
 
     fun getDefaultPeriodList(
         periodList: List<List<String>> = getDefaultHours()
-    ) = (1..7).map { day ->
+    ) = (3..7).map { day ->
         periodList.map { time ->
             Period(
                 Close(
@@ -75,7 +75,7 @@ object CommonsUtils {
     }.flatten()
 
     private fun getDefaultHours() =
-        listOf(listOf("0800", "1200"), listOf("1400", "1830"))
+        listOf(listOf("1100", "1400"), listOf("1800", "2230"))
 
     fun getDefaultRestaurantEntityList() = listOf(
         RestaurantEntity(
