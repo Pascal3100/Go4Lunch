@@ -60,6 +60,7 @@
             android:layout_marginStart="16dp"
             android:numStars="@string/number_of_rating_stars"
             android:stepSize="0.5"
+            android:isIndicator="true"
             app:layout_constraintBottom_toTopOf="@+id/restaurant_details_activity_subtitle"
             app:layout_constraintStart_toEndOf="@+id/restaurant_details_activity_restaurant_name"
             app:layout_constraintTop_toTopOf="parent"

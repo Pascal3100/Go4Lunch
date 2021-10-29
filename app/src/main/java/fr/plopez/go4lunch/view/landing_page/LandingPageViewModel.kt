@@ -16,9 +16,8 @@ class LandingPageViewModel @Inject constructor() : ViewModel() {
 
     }
 
-    fun setUserInformation(user: FirebaseUser?){
+    fun connectedUser(user: FirebaseUser?){
         if (user != null){
-
             user.displayName
             user.email
             user.photoUrl

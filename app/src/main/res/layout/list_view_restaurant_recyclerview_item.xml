@@ -118,6 +118,7 @@
             android:layout_height="wrap_content"
             android:numStars="@string/number_of_rating_stars"
             android:stepSize="0.5"
+            android:isIndicator="true"
             app:layout_constraintBottom_toBottomOf="@id/lvr_item_restaurant_opening"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1"

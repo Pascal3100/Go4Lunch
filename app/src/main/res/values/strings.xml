@@ -58,5 +58,14 @@
     <string name="closed_today_text">closed today</string>
     <string name="place_photo_api_url">https://maps.googleapis.com/maps/api/place/photo?</string>
     <string name="no_available_hours">no opening hours available</string>
+    <string name="landing_page_create_account_button_text">create new account</string>
+    <string name="email_bad_format_message">email must have xxx@yyy.zz format</string>
+    <string name="password_bad_format_message">password must contain upper/lower/special char and numbers</string>
+    <string name="password_too_short_message">password must be 8 charcters long</string>
+    <string name="email_account_creation_failed">Account creation failed</string>
+    <string name="email_already_exists">Email already exists</string>
+    <string name="password_too_weak">password too weak</string>
+    <string name="invalid_email">invalid email</string>
+    <string name="invalid_password">invalid password</string>
 
 </resources>

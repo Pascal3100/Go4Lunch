@@ -21,10 +21,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.firebase.auth.AuthCredential
-import com.google.firebase.auth.FacebookAuthProvider
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.*
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.FragmentLoginBinding
 import fr.plopez.go4lunch.utils.CustomSnackBar
@@ -37,9 +34,7 @@ import javax.inject.Inject
 class LoginFragment : Fragment() {
 
     companion object {
-        fun newInstance(): LoginFragment {
-            return LoginFragment()
-        }
+        fun newInstance() = LoginFragment()
 
         private const val TAG = "LoginFragment"
 
@@ -125,7 +120,32 @@ class LoginFragment : Fragment() {
             // Clears the selection button
             it.isVisible = false
             group.isVisible = true
+            binding.loginFragmentScrollView.smoothScrollTo(
+                0,
+                binding.loginFragmentScrollView.bottom
+            )
         }
+
+        binding.loginFragmentEmailLoginButton.setOnClickListener {
+            loginWithEmail(
+                email = binding.loginFragmentEmailValue.text.toString(),
+                password = binding.loginFragmentPasswordValue.text.toString()
+            )
+        }
+
+        binding.loginFragmentForgotPasswordLink.setOnClickListener {
+            CustomSnackBar.with(requireView())
+                .setMessage("Forgot password???")
+                .setType(CustomSnackBar.Type.DEFAULT)
+                .build()
+                .show()
+        }
+
+        binding.loginFragmentCreateAccountLink.setOnClickListener {
+            CreateAccountDialogFragment.newInstance()
+                .show(requireActivity().supportFragmentManager, "")
+        }
+
         // ---------------------------------------------------------------
     }
 
@@ -198,12 +218,13 @@ class LoginFragment : Fragment() {
 
     // Firebase authentication
     private fun signInToFirebase(credential: AuthCredential) {
-        FirebaseAuth.getInstance().signInWithCredential(credential)
+        firebaseAuth.signInWithCredential(credential)
             .addOnCompleteListener(requireActivity()) { task ->
                 if (task.isSuccessful) {
                     loading(false)
+
                     // Notify viewModel
-                    landingPageViewModel.setUserInformation(firebaseAuth.currentUser)
+                    landingPageViewModel.connectedUser(firebaseAuth.currentUser)
 
                     onLoginSuccessful.onLoginSuccessful(true)
 
@@ -214,10 +235,46 @@ class LoginFragment : Fragment() {
                         .setType(CustomSnackBar.Type.WARNING)
                         .build()
                         .show()
+
+                    // Notify viewModel
+                    landingPageViewModel.connectedUser(null)
+
                     onLoginSuccessful.onLoginSuccessful(false)
                 }
             }
     }
+
+    // Email/password authentication
+    private fun loginWithEmail(email: String, password: String) {
+        firebaseAuth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener(requireActivity()) { task ->
+                if (task.isSuccessful) {
+                    // Notify viewModel
+                    onLoginSuccessful.onLoginSuccessful(true)
+                } else {
+                    // Notify viewModel
+                    onLoginSuccessful.onLoginSuccessful(false)
+
+                    try {
+                        throw task.exception!!
+                    } // if user not exist in base.
+                    catch (invalidUser: FirebaseAuthInvalidUserException) {
+                        CustomSnackBar.with(requireView())
+                            .setMessage(getString(R.string.invalid_email))
+                            .setType(CustomSnackBar.Type.ERROR)
+                            .build()
+                            .show()
+                    } catch (existEmail: FirebaseAuthInvalidCredentialsException) {
+                        CustomSnackBar.with(requireView())
+                            .setMessage(getString(R.string.invalid_password))
+                            .setType(CustomSnackBar.Type.ERROR)
+                            .build()
+                            .show()
+                    }
+                }
+            }
+    }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -264,4 +321,5 @@ class LoginFragment : Fragment() {
             indicator.visibility = View.GONE
         }
     }
+
 }
