@@ -131,12 +131,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), OnClickRestauran
     }
 
     // Manage search menu customization
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu manually
         val inflater: MenuInflater = menuInflater
         inflater.inflate(R.menu.top_app_bar_menu, menu)
 
-        val menuItemSearch = menu?.findItem(R.id.search)
+        val menuItemSearch = menu.findItem(R.id.search)
 
         val lightGreyColor = ResourcesCompat.getColor(resources, R.color.light_grey, null)
 

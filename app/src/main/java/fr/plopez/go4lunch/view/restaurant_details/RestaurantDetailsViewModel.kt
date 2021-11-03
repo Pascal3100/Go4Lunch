@@ -39,6 +39,11 @@ class RestaurantDetailsViewModel @Inject constructor(
         coroutinesProvider.ioCoroutineDispatcher
     )
 
+    private val likeStateMutableStateFlow = MutableStateFlow(false)
+    val likeStateLiveData = likeStateMutableStateFlow.asLiveData(
+        coroutinesProvider.ioCoroutineDispatcher
+    )
+
     init {
         viewModelScope.launch(coroutinesProvider.ioCoroutineDispatcher) {
             placeIdMutableStateFlow.filterNotNull().map { placeId ->
@@ -73,6 +78,10 @@ class RestaurantDetailsViewModel @Inject constructor(
         } else {
             ""
         }
+    }
+
+    fun onLike() {
+        likeStateMutableStateFlow.value = !likeStateMutableStateFlow.value
     }
 
 }

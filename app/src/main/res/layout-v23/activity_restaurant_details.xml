@@ -58,9 +58,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:isIndicator="true"
             android:numStars="@string/number_of_rating_stars"
             android:stepSize="0.5"
+            android:isIndicator="true"
             app:layout_constraintBottom_toTopOf="@+id/restaurant_details_activity_subtitle"
             app:layout_constraintStart_toEndOf="@+id/restaurant_details_activity_restaurant_name"
             app:layout_constraintTop_toTopOf="parent"
@@ -85,53 +85,79 @@
         app:layout_anchor="@id/restaurant_details_container"
         app:layout_anchorGravity="bottom">
 
-        <Button
-            android:id="@+id/phone_button"
-            style="@style/restaurantDetailsOrangeTextAppearance"
+        <LinearLayout
+            android:id="@+id/phone_container"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:drawablePadding="8dp"
-            android:text="@string/frd_call_item_text"
-            android:textAlignment="center"
-            app:drawableTint="@color/primary_diner_orange"
-            app:drawableTopCompat="@drawable/ic_baseline_phone_24"
+            android:orientation="vertical"
+            android:padding="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/rating_button"
+            app:layout_constraintEnd_toStartOf="@id/rating_container"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
 
-        <Button
-            android:id="@+id/rating_button"
-            style="@style/restaurantDetailsOrangeTextAppearance"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/frd_call_item_text"
+                android:drawablePadding="8dp"
+                android:textAppearance="@style/restaurantDetailsOrangeTextAppearance"
+                app:drawableTint="@color/primary_diner_orange"
+                app:drawableTopCompat="@drawable/ic_baseline_phone_24"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/rating_container"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:drawablePadding="8dp"
-            android:text="@string/frd_rate_item_text"
-            android:textAlignment="center"
-            app:drawableTint="@color/primary_diner_orange"
-            app:drawableTopCompat="@drawable/ic_baseline_empty_star_24"
+            android:orientation="vertical"
+            android:padding="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/website_button"
-            app:layout_constraintStart_toEndOf="@+id/phone_button"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toStartOf="@id/website_container"
+            app:layout_constraintStart_toEndOf="@+id/phone_container"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="UseCompoundDrawables">
 
-        <Button
-            android:id="@+id/website_button"
-            style="@style/restaurantDetailsOrangeTextAppearance"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/frd_rate_item_text"
+                android:drawablePadding="8dp"
+                android:textAppearance="@style/restaurantDetailsOrangeTextAppearance"
+                app:drawableTint="@color/primary_diner_orange"
+                app:drawableTopCompat="@drawable/ic_baseline_empty_star_24" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/website_container"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:drawablePadding="8dp"
-            android:text="@string/frd_website_item_text"
-            android:textAlignment="center"
-            app:drawableTint="@color/primary_diner_orange"
-            app:drawableTopCompat="@drawable/ic_global"
+            android:orientation="vertical"
+            android:padding="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/rating_button"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintStart_toEndOf="@+id/rating_container"
+            app:layout_constraintTop_toTopOf="parent">
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/frd_website_item_text"
+                android:drawablePadding="8dp"
+                android:textAppearance="@style/restaurantDetailsOrangeTextAppearance"
+                app:drawableTint="@color/primary_diner_orange"
+                app:drawableTopCompat="@drawable/ic_global" />
+
+        </LinearLayout>
 
         <View
             android:id="@+id/divider"
@@ -147,11 +173,11 @@
         android:id="@+id/list_workmates_recyclerview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
         app:layout_anchor="@id/divider"
         app:layout_anchorGravity="bottom"
+        android:layout_gravity="bottom"
         tools:itemCount="2"
-        tools:listitem="@layout/workmates_list_view_item" />
+        tools:listitem="@layout/workmates_list_view_item"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_favorite_fab_neighbour_details_activity"
@@ -163,6 +189,6 @@
         app:borderWidth="0dp"
         app:elevation="8dp"
         app:layout_anchor="@id/restaurant_details_activity_toolbar"
-        app:layout_anchorGravity="bottom|end" />
+        app:layout_anchorGravity="bottom|end"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
