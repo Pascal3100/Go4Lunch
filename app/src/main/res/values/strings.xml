@@ -68,6 +68,6 @@
     <string name="invalid_email">invalid email</string>
     <string name="invalid_password">invalid password</string>
     <string name="workmate_has_decided">" is eating at "</string>
-    <string name="workmate_has_not_decided">" has not decided yet."</string>
+    <string name="workmate_has_not_decided">"%s has not decided yet."</string>
 
 </resources>

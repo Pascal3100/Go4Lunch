@@ -65,10 +65,14 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page), O
         // Notify ViewModel user is successfully logged in
         landingPageViewModel.onLoginSuccessful(Firebase.auth.currentUser!!)
 
-        // Go to permissions
-        supportFragmentManager.commit {
-            replace(R.id.landing_page_fragment_container, PermissionsFragment.newInstance())
-            setReorderingAllowed(true)
+        landingPageViewModel.viewActionLiveData.observe(this){
+            if (it is LandingPageViewModel.LandingPageViewAction.GoToPermissions){
+                // Go to permissions
+                supportFragmentManager.commit {
+                    replace(R.id.landing_page_fragment_container, PermissionsFragment.newInstance())
+                    setReorderingAllowed(true)
+                }
+            }
         }
     }
 
