@@ -1,5 +1,6 @@
 package fr.plopez.go4lunch.view.restaurant_details
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -30,6 +31,7 @@ class RestaurantDetailsActivity : AppCompatActivity() {
     private val restaurantDetailsViewModel: RestaurantDetailsViewModel by viewModels()
 
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

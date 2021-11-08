@@ -1,6 +1,7 @@
 package fr.plopez.go4lunch.data.repositories
 
 import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QueryDocumentSnapshot
@@ -9,6 +10,8 @@ import fr.plopez.go4lunch.data.model.restaurant.Workmate
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -16,7 +19,8 @@ import javax.inject.Singleton
 @Singleton
 @ExperimentalCoroutinesApi
 class FirestoreRepository @Inject constructor(
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val firebaseAuth: FirebaseAuth
 ) {
 
     companion object {
@@ -25,6 +29,9 @@ class FirestoreRepository @Inject constructor(
         private const val DATES_COLLECTION = "dates"
         private const val RESTAURANTS_IDS_COLLECTION = "restaurants_ids"
     }
+
+    private val likeStateMutableStateFlow = MutableStateFlow(false)
+    val likeStateFlow:Flow<Boolean> = likeStateMutableStateFlow
 
     fun addOrUpdateUserOnLogin(user: FirebaseUser) {
         // we use add method here to auto generate document id
@@ -64,6 +71,16 @@ class FirestoreRepository @Inject constructor(
         awaitClose { workmatesListener.remove() }
     }
 
+    fun onLikeRestaurant(placeId: String?) {
+        val workmateId = firebaseAuth.currentUser?.email
+        val likedRestaurantsCollection = firestore
+            .collection(WORKMATES_COLLECTION)
+            .document(workmateId!!)
+            .collection(LIKED_RESTAURANTS_COLLECTION)
+
+//        if (placeId in likedRestaurantsCollection.)
+
+    }
 
 
 }

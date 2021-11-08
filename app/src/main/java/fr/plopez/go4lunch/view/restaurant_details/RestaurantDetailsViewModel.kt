@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantEntity
+import fr.plopez.go4lunch.data.repositories.FirestoreRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
 import fr.plopez.go4lunch.di.NearbyConstants
@@ -21,6 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class RestaurantDetailsViewModel @Inject constructor(
     private val restaurantsRepository: RestaurantsRepository,
+    private val firestoreRepository: FirestoreRepository,
     coroutinesProvider: CoroutinesProvider,
     private val nearbyConstants: NearbyConstants,
     @ApplicationContext private val context: Context
@@ -39,8 +41,7 @@ class RestaurantDetailsViewModel @Inject constructor(
         coroutinesProvider.ioCoroutineDispatcher
     )
 
-    private val likeStateMutableStateFlow = MutableStateFlow(false)
-    val likeStateLiveData = likeStateMutableStateFlow.asLiveData(
+    val likeStateLiveData = firestoreRepository.likeStateFlow.asLiveData(
         coroutinesProvider.ioCoroutineDispatcher
     )
 
@@ -89,7 +90,8 @@ class RestaurantDetailsViewModel @Inject constructor(
     }
 
     fun onLike() {
-        likeStateMutableStateFlow.value = !likeStateMutableStateFlow.value
+//        likeStateMutableStateFlow.value = !likeStateMutableStateFlow.value
+        firestoreRepository.onLikeRestaurant(placeIdMutableStateFlow.value)
     }
 
     fun onSelectRestaurant() {
