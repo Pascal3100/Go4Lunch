@@ -21,11 +21,11 @@
         android:layout_height="match_parent"
         android:gravity="center|start"
         android:paddingStart="8dp"
-        android:textAppearance="@style/itemGhostGreyItalicNormalTextAppearance"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/wlv_item_workmate_avatar"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Scarlett has not decided yet" />
+        tools:text="Scarlett has not decided yet"
+        tools:textAppearance="@style/workmateNotDecidedItemGhostGreyItalicNormalTextAppearance"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

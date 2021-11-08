@@ -44,6 +44,11 @@ class RestaurantDetailsViewModel @Inject constructor(
         coroutinesProvider.ioCoroutineDispatcher
     )
 
+    private val restaurantSelectedStateMutableStateFlow = MutableStateFlow(false)
+    val restaurantSelectedStateLiveData = restaurantSelectedStateMutableStateFlow.asLiveData(
+        coroutinesProvider.ioCoroutineDispatcher
+    )
+
     init {
         viewModelScope.launch(coroutinesProvider.ioCoroutineDispatcher) {
             placeIdMutableStateFlow.filterNotNull().map { placeId ->
@@ -61,7 +66,10 @@ class RestaurantDetailsViewModel @Inject constructor(
             address = restaurantEntity.address,
             rate = restaurantEntity.rate,
             phoneNumber = restaurantEntity.phoneNumber,
-            website = restaurantEntity.website
+            website = restaurantEntity.website,
+            // TODO ces deux valeurs doivent venir d'un mappeur et du repo
+            isFavorite = false,
+            isSelected = false
         )
 
     fun onPlaceIdRequest(id: String?) {
@@ -82,6 +90,10 @@ class RestaurantDetailsViewModel @Inject constructor(
 
     fun onLike() {
         likeStateMutableStateFlow.value = !likeStateMutableStateFlow.value
+    }
+
+    fun onSelectRestaurant() {
+        restaurantSelectedStateMutableStateFlow.value = !restaurantSelectedStateMutableStateFlow.value
     }
 
 }

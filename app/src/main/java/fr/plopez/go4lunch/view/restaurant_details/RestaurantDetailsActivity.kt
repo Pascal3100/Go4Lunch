@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.FragmentActivity
 import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
@@ -76,27 +77,23 @@ class RestaurantDetailsActivity : AppCompatActivity() {
         // listener for like button state
         // TODO Pascal : à merger avec le viewstate (une seule LiveData d'état), et puis pas de if ! :p
         restaurantDetailsViewModel.likeStateLiveData.observe(this@RestaurantDetailsActivity) {
-            if (it) {
-                binding.ratingButton.setCompoundDrawables(
-                    null,
-                    getDrawable(R.drawable.ic_baseline_star_rate_24),
-                    null,
-                    null
-                )
-            } else {
-                binding.ratingButton.setCompoundDrawables(
-                    null,
-                    getDrawable(R.drawable.ic_baseline_star_rate_24),
-                    null,
-                    null
-                )
-            }
+            binding.ratingButton.setCompoundDrawablesWithIntrinsicBounds(
+                null,
+                resources.getDrawable(
+                    if (it) R.drawable.ic_baseline_star_rate_24 else R.drawable.ic_baseline_empty_star_24),
+                null,
+                null
+            )
         }
 
         // listener for like button
         binding.ratingButton.setOnClickListener {
-            Log.d("TAG", "ratingButton")
             restaurantDetailsViewModel.onLike()
+        }
+
+        // listener for FAB
+        binding.addFavoriteFabNeighbourDetailsActivity.setOnClickListener {
+            restaurantDetailsViewModel.onSelectRestaurant()
         }
 
         // listener for back navigation

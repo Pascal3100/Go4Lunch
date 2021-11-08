@@ -94,7 +94,6 @@ class CreateAccountDialogFragment : DialogFragment() {
             email, password
         ).addOnCompleteListener(requireActivity()) { task ->
             if (!task.isSuccessful) {
-                onLoginSuccessful.onLoginSuccessful(false)
                 try {
                     throw task.exception!!
                 } // if user already exist in base.
@@ -119,7 +118,7 @@ class CreateAccountDialogFragment : DialogFragment() {
                 }
 
             } else {
-                onLoginSuccessful.onLoginSuccessful(true)
+                onLoginSuccessful.onLoginSuccessful()
             }
         }
     }

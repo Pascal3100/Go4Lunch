@@ -6,5 +6,7 @@ data class RestaurantDetailsViewState (
     val address: String,
     val rate: Float,
     val phoneNumber: String,
-    val website: String
+    val website: String,
+    val isSelected : Boolean,
+    val isFavorite : Boolean
 )

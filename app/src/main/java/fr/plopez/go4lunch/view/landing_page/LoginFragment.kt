@@ -9,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
-import androidx.fragment.app.viewModels
 import androidx.transition.TransitionManager
 import com.facebook.AccessToken
 import com.facebook.CallbackManager
@@ -61,9 +60,6 @@ class LoginFragment : Fragment() {
     // Firebase Auth
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
-
-    // ViewModel provided by delegate
-    private val landingPageViewModel by viewModels<LandingPageViewModel>()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -223,10 +219,8 @@ class LoginFragment : Fragment() {
                 if (task.isSuccessful) {
                     loading(false)
 
-                    // Notify viewModel
-                    landingPageViewModel.connectedUser(firebaseAuth.currentUser)
-
-                    onLoginSuccessful.onLoginSuccessful(true)
+                    // Notify activity
+                    onLoginSuccessful.onLoginSuccessful()
 
                 } else {
                     loading(false)
@@ -235,11 +229,6 @@ class LoginFragment : Fragment() {
                         .setType(CustomSnackBar.Type.WARNING)
                         .build()
                         .show()
-
-                    // Notify viewModel
-                    landingPageViewModel.connectedUser(null)
-
-                    onLoginSuccessful.onLoginSuccessful(false)
                 }
             }
     }
@@ -250,10 +239,8 @@ class LoginFragment : Fragment() {
             .addOnCompleteListener(requireActivity()) { task ->
                 if (task.isSuccessful) {
                     // Notify viewModel
-                    onLoginSuccessful.onLoginSuccessful(true)
+                    onLoginSuccessful.onLoginSuccessful()
                 } else {
-                    // Notify viewModel
-                    onLoginSuccessful.onLoginSuccessful(false)
 
                     try {
                         throw task.exception!!
@@ -274,7 +261,6 @@ class LoginFragment : Fragment() {
                 }
             }
     }
-
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
