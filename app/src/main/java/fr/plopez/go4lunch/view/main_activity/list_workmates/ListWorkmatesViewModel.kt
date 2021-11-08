@@ -8,12 +8,12 @@ import androidx.lifecycle.liveData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.plopez.go4lunch.R
-import fr.plopez.go4lunch.data.model.restaurant.Workmate
+import fr.plopez.go4lunch.data.model.restaurant.WorkmateData
 import fr.plopez.go4lunch.data.repositories.FirestoreRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
 import fr.plopez.go4lunch.view.model.WorkmateViewState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.collect
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,19 +29,19 @@ class ListWorkmatesViewModel @Inject constructor(
     }
 
     fun getWorkmatesUpdates():LiveData<List<WorkmateViewState>> = liveData(coroutinesProvider.ioCoroutineDispatcher) {
-        firestoreRepository.getWorkmatesUpdates().collectLatest {
+        firestoreRepository.getWorkmatesUpdates().collect {
             Log.d("TAG", "#### $it")
             emit(mapToViewState(it))
         }
     }
 
-    private fun mapToViewState(workmatesList: List<Workmate>) =
+    private fun mapToViewState(workmatesList: List<WorkmateData>) =
         workmatesList.map {
-            val name = if (it.name == "null") Regex(EMAIL_NAME_PATTERN).find(it.email)!!.destructured.component1() else it.name
+            val name = if (it.name == "null") Regex(EMAIL_NAME_PATTERN).find(it.email)?.groupValues?.getOrNull(1) else it.name
 
             WorkmateViewState(
                 photoUrl = it.photoUrl,
-                text = name + context.resources.getString(R.string.workmate_has_not_decided)
+                text = context.resources.getString(R.string.workmate_has_not_decided, name)
             )
         }
 }
