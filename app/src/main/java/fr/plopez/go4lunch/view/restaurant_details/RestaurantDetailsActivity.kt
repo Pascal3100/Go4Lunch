@@ -13,6 +13,8 @@ import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.ActivityRestaurantDetailsBinding
+import fr.plopez.go4lunch.utils.CustomSnackBar
+import fr.plopez.go4lunch.view.restaurant_details.RestaurantDetailsViewModel.RestaurantDetailsViewAction.FirestoreFails
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @AndroidEntryPoint
@@ -56,7 +58,8 @@ class RestaurantDetailsActivity : AppCompatActivity() {
                 .into(binding.restaurantDetailsActivityRestaurantImage)
 
             binding.restaurantDetailsActivityRestaurantName.text = restaurantDetailsViewState.name
-            binding.restaurantDetailsActivityRestaurantRatingBar.rating = restaurantDetailsViewState.rate
+            binding.restaurantDetailsActivityRestaurantRatingBar.rating =
+                restaurantDetailsViewState.rate
             binding.restaurantDetailsActivitySubtitle.text = restaurantDetailsViewState.address
 
             // listener for call button
@@ -67,6 +70,16 @@ class RestaurantDetailsActivity : AppCompatActivity() {
                 startActivity(dialIntent)
             }
 
+            // listener for like button
+            binding.ratingButton.setCompoundDrawablesWithIntrinsicBounds(
+                null,
+                resources.getDrawable(
+                    if (restaurantDetailsViewState.isFavorite) R.drawable.ic_baseline_star_rate_24 else R.drawable.ic_baseline_empty_star_24
+                ),
+                null,
+                null
+            )
+
             // listener for website button
             binding.websiteButton.setOnClickListener {
                 Log.d("TAG", "websiteButton")
@@ -74,18 +87,6 @@ class RestaurantDetailsActivity : AppCompatActivity() {
                 websiteIntent.data = Uri.parse(restaurantDetailsViewState.website)
                 startActivity(websiteIntent)
             }
-        }
-
-        // listener for like button state
-        // TODO Pascal : à merger avec le viewstate (une seule LiveData d'état), et puis pas de if ! :p
-        restaurantDetailsViewModel.likeStateLiveData.observe(this@RestaurantDetailsActivity) {
-            binding.ratingButton.setCompoundDrawablesWithIntrinsicBounds(
-                null,
-                resources.getDrawable(
-                    if (it) R.drawable.ic_baseline_star_rate_24 else R.drawable.ic_baseline_empty_star_24),
-                null,
-                null
-            )
         }
 
         // listener for like button
@@ -102,5 +103,18 @@ class RestaurantDetailsActivity : AppCompatActivity() {
         binding.restaurantDetailsActivityToolbar.setNavigationOnClickListener {
             finish()
         }
+
+        // listener for messages
+        restaurantDetailsViewModel.firestoreStateLiveData.observe(this) {
+            when (it) {
+                is FirestoreFails -> CustomSnackBar.with(binding.root)
+                    .setMessage(getString(R.string.firestore_fails_message))
+                    .setType(CustomSnackBar.Type.ERROR)
+                    .build()
+                    .show()
+            }
+        }
+
+
     }
 }

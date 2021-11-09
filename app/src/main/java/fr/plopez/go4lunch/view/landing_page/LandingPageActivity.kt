@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commit
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
@@ -16,8 +17,11 @@ import fr.plopez.go4lunch.databinding.ActivityLandingPageBinding
 import fr.plopez.go4lunch.interfaces.OnLoginSuccessful
 import fr.plopez.go4lunch.interfaces.OnPermissionsAccepted
 import fr.plopez.go4lunch.utils.CustomSnackBar
+import fr.plopez.go4lunch.view.landing_page.LandingPageViewModel.LandingPageViewAction.FirestoreFails
+import fr.plopez.go4lunch.view.landing_page.LandingPageViewModel.LandingPageViewAction.GoToPermissions
 import fr.plopez.go4lunch.view.main_activity.MainActivity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import javax.inject.Inject
 
 @AndroidEntryPoint
 @ExperimentalCoroutinesApi
@@ -36,6 +40,10 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page), O
 
     // View binding
     private lateinit var binding: ActivityLandingPageBinding
+
+    // Firebase Auth
+    @Inject
+    lateinit var firebaseAuth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,14 +71,27 @@ class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page), O
     // On login successful go to permissions fragment
     override fun onLoginSuccessful() {
         // Notify ViewModel user is successfully logged in
-        landingPageViewModel.onLoginSuccessful(Firebase.auth.currentUser!!)
+        landingPageViewModel.onLoginSuccessful()
 
-        landingPageViewModel.viewActionLiveData.observe(this){
-            if (it is LandingPageViewModel.LandingPageViewAction.GoToPermissions){
-                // Go to permissions
-                supportFragmentManager.commit {
-                    replace(R.id.landing_page_fragment_container, PermissionsFragment.newInstance())
-                    setReorderingAllowed(true)
+        landingPageViewModel.viewActionLiveData.observe(this) {
+            when (it) {
+                is GoToPermissions -> {
+                    // Go to permissions
+                    supportFragmentManager.commit {
+                        replace(
+                            R.id.landing_page_fragment_container,
+                            PermissionsFragment.newInstance()
+                        )
+                        setReorderingAllowed(true)
+                    }
+                }
+                is FirestoreFails -> {
+                    firebaseAuth.signOut()
+                    CustomSnackBar.with(binding.root)
+                        .setMessage(getString(R.string.firestore_fails_message))
+                        .setType(CustomSnackBar.Type.ERROR)
+                        .build()
+                        .show()
                 }
             }
         }
