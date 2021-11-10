@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.FragmentActivity
 import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
@@ -58,9 +57,17 @@ class RestaurantDetailsActivity : AppCompatActivity() {
                 .into(binding.restaurantDetailsActivityRestaurantImage)
 
             binding.restaurantDetailsActivityRestaurantName.text = restaurantDetailsViewState.name
-            binding.restaurantDetailsActivityRestaurantRatingBar.rating =
-                restaurantDetailsViewState.rate
+            binding.restaurantDetailsActivityRestaurantRatingBar.rating =restaurantDetailsViewState.rate
             binding.restaurantDetailsActivitySubtitle.text = restaurantDetailsViewState.address
+
+            // modifier for FAB
+            binding.selectRestaurant.setImageDrawable(
+                if (restaurantDetailsViewState.isSelected) {
+                    resources.getDrawable(R.drawable.selected)
+                } else {
+                    resources.getDrawable(R.drawable.not_selected)
+                }
+            )
 
             // listener for call button
             binding.phoneButton.setOnClickListener {
@@ -70,11 +77,15 @@ class RestaurantDetailsActivity : AppCompatActivity() {
                 startActivity(dialIntent)
             }
 
-            // listener for like button
+            // modifier for like button
             binding.ratingButton.setCompoundDrawablesWithIntrinsicBounds(
                 null,
                 resources.getDrawable(
-                    if (restaurantDetailsViewState.isFavorite) R.drawable.ic_baseline_star_rate_24 else R.drawable.ic_baseline_empty_star_24
+                    if (restaurantDetailsViewState.isFavorite) {
+                        R.drawable.ic_baseline_star_rate_24
+                    } else {
+                        R.drawable.ic_baseline_empty_star_24
+                    }
                 ),
                 null,
                 null
@@ -95,7 +106,7 @@ class RestaurantDetailsActivity : AppCompatActivity() {
         }
 
         // listener for FAB
-        binding.addFavoriteFabNeighbourDetailsActivity.setOnClickListener {
+        binding.selectRestaurant.setOnClickListener {
             restaurantDetailsViewModel.onSelectRestaurant()
         }
 

@@ -154,15 +154,17 @@
         tools:listitem="@layout/workmates_list_view_item" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/add_favorite_fab_neighbour_details_activity"
+        android:id="@+id/select_restaurant"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:src="@drawable/ic_pin_24"
         app:backgroundTint="@color/white"
         app:borderWidth="0dp"
         app:elevation="8dp"
         app:layout_anchor="@id/restaurant_details_activity_toolbar"
-        app:layout_anchorGravity="bottom|end" />
+        app:layout_anchorGravity="bottom|end"
+        tools:srcCompat="@drawable/selected"
+        app:tint="@null"
+        app:maxImageSize="32dp"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

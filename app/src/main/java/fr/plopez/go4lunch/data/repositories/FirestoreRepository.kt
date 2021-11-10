@@ -1,10 +1,12 @@
 package fr.plopez.go4lunch.data.repositories
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import fr.plopez.go4lunch.data.model.restaurant.Workmate
+import fr.plopez.go4lunch.utils.DateTimeUtils
+import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -17,14 +19,16 @@ import javax.inject.Singleton
 @ExperimentalCoroutinesApi
 class FirestoreRepository @Inject constructor(
     private val firestore: FirebaseFirestore,
-    private val firebaseAuth: FirebaseAuth
+    private val restaurantsRepository: RestaurantsRepository,
+    private val firebaseAuth: FirebaseAuth,
+    private val dateTimeUtils: DateTimeUtils,
 ) {
 
     companion object {
         private const val WORKMATES_COLLECTION = "workmates"
         private const val LIKED_RESTAURANTS_COLLECTION = "liked_restaurants"
         private const val DATES_COLLECTION = "dates"
-        private const val RESTAURANTS_IDS_COLLECTION = "restaurants_ids"
+        private const val INTERESTED_WORKMATES_COLLECTION = "interested_workmates"
     }
 
     suspend fun addOrUpdateUserOnLogin() =
@@ -97,14 +101,15 @@ class FirestoreRepository @Inject constructor(
         awaitClose { likedRestaurantsListener.remove() }
     }
 
-    suspend fun addOrSuppressLikedRestaurant(placeId: String?, likeState: Boolean?) =
+    // Manage the liked status of the restaurant
+    suspend fun addOrSuppressLikedRestaurant(placeId: String, likeState: Boolean) =
         suspendCancellableCoroutine<Boolean> { continuation ->
             val user = firebaseAuth.currentUser!!
-            if (!likeState!!) {
+            if (!likeState) {
                 firestore.collection(WORKMATES_COLLECTION)
                     .document(user.email.toString())
                     .collection(LIKED_RESTAURANTS_COLLECTION)
-                    .document(placeId!!)
+                    .document(placeId)
                     .set(
                         hashMapOf(
                             "id" to placeId
@@ -120,7 +125,7 @@ class FirestoreRepository @Inject constructor(
                 firestore.collection(WORKMATES_COLLECTION)
                     .document(user.email.toString())
                     .collection(LIKED_RESTAURANTS_COLLECTION)
-                    .document(placeId!!)
+                    .document(placeId)
                     .delete()
                     .addOnSuccessListener {
                         continuation.resume(value = true, onCancellation = null)
@@ -130,4 +135,82 @@ class FirestoreRepository @Inject constructor(
                     }
             }
         }
+
+    // Manage the selected status of the restaurant
+    suspend fun setOrUnsetSelectedRestaurant(
+        placeId: String,
+        selectedState: Boolean
+    ): Boolean {
+
+        val restaurantData = restaurantsRepository.getRestaurantFromId(placeId)
+        val user = firebaseAuth.currentUser!!
+        Log.d("TAG", "#### setOrUnsetSelectedRestaurant: selectedState = $selectedState")
+
+        return suspendCancellableCoroutine { continuation ->
+            if (!selectedState) {
+                firestore
+                    .collection(DATES_COLLECTION)
+                    .document(dateTimeUtils.getCurrentDate())
+                    .collection(INTERESTED_WORKMATES_COLLECTION)
+                    .document(user.email.toString())
+                    .set(
+                        WorkmateWithSelectedRestaurant(
+                            workmateName = user.displayName.toString(),
+                            workmateEmail = user.email.toString(),
+                            workmatePhotoUrl = user.photoUrl.toString(),
+                            selectedRestaurantId = restaurantData.restaurantId,
+                            selectedRestaurantName = restaurantData.name
+                        ), SetOptions.merge()
+                    )
+                    .addOnSuccessListener {
+                        continuation.resume(value = true, onCancellation = null)
+                    }
+                    .addOnFailureListener {
+                        continuation.resume(value = false, onCancellation = null)
+                    }
+            } else {
+                firestore
+                    .collection(DATES_COLLECTION)
+                    .document(dateTimeUtils.getCurrentDate())
+                    .collection(INTERESTED_WORKMATES_COLLECTION)
+                    .document(user.email.toString())
+                    .delete()
+                    .addOnSuccessListener {
+                        continuation.resume(value = true, onCancellation = null)
+                    }
+                    .addOnFailureListener {
+                        continuation.resume(value = false, onCancellation = null)
+                    }
+            }
+        }
+    }
+
+    suspend fun getWorkmatesWithSelectedRestaurants(): Flow<List<WorkmateWithSelectedRestaurant>> =
+        callbackFlow {
+            val workmateId = firebaseAuth.currentUser?.email ?: return@callbackFlow
+
+            val interestedWorkmatesCollection = firestore
+                .collection(DATES_COLLECTION)
+                .document(dateTimeUtils.getCurrentDate())
+                .collection(INTERESTED_WORKMATES_COLLECTION)
+
+            val selectedRestaurantsListener =
+                interestedWorkmatesCollection.addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        return@addSnapshotListener
+                    }
+
+                    if (snapshot != null) {
+
+                        val interestedWorkmatesWithSelectedRestaurantList = snapshot.mapNotNull {
+                            it.toObject(WorkmateWithSelectedRestaurant::class.java)
+                        }
+                        trySend(interestedWorkmatesWithSelectedRestaurantList)
+                    }
+                }
+
+            awaitClose { selectedRestaurantsListener.remove() }
+        }
+
+
 }

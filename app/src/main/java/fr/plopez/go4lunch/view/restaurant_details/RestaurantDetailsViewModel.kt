@@ -12,6 +12,7 @@ import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
 import fr.plopez.go4lunch.di.NearbyConstants
 import fr.plopez.go4lunch.view.model.RestaurantDetailsViewState
+import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant
 import fr.plopez.go4lunch.view.restaurant_details.RestaurantDetailsViewModel.RestaurantDetailsViewAction.FirestoreFails
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -44,32 +45,51 @@ class RestaurantDetailsViewModel @Inject constructor(
 
     private val firestoreStateMutableLiveData =
         MutableLiveData<RestaurantDetailsViewAction>()
-    val firestoreStateLiveData = firestoreStateMutableLiveData as LiveData<RestaurantDetailsViewAction>
+    val firestoreStateLiveData =
+        firestoreStateMutableLiveData as LiveData<RestaurantDetailsViewAction>
 
     private var likeState = false
-    private var selectedRestaurantState = false
+    private var selectedState = false
 
     init {
 
         viewModelScope.launch(coroutinesProvider.ioCoroutineDispatcher) {
-            combine(placeIdMutableStateFlow, firestoreRepository.getLikedRestaurants()){ placeId, likedRestaurantsList ->
+            combine(
+                placeIdMutableStateFlow,
+                firestoreRepository.getLikedRestaurants(),
+                firestoreRepository.getWorkmatesWithSelectedRestaurants()
+            ) { placeId, likedRestaurantsList, workmatesWithSelectedRestaurantsList ->
                 if (placeId == null) return@combine null
                 mapToViewState(
                     restaurantEntity = restaurantsRepository.getRestaurantFromId(placeId),
-                    isLiked = placeId in likedRestaurantsList
+                    isLiked = placeId in likedRestaurantsList,
+                    isSelected = isRestaurantSelected(placeId, workmatesWithSelectedRestaurantsList)
                 )
             }.collect {
                 withContext(coroutinesProvider.mainCoroutineDispatcher) {
-                    restaurantDetailsViewStateMutableLiveData.value = it
-                    likeState = it!!.isFavorite
+                    if (it != null) {
+                        restaurantDetailsViewStateMutableLiveData.value = it
+                        likeState = it.isFavorite
+                        selectedState = it.isSelected
+                    }
                 }
             }
         }
     }
 
+    private fun isRestaurantSelected(
+        placeId: String,
+        workmatesWithSelectedRestaurantsList: List<WorkmateWithSelectedRestaurant>
+    ): Boolean {
+        return workmatesWithSelectedRestaurantsList.any {
+            it.workmateEmail == firebaseAuth.currentUser?.email && it.selectedRestaurantId == placeId
+        }
+    }
+
     private fun mapToViewState(
         restaurantEntity: RestaurantEntity,
-        isLiked : Boolean
+        isLiked: Boolean,
+        isSelected: Boolean
     ): RestaurantDetailsViewState =
         RestaurantDetailsViewState(
             photoUrl = mapRestaurantPhotoUrl(restaurantEntity.photoUrl),
@@ -78,9 +98,8 @@ class RestaurantDetailsViewModel @Inject constructor(
             rate = restaurantEntity.rate,
             phoneNumber = restaurantEntity.phoneNumber,
             website = restaurantEntity.website,
-            // TODO ces deux valeurs doivent venir d'un mappeur et du repo
             isFavorite = isLiked,
-            isSelected = false
+            isSelected = isSelected
         )
 
     fun onPlaceIdRequest(id: String) {
@@ -99,26 +118,48 @@ class RestaurantDetailsViewModel @Inject constructor(
         }
     }
 
+    // when the current restaurant is liked by the current user
     fun onLike() {
+        viewModelScope.launch(coroutinesProvider.ioCoroutineDispatcher) {
+            placeIdMutableStateFlow.collect { placeId ->
+                if (placeId != null) {
+                    val success =
+                        firestoreRepository.addOrSuppressLikedRestaurant(
+                            placeId = placeId,
+                            likeState = likeState)
 
-        viewModelScope.launch(coroutinesProvider.ioCoroutineDispatcher){
-            val placeId = placeIdMutableStateFlow.value
-
-            val success = firestoreRepository.addOrSuppressLikedRestaurant(placeId, likeState)
-
-            // back to initial state if firestore fails
-            if (!success) {
-                withContext(coroutinesProvider.mainCoroutineDispatcher){
-                    firestoreStateMutableLiveData.value = FirestoreFails
+                    // back to initial state if firestore fails
+                    if (!success) {
+                        withContext(coroutinesProvider.mainCoroutineDispatcher) {
+                            firestoreStateMutableLiveData.value = FirestoreFails
+                        }
+                    }
                 }
             }
         }
     }
 
     fun onSelectRestaurant() {
+        viewModelScope.launch(coroutinesProvider.ioCoroutineDispatcher) {
+            placeIdMutableStateFlow.collect { placeId ->
+                if (placeId != null) {
+                    val success = firestoreRepository.setOrUnsetSelectedRestaurant(
+                        placeId = placeId,
+                        selectedState = selectedState
+                    )
+
+                    // back to initial state if firestore fails
+                    if (!success) {
+                        withContext(coroutinesProvider.mainCoroutineDispatcher) {
+                            firestoreStateMutableLiveData.value = FirestoreFails
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    sealed class RestaurantDetailsViewAction{
+    sealed class RestaurantDetailsViewAction {
         object FirestoreFails : RestaurantDetailsViewAction()
 
     }
