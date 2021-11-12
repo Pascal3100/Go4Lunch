@@ -187,8 +187,6 @@ class FirestoreRepository @Inject constructor(
 
     suspend fun getWorkmatesWithSelectedRestaurants(): Flow<List<WorkmateWithSelectedRestaurant>> =
         callbackFlow {
-            val workmateId = firebaseAuth.currentUser?.email ?: return@callbackFlow
-
             val interestedWorkmatesCollection = firestore
                 .collection(DATES_COLLECTION)
                 .document(dateTimeUtils.getCurrentDate())

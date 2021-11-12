@@ -1,5 +1,6 @@
 package fr.plopez.go4lunch.view.main_activity.list_workmates
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,15 +10,20 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.view.model.WorkmateViewState
+import javax.inject.Inject
 
-class ListWorkmatesAdapter :
+class ListWorkmatesAdapter(
+    private val context: Context
+):
     ListAdapter<WorkmateViewState, ListWorkmatesAdapter.WorkmateViewHolder>(DiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         WorkmateViewHolder(
-            LayoutInflater.from(parent.context).inflate(
+            context = context,
+            itemView = LayoutInflater.from(parent.context).inflate(
                 R.layout.workmates_list_view_item, parent, false
             )
         )
@@ -40,6 +46,7 @@ class ListWorkmatesAdapter :
     }
 
     class WorkmateViewHolder(
+        private val context: Context,
         itemView: View
     ) : RecyclerView.ViewHolder(itemView) {
 
@@ -56,6 +63,7 @@ class ListWorkmatesAdapter :
                 .into(photo)
 
             text.text = workmateViewState.text
+            text.setTextAppearance(context, workmateViewState.style)
         }
     }
 }

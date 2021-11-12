@@ -34,7 +34,7 @@ class ListWorkmatesFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val adapter = ListWorkmatesAdapter()
+        val adapter = ListWorkmatesAdapter(requireContext())
         val recyclerView = view.findViewById<RecyclerView>(R.id.list_workmates_recyclerview)
 
         recyclerView.adapter = adapter

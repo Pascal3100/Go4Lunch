@@ -38,15 +38,15 @@
 
     <style name="workmateNotDecidedItemGhostGreyItalicNormalTextAppearance">
         <item name="android:fontFamily">@font/roboto_condensed</item>
-        <item name="android:textSize">@dimen/item_medium_text_size</item>
-        <item name="android:textStyle">italic</item>
+        <item name="android:textSize">@dimen/item_title_text_size</item>
+        <item name="android:textStyle">italic|bold</item>
         <item name="android:textColor">@color/ghost_grey</item>
     </style>
 
     <style name="workmateDecidedItemGhostGreyItalicNormalTextAppearance">
         <item name="android:fontFamily">@font/roboto_condensed</item>
-        <item name="android:textSize">@dimen/item_medium_text_size</item>
-        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/item_title_text_size</item>
+        <item name="android:textStyle">normal|bold</item>
         <item name="android:textColor">@color/black_is_not_black</item>
     </style>
 

@@ -12,9 +12,11 @@ import fr.plopez.go4lunch.data.model.restaurant.Workmate
 import fr.plopez.go4lunch.data.repositories.FirestoreRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
 import fr.plopez.go4lunch.view.model.WorkmateViewState
+import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,20 +31,45 @@ class ListWorkmatesViewModel @Inject constructor(
         private const val EMAIL_NAME_PATTERN = "(.*)@.*"
     }
 
+    // Listener to update workmates list and their choice of restaurant
     fun getWorkmatesUpdates(): LiveData<List<WorkmateViewState>> =
         liveData(coroutinesProvider.ioCoroutineDispatcher) {
-            firestoreRepository.getWorkmatesUpdates().collect {
-                emit(mapToViewState(it))
+            combine(
+                firestoreRepository.getWorkmatesUpdates(),
+                firestoreRepository.getWorkmatesWithSelectedRestaurants()){
+                workmatesList, workmatesWithSelectedRestaurantList ->
+                mapToViewState(workmatesList, workmatesWithSelectedRestaurantList)
+            }.collect {
+                emit(it)
             }
         }
 
-    private fun mapToViewState(workmatesList: List<Workmate>) =
-        workmatesList.map {
-            val name = it.name ?: Regex(EMAIL_NAME_PATTERN).find(it.email)?.groupValues?.get(1)
+    //
+    private fun mapToViewState(
+        workmatesList: List<Workmate>,
+        workmatesWithSelectedRestaurantList: List<WorkmateWithSelectedRestaurant>) =
+        workmatesList.map {workmate ->
+            val name = workmate.name ?: Regex(EMAIL_NAME_PATTERN).find(workmate.email)?.groupValues?.get(1)
+
+            val restaurantIsEatingAt = workmatesWithSelectedRestaurantList.firstOrNull{ workmateWithSelectedRestaurant ->
+                workmateWithSelectedRestaurant.workmateEmail == workmate.email
+            }
 
             WorkmateViewState(
-                photoUrl = it.photoUrl,
-                text = context.resources.getString(R.string.workmate_has_not_decided, name)
+                photoUrl = workmate.photoUrl,
+                text = if (restaurantIsEatingAt == null) {
+                    context.resources.getString(R.string.workmate_has_not_decided, name)
+                } else {
+                    context.resources.getString(
+                        R.string.workmate_has_decided,
+                        name,
+                        restaurantIsEatingAt.selectedRestaurantName)
+                },
+                style = if (restaurantIsEatingAt == null) {
+                    R.style.workmateNotDecidedItemGhostGreyItalicNormalTextAppearance
+                } else {
+                    R.style.workmateDecidedItemGhostGreyItalicNormalTextAppearance
+                }
             )
         }
 }
