@@ -36,14 +36,14 @@
         <item name="android:textColor">@color/ghost_grey</item>
     </style>
 
-    <style name="workmateNotDecidedItemGhostGreyItalicNormalTextAppearance">
+    <style name="workmateItemNormalGhostGreyItalicTextAppearance">
         <item name="android:fontFamily">@font/roboto_condensed</item>
         <item name="android:textSize">@dimen/item_title_text_size</item>
         <item name="android:textStyle">italic|bold</item>
         <item name="android:textColor">@color/ghost_grey</item>
     </style>
 
-    <style name="workmateDecidedItemGhostGreyItalicNormalTextAppearance">
+    <style name="workmateItemNormalBlackBoldTextAppearance">
         <item name="android:fontFamily">@font/roboto_condensed</item>
         <item name="android:textSize">@dimen/item_title_text_size</item>
         <item name="android:textStyle">normal|bold</item>

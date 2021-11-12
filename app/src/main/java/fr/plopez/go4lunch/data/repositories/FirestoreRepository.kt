@@ -29,6 +29,7 @@ class FirestoreRepository @Inject constructor(
         private const val LIKED_RESTAURANTS_COLLECTION = "liked_restaurants"
         private const val DATES_COLLECTION = "dates"
         private const val INTERESTED_WORKMATES_COLLECTION = "interested_workmates"
+        private const val EMAIL_NAME_PATTERN = "(.*)@.*"
     }
 
     suspend fun addOrUpdateUserOnLogin() =
@@ -64,9 +65,12 @@ class FirestoreRepository @Inject constructor(
             if (snapshot != null) {
                 val updatedWorkmatesList = snapshot.mapNotNull {
                     Workmate(
-                        name = if (it.getString("name") == "null") null else it.getString("name"),
+                        name = it.getString("name")
+                            ?: Regex(EMAIL_NAME_PATTERN).find(it.getString("email")!!)?.groupValues?.get(
+                                1
+                            ),
                         email = it.getString("email")!!,
-                        photoUrl = if (it.getString("photoUrl") == "null") null else it.getString("photoUrl")
+                        photoUrl = it.getString("photoUrl")
                     )
                 }
                 trySend(updatedWorkmatesList)
@@ -201,7 +205,17 @@ class FirestoreRepository @Inject constructor(
                     if (snapshot != null) {
 
                         val interestedWorkmatesWithSelectedRestaurantList = snapshot.mapNotNull {
-                            it.toObject(WorkmateWithSelectedRestaurant::class.java)
+                            WorkmateWithSelectedRestaurant(
+                                workmateName = if (it.getString("workmateName") == "null" || it.getString("workmateName") == null) {
+                                    Regex(EMAIL_NAME_PATTERN).find(it.getString("workmateEmail")!!)?.groupValues?.get(1)!!
+                                } else {
+                                    it.getString("workmateName")!!
+                                },
+                                workmateEmail = it.getString("workmateEmail")!!,
+                                workmatePhotoUrl = it.getString("workmatePhotoUrl")!!,
+                                selectedRestaurantName = it.getString("selectedRestaurantName")!!,
+                                selectedRestaurantId = it.getString("selectedRestaurantId")!!
+                            )
                         }
                         trySend(interestedWorkmatesWithSelectedRestaurantList)
                     }

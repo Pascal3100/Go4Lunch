@@ -8,5 +8,6 @@ data class RestaurantDetailsViewState (
     val phoneNumber: String,
     val website: String,
     val isSelected : Boolean,
-    val isFavorite : Boolean
+    val isFavorite : Boolean,
+    val interestedWorkmatesList: List<WorkmateViewState>
 )

@@ -46,6 +46,10 @@ class RestaurantDetailsActivity : AppCompatActivity() {
 
         restaurantDetailsViewModel.onPlaceIdRequest(placeId)
 
+        val adapter = RestaurantDetailsAdapter(this)
+
+        binding.listWorkmatesRecyclerview.adapter = adapter
+
         restaurantDetailsViewModel.restaurantDetailsViewLiveData.observe(this) { restaurantDetailsViewState ->
             // Glide section
             Glide.with(binding.root)
@@ -59,6 +63,7 @@ class RestaurantDetailsActivity : AppCompatActivity() {
             binding.restaurantDetailsActivityRestaurantName.text = restaurantDetailsViewState.name
             binding.restaurantDetailsActivityRestaurantRatingBar.rating =restaurantDetailsViewState.rate
             binding.restaurantDetailsActivitySubtitle.text = restaurantDetailsViewState.address
+            adapter.submitList(restaurantDetailsViewState.interestedWorkmatesList)
 
             // modifier for FAB
             binding.selectRestaurant.setImageDrawable(

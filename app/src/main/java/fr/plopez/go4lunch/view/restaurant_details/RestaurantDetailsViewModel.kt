@@ -1,6 +1,7 @@
 package fr.plopez.go4lunch.view.restaurant_details
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.*
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,6 +13,7 @@ import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
 import fr.plopez.go4lunch.di.NearbyConstants
 import fr.plopez.go4lunch.view.model.RestaurantDetailsViewState
+import fr.plopez.go4lunch.view.model.WorkmateViewState
 import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant
 import fr.plopez.go4lunch.view.restaurant_details.RestaurantDetailsViewModel.RestaurantDetailsViewAction.FirestoreFails
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -63,7 +65,8 @@ class RestaurantDetailsViewModel @Inject constructor(
                 mapToViewState(
                     restaurantEntity = restaurantsRepository.getRestaurantFromId(placeId),
                     isLiked = placeId in likedRestaurantsList,
-                    isSelected = isRestaurantSelected(placeId, workmatesWithSelectedRestaurantsList)
+                    isSelected = isRestaurantSelected(placeId, workmatesWithSelectedRestaurantsList),
+                    interestedWorkmatesList = getInterestedWorkmatesList(placeId, workmatesWithSelectedRestaurantsList)
                 )
             }.collect {
                 withContext(coroutinesProvider.mainCoroutineDispatcher) {
@@ -77,19 +80,33 @@ class RestaurantDetailsViewModel @Inject constructor(
         }
     }
 
+    private fun getInterestedWorkmatesList(
+        placeId: String,
+        workmatesWithSelectedRestaurantsList: List<WorkmateWithSelectedRestaurant>
+    ) = workmatesWithSelectedRestaurantsList.filter {
+        it.selectedRestaurantId == placeId
+    }.map {
+        WorkmateViewState(
+            photoUrl = it.workmatePhotoUrl,
+            text = context.resources.getString(R.string.joined_workmate_message, it.workmateName),
+            style = R.style.workmateItemNormalBlackBoldTextAppearance
+        )
+    }
+
+
+
     private fun isRestaurantSelected(
         placeId: String,
         workmatesWithSelectedRestaurantsList: List<WorkmateWithSelectedRestaurant>
-    ): Boolean {
-        return workmatesWithSelectedRestaurantsList.any {
+    ) = workmatesWithSelectedRestaurantsList.any {
             it.workmateEmail == firebaseAuth.currentUser?.email && it.selectedRestaurantId == placeId
         }
-    }
 
     private fun mapToViewState(
         restaurantEntity: RestaurantEntity,
         isLiked: Boolean,
-        isSelected: Boolean
+        isSelected: Boolean,
+        interestedWorkmatesList: List<WorkmateViewState>
     ): RestaurantDetailsViewState =
         RestaurantDetailsViewState(
             photoUrl = mapRestaurantPhotoUrl(restaurantEntity.photoUrl),
@@ -99,7 +116,8 @@ class RestaurantDetailsViewModel @Inject constructor(
             phoneNumber = restaurantEntity.phoneNumber,
             website = restaurantEntity.website,
             isFavorite = isLiked,
-            isSelected = isSelected
+            isSelected = isSelected,
+            interestedWorkmatesList = interestedWorkmatesList
         )
 
     fun onPlaceIdRequest(id: String) {

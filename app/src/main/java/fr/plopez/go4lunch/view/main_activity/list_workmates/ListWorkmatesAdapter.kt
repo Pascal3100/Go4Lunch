@@ -17,8 +17,7 @@ import javax.inject.Inject
 
 class ListWorkmatesAdapter(
     private val context: Context
-):
-    ListAdapter<WorkmateViewState, ListWorkmatesAdapter.WorkmateViewHolder>(DiffCallback()) {
+) : ListAdapter<WorkmateViewState, ListWorkmatesAdapter.WorkmateViewHolder>(DiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         WorkmateViewHolder(
@@ -53,7 +52,7 @@ class ListWorkmatesAdapter(
         private val photo: ImageView = itemView.findViewById(R.id.wlv_item_workmate_avatar)
         private val text: TextView = itemView.findViewById(R.id.wlv_item_workmate_status_text)
 
-        fun bind(workmateViewState: WorkmateViewState){
+        fun bind(workmateViewState: WorkmateViewState) {
             Glide.with(itemView.context)
                 .load(workmateViewState.photoUrl)
                 .placeholder(R.drawable.ic_no_profile_photo_available)

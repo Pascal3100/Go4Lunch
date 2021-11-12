@@ -26,6 +26,6 @@
         app:layout_constraintStart_toEndOf="@+id/wlv_item_workmate_avatar"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Scarlett has not decided yet"
-        tools:textAppearance="@style/workmateNotDecidedItemGhostGreyItalicNormalTextAppearance"/>
+        tools:textAppearance="@style/workmateItemNormalGhostGreyItalicTextAppearance"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
