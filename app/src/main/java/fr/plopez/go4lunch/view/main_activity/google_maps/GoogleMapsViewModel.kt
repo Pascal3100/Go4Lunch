@@ -10,11 +10,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantEntity
+import fr.plopez.go4lunch.data.repositories.FirestoreRepository
 import fr.plopez.go4lunch.data.repositories.LocationRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
 import fr.plopez.go4lunch.utils.SingleLiveEvent
 import fr.plopez.go4lunch.utils.exhaustive
+import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
@@ -26,6 +28,7 @@ import javax.inject.Inject
 class GoogleMapsViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
     private val restaurantsRepository: RestaurantsRepository,
+    private val firestoreRepository: FirestoreRepository,
     coroutinesProvider: CoroutinesProvider,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
@@ -34,7 +37,8 @@ class GoogleMapsViewModel @Inject constructor(
     val googleMapViewStateLiveData: LiveData<GoogleMapViewState>
 
     private val googleMapViewActionSingleLiveEvent = SingleLiveEvent<GoogleMapViewAction>()
-    val googleMapViewActionLiveData: LiveData<GoogleMapViewAction> = googleMapViewActionSingleLiveEvent
+    val googleMapViewActionLiveData: LiveData<GoogleMapViewAction> =
+        googleMapViewActionSingleLiveEvent
 
     // Map state Flow
     private val onMapReadyMutableLiveData = MutableLiveData<Unit>()
@@ -57,8 +61,10 @@ class GoogleMapsViewModel @Inject constructor(
         // Initialization of the flow at init of the viewModel
         googleMapViewStateLiveData = onMapReadyMutableLiveData.switchMap {
             liveData(coroutinesProvider.ioCoroutineDispatcher) {
-
-                locationRepository.fetchUpdates().collectLatest { positionWithZoom ->
+                combine(
+                    locationRepository.fetchUpdates(),
+                    firestoreRepository.getWorkmatesWithSelectedRestaurants()
+                ) { positionWithZoom, workmatesWithSelectedRestaurants ->
 
                     // Send a retrofit request to fetch restaurants around received position
                     restaurantsRepository.getRestaurantsAroundPosition(
@@ -70,13 +76,21 @@ class GoogleMapsViewModel @Inject constructor(
                     ).distinctUntilChanged().collect {
                         when (it) {
                             is RestaurantsRepository.ResponseStatus.Success -> {
-                                emit(mapDataToViewState(positionWithZoom, it.data))
+                                emit(
+                                    mapDataToViewState(
+                                        positionWithZoom = positionWithZoom,
+                                        listRestaurants = it.data,
+                                        workmatesWithSelectedRestaurants = workmatesWithSelectedRestaurants
+                                    )
+                                )
                                 withContext(coroutinesProvider.mainCoroutineDispatcher) {
                                     mapCamera(positionWithZoom)
                                 }
                             }
                             is RestaurantsRepository.ResponseStatus.NoRestaurants -> {
-                                emit(mapDataToViewState(positionWithZoom, emptyList()))
+                                emit(mapDataToViewState(
+                                    positionWithZoom = positionWithZoom
+                                ))
                                 withContext(coroutinesProvider.mainCoroutineDispatcher) {
                                     mapCamera(positionWithZoom)
                                     mapEvent(Messages.NO_RESTAURANT)
@@ -147,22 +161,37 @@ class GoogleMapsViewModel @Inject constructor(
     // Mapper for the ui view state
     private fun mapDataToViewState(
         positionWithZoom: LocationRepository.PositionWithZoom,
-        listRestaurants: List<RestaurantEntity>
+        listRestaurants: List<RestaurantEntity> = emptyList(),
+        workmatesWithSelectedRestaurants : List<WorkmateWithSelectedRestaurant> = emptyList()
     ) = GoogleMapViewState(
         latitude = positionWithZoom.latitude,
         longitude = positionWithZoom.longitude,
         zoom = positionWithZoom.zoom,
-        restaurantList = listRestaurants.map {
+        restaurantList = listRestaurants.map { restaurantEntity ->
+
+            val isSelectedRestaurant = workmatesWithSelectedRestaurants.any {
+                restaurantEntity.restaurantId in it.selectedRestaurantId
+            }
+
             RestaurantViewState(
-                latitude = it.latitude,
-                longitude = it.longitude,
-                name = it.name,
-                id = it.restaurantId,
-                iconDrawable = when (it.rate) {
-                    1.0f -> R.drawable.red_pin_128px
-                    2.0f -> R.drawable.orange_pin_128px
-                    3.0f -> R.drawable.green_pin_128px
-                    else -> R.drawable.grey_pin_128px
+                latitude = restaurantEntity.latitude,
+                longitude = restaurantEntity.longitude,
+                name = restaurantEntity.name,
+                id = restaurantEntity.restaurantId,
+                iconDrawable = if (isSelectedRestaurant) {
+                    when (restaurantEntity.rate) {
+                        1.0f -> R.drawable.red_pin_star_128px
+                        2.0f -> R.drawable.orange_pin_star_128px
+                        3.0f -> R.drawable.green_pin_star_128px
+                        else -> R.drawable.grey_pin_star_128px
+                    }
+                } else {
+                    when (restaurantEntity.rate) {
+                        1.0f -> R.drawable.red_pin_128px
+                        2.0f -> R.drawable.orange_pin_128px
+                        3.0f -> R.drawable.green_pin_128px
+                        else -> R.drawable.grey_pin_128px
+                    }
                 }
             )
         }
