@@ -2,6 +2,7 @@ package fr.plopez.go4lunch.view.main_activity.google_maps
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.lifecycle.*
@@ -10,11 +11,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantEntity
+import fr.plopez.go4lunch.data.repositories.FirestoreRepository
 import fr.plopez.go4lunch.data.repositories.LocationRepository
+import fr.plopez.go4lunch.data.repositories.LocationRepository.*
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
+import fr.plopez.go4lunch.data.repositories.RestaurantsRepository.ResponseStatus
 import fr.plopez.go4lunch.di.CoroutinesProvider
 import fr.plopez.go4lunch.utils.SingleLiveEvent
 import fr.plopez.go4lunch.utils.exhaustive
+import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
@@ -26,6 +31,7 @@ import javax.inject.Inject
 class GoogleMapsViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
     private val restaurantsRepository: RestaurantsRepository,
+    private val firestoreRepository: FirestoreRepository,
     coroutinesProvider: CoroutinesProvider,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
@@ -34,7 +40,8 @@ class GoogleMapsViewModel @Inject constructor(
     val googleMapViewStateLiveData: LiveData<GoogleMapViewState>
 
     private val googleMapViewActionSingleLiveEvent = SingleLiveEvent<GoogleMapViewAction>()
-    val googleMapViewActionLiveData: LiveData<GoogleMapViewAction> = googleMapViewActionSingleLiveEvent
+    val googleMapViewActionLiveData: LiveData<GoogleMapViewAction> =
+        googleMapViewActionSingleLiveEvent
 
     // Map state Flow
     private val onMapReadyMutableLiveData = MutableLiveData<Unit>()
@@ -54,50 +61,69 @@ class GoogleMapsViewModel @Inject constructor(
     }
 
     init {
-        // Initialization of the flow at init of the viewModel
         googleMapViewStateLiveData = onMapReadyMutableLiveData.switchMap {
+
             liveData(coroutinesProvider.ioCoroutineDispatcher) {
-
-                locationRepository.fetchUpdates().collectLatest { positionWithZoom ->
-
-                    // Send a retrofit request to fetch restaurants around received position
-                    restaurantsRepository.getRestaurantsAroundPosition(
-                        positionWithZoom.latitude.toString(),
-                        positionWithZoom.longitude.toString(),
-                        context.resources.getString(R.string.default_detection_radius_value)
-
+                locationRepository.fetchUpdates()
+                    .transformLatest<PositionWithZoom, PositionWithZoomAndResponseStatus> { positionWithZoom ->
+                        // Send a retrofit request to fetch restaurants around received position
                         // the flow will be collected only if the response is different from previous ones
-                    ).distinctUntilChanged().collect {
-                        when (it) {
-                            is RestaurantsRepository.ResponseStatus.Success -> {
-                                emit(mapDataToViewState(positionWithZoom, it.data))
+                        restaurantsRepository.getRestaurantsAroundPosition(
+                            latitude = positionWithZoom.latitude.toString(),
+                            longitude = positionWithZoom.longitude.toString(),
+                            radius = context.resources.getString(R.string.default_detection_radius_value)
+                        ).distinctUntilChanged().collect {
+                            emit(
+                                PositionWithZoomAndResponseStatus(
+                                    positionWithZoom = positionWithZoom,
+                                    responseStatus = it
+                                )
+                            )
+                        }
+                    }
+                    .combine(firestoreRepository.getWorkmatesWithSelectedRestaurants()) { positionWithZoomAndResponseStatus, workmatesWithSelectedRestaurants ->
+                        Pair(positionWithZoomAndResponseStatus, workmatesWithSelectedRestaurants)
+                    }.collect {
+                        val positionWithZoom = it.first.positionWithZoom
+                        val responseStatus = it.first.responseStatus
+                        val workmatesWithSelectedRestaurants = it.second
+
+                        when (responseStatus) {
+                            is ResponseStatus.Success -> {
+                                emit(
+                                    mapDataToViewState(
+                                        positionWithZoom,
+                                        responseStatus.data,
+                                        workmatesWithSelectedRestaurants
+                                    )
+                                )
                                 withContext(coroutinesProvider.mainCoroutineDispatcher) {
                                     mapCamera(positionWithZoom)
                                 }
                             }
-                            is RestaurantsRepository.ResponseStatus.NoRestaurants -> {
-                                emit(mapDataToViewState(positionWithZoom, emptyList()))
+                            is ResponseStatus.NoRestaurants -> {
+                                emit(mapDataToViewState(positionWithZoom))
                                 withContext(coroutinesProvider.mainCoroutineDispatcher) {
                                     mapCamera(positionWithZoom)
                                     mapEvent(Messages.NO_RESTAURANT)
                                 }
                             }
-                            is RestaurantsRepository.ResponseStatus.NoResponse ->
+                            is ResponseStatus.NoResponse ->
                                 mapEvent(Messages.NO_RESPONSE)
-                            is RestaurantsRepository.ResponseStatus.StatusError.HttpException ->
+                            is ResponseStatus.StatusError.HttpException ->
                                 mapEvent(Messages.NETWORK_ERROR)
-                            is RestaurantsRepository.ResponseStatus.StatusError.IOException ->
+                            is ResponseStatus.StatusError.IOException ->
                                 mapEvent(Messages.NO_INTERNET)
                         }.exhaustive
                     }
-                }
             }
+
         }
     }
 
     // Just center the camera on the new position
     // The onFirstMapLoading is used to not animate camera when map is loaded. Only at first time.
-    private fun mapCamera(positionWithZoom: LocationRepository.PositionWithZoom) {
+    private fun mapCamera(positionWithZoom: PositionWithZoom) {
 
         val data = Pair(
             LatLng(
@@ -146,23 +172,37 @@ class GoogleMapsViewModel @Inject constructor(
 
     // Mapper for the ui view state
     private fun mapDataToViewState(
-        positionWithZoom: LocationRepository.PositionWithZoom,
-        listRestaurants: List<RestaurantEntity>
+        positionWithZoom: PositionWithZoom,
+        listRestaurants: List<RestaurantEntity> = emptyList(),
+        workmatesWithSelectedRestaurants: List<WorkmateWithSelectedRestaurant> = emptyList()
     ) = GoogleMapViewState(
         latitude = positionWithZoom.latitude,
         longitude = positionWithZoom.longitude,
         zoom = positionWithZoom.zoom,
-        restaurantList = listRestaurants.map {
+        restaurantList = listRestaurants.map { restaurantEntity ->
+
+            val isSelected =
+                workmatesWithSelectedRestaurants.any { it.selectedRestaurantId == restaurantEntity.restaurantId }
+
             RestaurantViewState(
-                latitude = it.latitude,
-                longitude = it.longitude,
-                name = it.name,
-                id = it.restaurantId,
-                iconDrawable = when (it.rate) {
-                    1.0f -> R.drawable.red_pin_128px
-                    2.0f -> R.drawable.orange_pin_128px
-                    3.0f -> R.drawable.green_pin_128px
-                    else -> R.drawable.grey_pin_128px
+                latitude = restaurantEntity.latitude,
+                longitude = restaurantEntity.longitude,
+                name = restaurantEntity.name,
+                id = restaurantEntity.restaurantId,
+                iconDrawable = if (isSelected) {
+                    when (restaurantEntity.rate) {
+                        1.0f -> R.drawable.red_pin_star_128px
+                        2.0f -> R.drawable.orange_pin_star_128px
+                        3.0f -> R.drawable.green_pin_star_128px
+                        else -> R.drawable.grey_pin_star_128px
+                    }
+                } else {
+                    when (restaurantEntity.rate) {
+                        1.0f -> R.drawable.red_pin_128px
+                        2.0f -> R.drawable.orange_pin_128px
+                        3.0f -> R.drawable.green_pin_128px
+                        else -> R.drawable.grey_pin_128px
+                    }
                 }
             )
         }
@@ -186,10 +226,14 @@ class GoogleMapsViewModel @Inject constructor(
         val iconDrawable: Int
     )
 
+    data class PositionWithZoomAndResponseStatus(
+        val positionWithZoom: PositionWithZoom,
+        val responseStatus: ResponseStatus
+    )
+
     sealed class GoogleMapViewAction {
         data class ResponseStatusMessage(@StringRes val messageResId: Int) : GoogleMapViewAction()
         data class MoveCamera(val latLng: LatLng, val zoom: Float) : GoogleMapViewAction()
         data class AnimateCamera(val latLng: LatLng, val zoom: Float) : GoogleMapViewAction()
     }
-
 }
