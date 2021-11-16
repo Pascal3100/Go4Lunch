@@ -2,7 +2,6 @@ package fr.plopez.go4lunch.view.main_activity.google_maps
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.lifecycle.*
@@ -180,16 +179,15 @@ class GoogleMapsViewModel @Inject constructor(
         longitude = positionWithZoom.longitude,
         zoom = positionWithZoom.zoom,
         restaurantList = listRestaurants.map { restaurantEntity ->
-
-            val isSelected =
-                workmatesWithSelectedRestaurants.any { it.selectedRestaurantId == restaurantEntity.restaurantId }
-
+            val isSelectedRestaurant = workmatesWithSelectedRestaurants.any {
+                restaurantEntity.restaurantId in it.selectedRestaurantId
+            }
             RestaurantViewState(
                 latitude = restaurantEntity.latitude,
                 longitude = restaurantEntity.longitude,
                 name = restaurantEntity.name,
                 id = restaurantEntity.restaurantId,
-                iconDrawable = if (isSelected) {
+                iconDrawable = if (isSelectedRestaurant) {
                     when (restaurantEntity.rate) {
                         1.0f -> R.drawable.red_pin_star_128px
                         2.0f -> R.drawable.orange_pin_star_128px
@@ -205,8 +203,7 @@ class GoogleMapsViewModel @Inject constructor(
                     }
                 }
             )
-        }
-    )
+        })
 
     // Data Class to emit to the UI
     data class GoogleMapViewState(
@@ -232,8 +229,11 @@ class GoogleMapsViewModel @Inject constructor(
     )
 
     sealed class GoogleMapViewAction {
-        data class ResponseStatusMessage(@StringRes val messageResId: Int) : GoogleMapViewAction()
+        data class ResponseStatusMessage(@StringRes val messageResId: Int) :
+            GoogleMapViewAction()
+
         data class MoveCamera(val latLng: LatLng, val zoom: Float) : GoogleMapViewAction()
-        data class AnimateCamera(val latLng: LatLng, val zoom: Float) : GoogleMapViewAction()
+        data class AnimateCamera(val latLng: LatLng, val zoom: Float) :
+            GoogleMapViewAction()
     }
 }
