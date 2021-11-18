@@ -2,11 +2,13 @@ package fr.plopez.go4lunch.tests
 
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.google.firebase.auth.FirebaseAuth
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantEntity
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantOpeningPeriod
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantsQuery
 import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantWithOpeningPeriods
+import fr.plopez.go4lunch.data.repositories.FirestoreRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
 import fr.plopez.go4lunch.di.NearbyConstants
@@ -29,6 +31,7 @@ import fr.plopez.go4lunch.utils.DateTimeUtils
 import fr.plopez.go4lunch.utils.TestCoroutineRule
 import fr.plopez.go4lunch.view.main_activity.list_restaurants.ListRestaurantsViewModel
 import fr.plopez.go4lunch.view.model.RestaurantItemViewState
+import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -60,6 +63,9 @@ class ListRestaurantViewModelTest {
         private const val OPEN_AT = "open at "
         private const val OPEN_UNTIL = "open until "
 
+        private const val ONE_WORKMATE_HAS_JOINED = "1"
+        private const val NO_WORKMATE_HAS_JOINED = "0"
+
         private const val JOINED_DISTANCE_TO_USER = "$DEFAULT_DISTANCE_TO_USER m"
 
         private val FIRST_OPENING_HOUR = LocalTime.of(11,0)
@@ -85,6 +91,8 @@ class ListRestaurantViewModelTest {
     private val dateTimeUtilsMockk = mockk<DateTimeUtils>()
     private val contextMockK = mockk<Context>()
     private val nearbyConstantsMockK = mockk<NearbyConstants>()
+    private val firestoreRepositoryMockk = mockk<FirestoreRepository>()
+
 
     // Test variables
     private val defaultOpeningHour = LocalTime.of(11,30)
@@ -130,6 +138,21 @@ class ListRestaurantViewModelTest {
         // Nearby Constants Mockk
         every {nearbyConstantsMockK.key} returns NEARBY_KEY
         every {nearbyConstantsMockK.type} returns CommonsUtils.NEARBY_TYPE
+
+        // Mock firestore repository
+        coEvery {
+            firestoreRepositoryMockk.getWorkmatesWithSelectedRestaurants()
+        } returns flowOf(
+            listOf(
+                WorkmateWithSelectedRestaurant(
+                    workmateName = CommonsUtils.WORKMATE_NAME,
+                    workmateEmail = CommonsUtils.WORKMATE_EMAIL,
+                    workmatePhotoUrl = CommonsUtils.WORKMATE_PHOTO_URL,
+                    selectedRestaurantName = PLACE_NAME,
+                    selectedRestaurantId = PLACE_ID
+                )
+            )
+        )
     }
 
     @Test
@@ -142,6 +165,24 @@ class ListRestaurantViewModelTest {
             // Then
             assertEquals(getDefaultRestaurantItemViewStateList(), it)
         }
+    }
+
+    @Test
+    fun `no workmate has joined case`() = testCoroutineRule.runBlockingTest {
+        // Given
+        val listRestaurantsViewModel = getListRestaurantsViewModel()
+
+        coEvery {
+            firestoreRepositoryMockk.getWorkmatesWithSelectedRestaurants()
+        } returns flowOf(emptyList())
+
+        // When
+        val result = listRestaurantsViewModel.restaurantsItemsLiveData.getOrAwaitValue()
+
+        // Then
+        assertEquals(getDefaultRestaurantItemViewStateList(
+            numberOfInterestedWorkmates = NO_WORKMATE_HAS_JOINED
+        ), result)
     }
 
     @Test
@@ -221,7 +262,8 @@ class ListRestaurantViewModelTest {
         nearbyConstants = nearbyConstantsMockK,
         coroutinesProvider = coroutinesProviderMock,
         dateTimeUtils = dateTimeUtilsMockk,
-        context = contextMockK
+        context = contextMockK,
+        firestoreRepository = firestoreRepositoryMockk
     )
 
     private fun getDefaultRestaurantWithOpeningPeriodsList(
@@ -245,7 +287,7 @@ class ListRestaurantViewModelTest {
     private fun getDefaultRestaurantItemViewStateList(
         openingStateText: String = JOINED_FIRST_CLOSING_HOUR,
         distanceToUser: String = JOINED_DISTANCE_TO_USER,
-        workmates: String = "0",
+        numberOfInterestedWorkmates: String = ONE_WORKMATE_HAS_JOINED,
         photoUrl: String = PLACE_PHOTO_API_URL
     ) = listOf(
         RestaurantItemViewState(
@@ -253,7 +295,7 @@ class ListRestaurantViewModelTest {
             address = PLACE_ADDRESS,
             openingStateText = openingStateText,
             distanceToUser = distanceToUser,
-            numberOfInterestedWorkmates = workmates,
+            numberOfInterestedWorkmates = numberOfInterestedWorkmates,
             rate = PLACE_RATE.toFloat(),
             photoUrl = photoUrl,
             id = PLACE_ID

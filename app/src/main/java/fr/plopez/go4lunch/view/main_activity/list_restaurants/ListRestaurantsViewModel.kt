@@ -11,10 +11,12 @@ import fr.plopez.go4lunch.view.model.RestaurantItemViewState
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantOpeningPeriod
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantsQuery
 import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantWithOpeningPeriods
+import fr.plopez.go4lunch.data.repositories.FirestoreRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
 import fr.plopez.go4lunch.di.NearbyConstants
 import fr.plopez.go4lunch.utils.DateTimeUtils
+import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import java.time.LocalTime
@@ -29,6 +31,7 @@ class ListRestaurantsViewModel @Inject constructor(
     private val nearbyConstants: NearbyConstants,
     coroutinesProvider: CoroutinesProvider,
     private val dateTimeUtils: DateTimeUtils,
+    private val firestoreRepository: FirestoreRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -41,39 +44,48 @@ class ListRestaurantsViewModel @Inject constructor(
     init {
         restaurantsItemsLiveData = liveData(coroutinesProvider.ioCoroutineDispatcher) {
             // Update the restaurant list and expose the view State
-            restaurantsRepository.lastRequestTimeStampSharedFlow.collect {
-                emit(
-                    mapToViewState(
-                        restaurantsRepository.getRestaurantsWithOpeningPeriods(it),
-                        restaurantsRepository.getPositionForTimestamp(it)
-                    )
+            combine(
+                restaurantsRepository.lastRequestTimeStampSharedFlow,
+                firestoreRepository.getWorkmatesWithSelectedRestaurants()
+            ) { requestTimeStamp, workmatesWithSelectedRestaurantsList ->
+                mapToViewState(
+                    restaurantsRepository.getRestaurantsWithOpeningPeriods(requestTimeStamp),
+                    restaurantsRepository.getPositionForTimestamp(requestTimeStamp),
+                    workmatesWithSelectedRestaurantsList
                 )
+            }.collect {
+                emit(it)
             }
         }
     }
 
     private fun mapToViewState(
         restaurantsWithOpeningPeriods: List<RestaurantWithOpeningPeriods>,
-        restaurantsQuery: RestaurantsQuery
+        restaurantsQuery: RestaurantsQuery,
+        workmatesWithSelectedRestaurantsList: List<WorkmateWithSelectedRestaurant>
     ): List<RestaurantItemViewState> {
         if (restaurantsWithOpeningPeriods.isEmpty()) emptyList<RestaurantItemViewState>()
+        
+        return restaurantsWithOpeningPeriods.map {restaurantWithOpeningPeriod ->
 
-        return restaurantsWithOpeningPeriods.map {
-
+            val numberOfInterestedWorkmates = workmatesWithSelectedRestaurantsList.filter {
+                it.selectedRestaurantId == restaurantWithOpeningPeriod.restaurant.restaurantId
+            }.size.toString()
+            
             RestaurantItemViewState(
-                it.restaurant.name,
-                it.restaurant.address,
-                createOpeningStateText(it.openingHours),
-                getDistanceToUser(
-                    it.restaurant.latitude,
-                    it.restaurant.longitude,
+                name = restaurantWithOpeningPeriod.restaurant.name,
+                address = restaurantWithOpeningPeriod.restaurant.address,
+                openingStateText = createOpeningStateText(restaurantWithOpeningPeriod.openingHours),
+                distanceToUser = getDistanceToUser(
+                    restaurantWithOpeningPeriod.restaurant.latitude,
+                    restaurantWithOpeningPeriod.restaurant.longitude,
                     restaurantsQuery.latitude,
                     restaurantsQuery.longitude
                 ),
-                getInterestedWorkmates(it.restaurant.name),
-                it.restaurant.rate,
-                mapRestaurantPhotoUrl(it.restaurant.photoUrl),
-                it.restaurant.restaurantId
+                numberOfInterestedWorkmates = numberOfInterestedWorkmates,
+                rate = restaurantWithOpeningPeriod.restaurant.rate,
+                photoUrl = mapRestaurantPhotoUrl(restaurantWithOpeningPeriod.restaurant.photoUrl),
+                id = restaurantWithOpeningPeriod.restaurant.restaurantId
             )
         }
     }
@@ -81,7 +93,12 @@ class ListRestaurantsViewModel @Inject constructor(
     // Retrieve photo Url per restaurant
     private fun mapRestaurantPhotoUrl(photoReference: String?): String {
         return if (photoReference != null && photoReference != "") {
-            context.resources.getString(R.string.place_photo_api_url, MAX_WIDTH, photoReference, nearbyConstants.key)
+            context.resources.getString(
+                R.string.place_photo_api_url,
+                MAX_WIDTH,
+                photoReference,
+                nearbyConstants.key
+            )
         } else {
             ""
         }
