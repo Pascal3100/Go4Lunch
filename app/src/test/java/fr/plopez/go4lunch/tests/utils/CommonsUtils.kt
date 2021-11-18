@@ -34,7 +34,10 @@ object CommonsUtils {
 
     const val NEARBY_KEY = "NEARBY_KEY"
     const val NEARBY_TYPE = "NEARBY_TYPE"
-
+    const val MAX_WIDTH = "1080"
+    const val PLACE_PHOTO_API_URL =
+        "https://maps.googleapis.com/maps/api/place/photo?" +
+                "maxwidth=$MAX_WIDTH&photoreference=$PLACE_PHOTO_URL&key=$NEARBY_KEY"
 
     fun getDefaultRestaurantOpeningPeriodList(
         periodList: List<Period> = getDefaultPeriodList()

@@ -11,12 +11,14 @@ import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
 import fr.plopez.go4lunch.di.NearbyConstants
 import fr.plopez.go4lunch.tests.utils.CommonsUtils
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.MAX_WIDTH
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.NEARBY_KEY
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.NEARBY_TYPE
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_ADDRESS
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_ID
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_NAME
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_PHONE_NUMBER
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_PHOTO_API_URL
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_PHOTO_URL
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_RATE
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_WEBSITE
@@ -46,16 +48,10 @@ import org.junit.Test
 class RestaurantDetailsViewModelTest {
 
     companion object {
-        private const val MAX_WIDTH = "1080"
         private const val WORKMATE_HAS_JOINED = "$WORKMATE_NAME has joined!"
-        private const val PLACE_PHOTO_API_URL =
-            "https://maps.googleapis.com/maps/api/place/photo?" +
-            "maxwidth=$MAX_WIDTH&photoreference=$PLACE_PHOTO_URL&key=$NEARBY_KEY"
-        private const val WORKMATE_HAS_JOINED_STYLE =
-            R.style.workmateItemNormalBlackBoldTextAppearance
+        private const val WORKMATE_HAS_JOINED_STYLE = R.style.workmateItemNormalBlackBoldTextAppearance
         private const val OTHER_PLACE_ID = "OTHER_PLACE_ID"
         private const val OTHER_PLACE_NAME = "OTHER_PLACE_NAME"
-
     }
 
     // Rules

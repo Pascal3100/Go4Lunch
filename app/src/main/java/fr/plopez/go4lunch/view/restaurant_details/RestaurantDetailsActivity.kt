@@ -124,8 +124,8 @@ class RestaurantDetailsActivity : AppCompatActivity() {
 
         // listener for messages
         restaurantDetailsViewModel.firestoreStateLiveData.observe(this) {
-            when (it) {
-                is FirestoreFails -> CustomSnackBar.with(binding.root)
+            if (it is FirestoreFails) {
+                CustomSnackBar.with(binding.root)
                     .setMessage(getString(R.string.firestore_fails_message))
                     .setType(CustomSnackBar.Type.ERROR)
                     .build()

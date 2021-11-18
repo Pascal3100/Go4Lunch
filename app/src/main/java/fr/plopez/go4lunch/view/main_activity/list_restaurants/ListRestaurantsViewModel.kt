@@ -1,5 +1,6 @@
 package fr.plopez.go4lunch.view.main_activity.list_restaurants
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
 import androidx.lifecycle.*
@@ -21,6 +22,7 @@ import javax.inject.Inject
 import kotlin.math.round
 
 @ExperimentalCoroutinesApi
+@SuppressLint("StaticFieldLeak")
 @HiltViewModel
 class ListRestaurantsViewModel @Inject constructor(
     private val restaurantsRepository: RestaurantsRepository,
@@ -79,10 +81,7 @@ class ListRestaurantsViewModel @Inject constructor(
     // Retrieve photo Url per restaurant
     private fun mapRestaurantPhotoUrl(photoReference: String?): String {
         return if (photoReference != null && photoReference != "") {
-            context.resources.getString(R.string.place_photo_api_url) +
-                    "maxwidth=${MAX_WIDTH}&" +
-                    "photoreference=$photoReference&" +
-                    "key=${nearbyConstants.key}"
+            context.resources.getString(R.string.place_photo_api_url, MAX_WIDTH, photoReference, nearbyConstants.key)
         } else {
             ""
         }
@@ -109,7 +108,7 @@ class ListRestaurantsViewModel @Inject constructor(
 
         val userDistance = round(restaurantLocation.distanceTo(userLocation)).toInt()
 
-        return "${userDistance}${context.resources.getString(R.string.distance_unit)}"
+        return context.resources.getString(R.string.distance_unit, userDistance.toString())
     }
 
     // Build the restaurant opening hour string
@@ -152,10 +151,10 @@ class ListRestaurantsViewModel @Inject constructor(
 
             // before opening case
             if (currentTime.isBefore(opening)) {
-                "${context.resources.getString(R.string.open_at_text)}$opening"
+                context.resources.getString(R.string.open_at_text, opening)
                 // in opening period case
             } else if (currentTime.isAfter(opening) && currentTime.isBefore(closing)) {
-                "${context.resources.getString(R.string.open_until_text)}$closing"
+                context.resources.getString(R.string.open_until_text, closing)
             } else null
         }.first()
     }

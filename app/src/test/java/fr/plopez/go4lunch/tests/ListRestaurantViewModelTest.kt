@@ -10,11 +10,15 @@ import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantWith
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
 import fr.plopez.go4lunch.di.NearbyConstants
+import fr.plopez.go4lunch.tests.utils.CommonsUtils
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_ADDRESS
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.LATITUDE
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.LONGITUDE
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.MAX_WIDTH
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.NEARBY_KEY
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_NAME
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_ID
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_PHOTO_API_URL
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_PHOTO_URL
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.QUERY_TIME_STAMP
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_RATE
@@ -40,17 +44,32 @@ import java.time.LocalTime
 class ListRestaurantViewModelTest {
 
     companion object {
-        private const val DEFAULT_OPENING_STATE_TEXT = "open until 14:00"
-
         // No matter what, distance to user will always be 0 in unit tests because using Location.distanceTo
         // more info at https://stackoverflow.com/questions/45660282/call-to-android-api-always-returns-0-in-a-unit-test/45665776
-        private const val DEFAULT_DISTANCE_TO_USER = "0 m"
+        private const val DEFAULT_DISTANCE_TO_USER = "0"
 
         // Here day is in Calendar Format so Sunday = 1 -> Saturday = 7
         // correspond to Wednesday
         private const val DEFAULT_DAY = 4
         // correspond to Monday
         private const val CLOSED_DAY = 2
+
+        private const val CLOSED_TODAY = "closed today"
+        private const val NO_OPENING_HOURS = "no opening hours available"
+        private const val CLOSED = "closed"
+        private const val OPEN_AT = "open at "
+        private const val OPEN_UNTIL = "open until "
+
+        private const val JOINED_DISTANCE_TO_USER = "$DEFAULT_DISTANCE_TO_USER m"
+
+        private val FIRST_OPENING_HOUR = LocalTime.of(11,0)
+        private val SECOND_OPENING_HOUR = LocalTime.of(18,0)
+        private val FIRST_CLOSING_HOUR = LocalTime.of(14,0)
+        private val SECOND_CLOSING_HOUR = LocalTime.of(22,30)
+        private val JOINED_FIRST_OPENING_HOUR = OPEN_AT+FIRST_OPENING_HOUR
+        private val JOINED_SECOND_OPENING_HOUR = OPEN_AT+SECOND_OPENING_HOUR
+        private val JOINED_FIRST_CLOSING_HOUR = OPEN_UNTIL+FIRST_CLOSING_HOUR
+        private val JOINED_SECOND_CLOSING_HOUR = OPEN_UNTIL+SECOND_CLOSING_HOUR
     }
 
     // Rules
@@ -65,10 +84,9 @@ class ListRestaurantViewModelTest {
     private val restaurantsRepositoryMockK = mockk<RestaurantsRepository>()
     private val dateTimeUtilsMockk = mockk<DateTimeUtils>()
     private val contextMockK = mockk<Context>()
+    private val nearbyConstantsMockK = mockk<NearbyConstants>()
 
     // Test variables
-    private val nearbyConstants = NearbyConstants()
-
     private val defaultOpeningHour = LocalTime.of(11,30)
     private val firstClosedHour = LocalTime.of(9,30)
     private val intermediateClosedHour = LocalTime.of(16,30)
@@ -93,32 +111,31 @@ class ListRestaurantViewModelTest {
 
         every { dateTimeUtilsMockk.getCurrentTime() } returns defaultOpeningHour
 
-        every { contextMockK.resources.getString(R.string.place_photo_api_url) } returns
-                "https://maps.googleapis.com/maps/api/place/photo?"
-        every { contextMockK.resources.getString(R.string.no_available_hours) } returns
-                "no opening hours available"
-        every { contextMockK.resources.getString(R.string.closed_today_text) } returns
-                "closed today"
-        every { contextMockK.resources.getString(R.string.closed_text) } returns
-                "closed"
-        every { contextMockK.resources.getString(R.string.open_at_text) } returns
-                "open at "
-        every { contextMockK.resources.getString(R.string.open_until_text) } returns
-                "open until "
-        every { contextMockK.resources.getString(R.string.distance_unit) } returns
-                " m"
+        every {
+            contextMockK.resources.getString(R.string.place_photo_api_url,
+                MAX_WIDTH, PLACE_PHOTO_URL, NEARBY_KEY)
+        } returns PLACE_PHOTO_API_URL
+
+        every { contextMockK.resources.getString(R.string.no_available_hours) } returns NO_OPENING_HOURS
+        every { contextMockK.resources.getString(R.string.closed_today_text) } returns CLOSED_TODAY
+        every { contextMockK.resources.getString(R.string.closed_text) } returns CLOSED
+
+        every { contextMockK.resources.getString(R.string.open_at_text, FIRST_OPENING_HOUR) } returns JOINED_FIRST_OPENING_HOUR
+        every { contextMockK.resources.getString(R.string.open_at_text, SECOND_OPENING_HOUR) } returns JOINED_SECOND_OPENING_HOUR
+        every { contextMockK.resources.getString(R.string.open_until_text, FIRST_CLOSING_HOUR) } returns JOINED_FIRST_CLOSING_HOUR
+        every { contextMockK.resources.getString(R.string.open_until_text, SECOND_CLOSING_HOUR) } returns JOINED_SECOND_CLOSING_HOUR
+
+        every { contextMockK.resources.getString(R.string.distance_unit, DEFAULT_DISTANCE_TO_USER) } returns JOINED_DISTANCE_TO_USER
+
+        // Nearby Constants Mockk
+        every {nearbyConstantsMockK.key} returns NEARBY_KEY
+        every {nearbyConstantsMockK.type} returns CommonsUtils.NEARBY_TYPE
     }
 
     @Test
     fun `nominal case`() = testCoroutineRule.runBlockingTest {
         // Given
-        val listRestaurantsViewModel = ListRestaurantsViewModel(
-            restaurantsRepository = restaurantsRepositoryMockK,
-            nearbyConstants = nearbyConstants,
-            coroutinesProvider = coroutinesProviderMock,
-            dateTimeUtils = dateTimeUtilsMockk,
-            context = contextMockK
-        )
+        val listRestaurantsViewModel = getListRestaurantsViewModel()
 
         // When
         listRestaurantsViewModel.restaurantsItemsLiveData.observeForever {
@@ -130,13 +147,7 @@ class ListRestaurantViewModelTest {
     @Test
     fun `current day not in openings days case`() = testCoroutineRule.runBlockingTest {
         // Given
-        val listRestaurantsViewModel = ListRestaurantsViewModel(
-            restaurantsRepository = restaurantsRepositoryMockK,
-            nearbyConstants = nearbyConstants,
-            coroutinesProvider = coroutinesProviderMock,
-            dateTimeUtils = dateTimeUtilsMockk,
-            context = contextMockK
-        )
+        val listRestaurantsViewModel = getListRestaurantsViewModel()
         every { dateTimeUtilsMockk.getCurrentDay() } returns CLOSED_DAY
 
         // When
@@ -149,13 +160,7 @@ class ListRestaurantViewModelTest {
     @Test
     fun `current hour is before first opening hour case`() = testCoroutineRule.runBlockingTest {
         // Given
-        val listRestaurantsViewModel = ListRestaurantsViewModel(
-            restaurantsRepository = restaurantsRepositoryMockK,
-            nearbyConstants = nearbyConstants,
-            coroutinesProvider = coroutinesProviderMock,
-            dateTimeUtils = dateTimeUtilsMockk,
-            context = contextMockK
-        )
+        val listRestaurantsViewModel = getListRestaurantsViewModel()
         every { dateTimeUtilsMockk.getCurrentTime() } returns firstClosedHour
 
         // When
@@ -168,13 +173,8 @@ class ListRestaurantViewModelTest {
     @Test
     fun `current hour is between first and second opening period case`() = testCoroutineRule.runBlockingTest {
         // Given
-        val listRestaurantsViewModel = ListRestaurantsViewModel(
-            restaurantsRepository = restaurantsRepositoryMockK,
-            nearbyConstants = nearbyConstants,
-            coroutinesProvider = coroutinesProviderMock,
-            dateTimeUtils = dateTimeUtilsMockk,
-            context = contextMockK
-        )
+        val listRestaurantsViewModel = getListRestaurantsViewModel()
+
         every { dateTimeUtilsMockk.getCurrentTime() } returns intermediateClosedHour
 
         // When
@@ -187,13 +187,8 @@ class ListRestaurantViewModelTest {
     @Test
     fun `current hour is after last closing hour case`() = testCoroutineRule.runBlockingTest {
         // Given
-        val listRestaurantsViewModel = ListRestaurantsViewModel(
-            restaurantsRepository = restaurantsRepositoryMockK,
-            nearbyConstants = nearbyConstants,
-            coroutinesProvider = coroutinesProviderMock,
-            dateTimeUtils = dateTimeUtilsMockk,
-            context = contextMockK
-        )
+        val listRestaurantsViewModel = getListRestaurantsViewModel()
+
         every { dateTimeUtilsMockk.getCurrentTime() } returns lastClosedHour
 
         // When
@@ -206,13 +201,8 @@ class ListRestaurantViewModelTest {
     @Test
     fun `no periods available case`() = testCoroutineRule.runBlockingTest {
         // Given
-        val listRestaurantsViewModel = ListRestaurantsViewModel(
-            restaurantsRepository = restaurantsRepositoryMockK,
-            nearbyConstants = nearbyConstants,
-            coroutinesProvider = coroutinesProviderMock,
-            dateTimeUtils = dateTimeUtilsMockk,
-            context = contextMockK
-        )
+        val listRestaurantsViewModel = getListRestaurantsViewModel()
+
         coEvery { restaurantsRepositoryMockK.getRestaurantsWithOpeningPeriods(QUERY_TIME_STAMP) } returns
                 getDefaultRestaurantWithOpeningPeriodsList(restaurantOpeningPeriodList = emptyList())
 
@@ -224,6 +214,15 @@ class ListRestaurantViewModelTest {
     }
 
     // region in
+
+
+    private fun getListRestaurantsViewModel() = ListRestaurantsViewModel(
+        restaurantsRepository = restaurantsRepositoryMockK,
+        nearbyConstants = nearbyConstantsMockK,
+        coroutinesProvider = coroutinesProviderMock,
+        dateTimeUtils = dateTimeUtilsMockk,
+        context = contextMockK
+    )
 
     private fun getDefaultRestaurantWithOpeningPeriodsList(
         restaurantEntity: RestaurantEntity = getDefaultRestaurantEntityList().first(),
@@ -244,10 +243,10 @@ class ListRestaurantViewModelTest {
         )
 
     private fun getDefaultRestaurantItemViewStateList(
-        openingStateText: String = getDefaultOpeningStateText(),
-        distanceToUser: String = getDefaultDistanceToUser(),
-        workmates: String = getDefaultWorkmates(),
-        photoUrl: String = PLACE_PHOTO_URL
+        openingStateText: String = JOINED_FIRST_CLOSING_HOUR,
+        distanceToUser: String = JOINED_DISTANCE_TO_USER,
+        workmates: String = "0",
+        photoUrl: String = PLACE_PHOTO_API_URL
     ) = listOf(
         RestaurantItemViewState(
             name = PLACE_NAME,
@@ -260,10 +259,6 @@ class ListRestaurantViewModelTest {
             id = PLACE_ID
         )
     )
-
-    private fun getDefaultOpeningStateText() = DEFAULT_OPENING_STATE_TEXT
-    private fun getDefaultDistanceToUser() = DEFAULT_DISTANCE_TO_USER
-    private fun getDefaultWorkmates() = "0"
 
     // endregion
 
