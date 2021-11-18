@@ -30,6 +30,7 @@ class FirestoreRepository @Inject constructor(
         private const val DATES_COLLECTION = "dates"
         private const val INTERESTED_WORKMATES_COLLECTION = "interested_workmates"
         private const val EMAIL_NAME_PATTERN = "(.*)@.*"
+        private const val ID_FIELD = "id"
     }
 
     suspend fun addOrUpdateUserOnLogin() =
@@ -95,7 +96,7 @@ class FirestoreRepository @Inject constructor(
 
                 if (snapshot != null) {
                     val likedRestaurantsList = snapshot.mapNotNull {
-                        it.getString("id")
+                        it.getString(ID_FIELD)
                     }
 
                     trySend(likedRestaurantsList)
@@ -116,7 +117,7 @@ class FirestoreRepository @Inject constructor(
                     .document(placeId)
                     .set(
                         hashMapOf(
-                            "id" to placeId
+                            ID_FIELD to placeId
                         )
                     )
                     .addOnSuccessListener {

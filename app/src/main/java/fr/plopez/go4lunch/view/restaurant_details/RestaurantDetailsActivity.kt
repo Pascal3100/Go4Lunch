@@ -15,6 +15,7 @@ import fr.plopez.go4lunch.databinding.ActivityRestaurantDetailsBinding
 import fr.plopez.go4lunch.utils.CustomSnackBar
 import fr.plopez.go4lunch.view.restaurant_details.RestaurantDetailsViewModel.RestaurantDetailsViewAction.FirestoreFails
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import java.lang.Exception
 
 @AndroidEntryPoint
 @ExperimentalCoroutinesApi
@@ -24,8 +25,6 @@ class RestaurantDetailsActivity : AppCompatActivity() {
         fun navigate(activity: FragmentActivity): Intent {
             return Intent(activity, RestaurantDetailsActivity::class.java)
         }
-
-        private const val PLACE_ID = "PLACE_ID"
     }
 
     private lateinit var binding: ActivityRestaurantDetailsBinding
@@ -41,10 +40,6 @@ class RestaurantDetailsActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setSupportActionBar(binding.restaurantDetailsActivityToolbar)
-
-        val placeId = intent.extras?.getString(PLACE_ID) ?: ""
-
-        restaurantDetailsViewModel.onPlaceIdRequest(placeId)
 
         val adapter = RestaurantDetailsAdapter(this)
 
@@ -76,10 +71,17 @@ class RestaurantDetailsActivity : AppCompatActivity() {
 
             // listener for call button
             binding.phoneButton.setOnClickListener {
-                Log.d("TAG", "phoneButton")
-                val dialIntent = Intent(Intent.ACTION_DIAL)
-                dialIntent.data = Uri.parse("tel:" + restaurantDetailsViewState.phoneNumber)
-                startActivity(dialIntent)
+                try {
+                    val dialIntent = Intent(Intent.ACTION_DIAL)
+                    dialIntent.data = Uri.parse("tel:" + restaurantDetailsViewState.phoneNumber)
+                    startActivity(dialIntent)
+                } catch(e:Exception) {
+                    CustomSnackBar.with(binding.root)
+                        .setMessage(getString(R.string.dial_error))
+                        .setType(CustomSnackBar.Type.WARNING)
+                        .build()
+                        .show()
+                }
             }
 
             // modifier for like button

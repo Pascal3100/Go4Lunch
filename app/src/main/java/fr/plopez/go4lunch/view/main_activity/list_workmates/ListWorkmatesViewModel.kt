@@ -1,5 +1,6 @@
 package fr.plopez.go4lunch.view.main_activity.list_workmates
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 
+@SuppressLint("StaticFieldLeak")
 @HiltViewModel
 @ExperimentalCoroutinesApi
 class ListWorkmatesViewModel @Inject constructor(

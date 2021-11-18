@@ -10,14 +10,14 @@ import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantWith
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
 import fr.plopez.go4lunch.di.NearbyConstants
-import fr.plopez.go4lunch.tests.utils.CommonsUtils.ADDRESS
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_ADDRESS
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.LATITUDE
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.LONGITUDE
-import fr.plopez.go4lunch.tests.utils.CommonsUtils.NAME
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_NAME
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_ID
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_PHOTO_URL
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.QUERY_TIME_STAMP
-import fr.plopez.go4lunch.tests.utils.CommonsUtils.RATE
-import fr.plopez.go4lunch.tests.utils.CommonsUtils.getDefaultPhotoUrl
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_RATE
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.getDefaultRestaurantEntityList
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.getDefaultRestaurantOpeningPeriodList
 import fr.plopez.go4lunch.tests.utils.LiveDataUtils.getOrAwaitValue
@@ -247,23 +247,22 @@ class ListRestaurantViewModelTest {
         openingStateText: String = getDefaultOpeningStateText(),
         distanceToUser: String = getDefaultDistanceToUser(),
         workmates: String = getDefaultWorkmates(),
-        photoUrl: String = getDefaultPhotoUrl()
+        photoUrl: String = PLACE_PHOTO_URL
     ) = listOf(
         RestaurantItemViewState(
-            NAME,
-            ADDRESS,
-            openingStateText,
-            distanceToUser,
-            workmates,
-            RATE.toFloat(),
-            photoUrl,
-            PLACE_ID
+            name = PLACE_NAME,
+            address = PLACE_ADDRESS,
+            openingStateText = openingStateText,
+            distanceToUser = distanceToUser,
+            numberOfInterestedWorkmates = workmates,
+            rate = PLACE_RATE.toFloat(),
+            photoUrl = photoUrl,
+            id = PLACE_ID
         )
     )
 
     private fun getDefaultOpeningStateText() = DEFAULT_OPENING_STATE_TEXT
     private fun getDefaultDistanceToUser() = DEFAULT_DISTANCE_TO_USER
-    // TODO NOT FINISHED
     private fun getDefaultWorkmates() = "0"
 
     // endregion

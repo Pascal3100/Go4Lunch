@@ -14,13 +14,17 @@ object CommonsUtils {
     const val ZOOM = "15.0"
     const val RADIUS = "1000"
 
+    const val WORKMATE_NAME = "WORKMATE_NAME"
+    const val WORKMATE_EMAIL = "WORKMATE_ADDRESS"
+    const val WORKMATE_PHOTO_URL = "WORKMATE_PHOTO_URL"
+
     const val PLACE_ID = "PLACE_ID"
-    const val NAME = "NAME"
-    const val ADDRESS = "ADDRESS"
-    const val PHOTO_URL = "PHOTO_URL"
-    const val RATE = "5.0"
-    const val PHONE_NUMBER = "+33 0 00 00 00 00"
-    const val WEBSITE = "www.no-web-site.com"
+    const val PLACE_NAME = "PLACE_NAME"
+    const val PLACE_ADDRESS = "PLACE_ADDRESS"
+    const val PLACE_PHOTO_URL = "PLACE_PHOTO_URL"
+    const val PLACE_RATE = "5.0"
+    const val PLACE_PHONE_NUMBER = "+33 0 00 00 00 00"
+    const val PLACE_WEBSITE = "www.no-web-site.com"
 
     const val QUERY_TIME_STAMP = 66666666L
     const val LOCATION = "$LATITUDE,$LONGITUDE"
@@ -28,10 +32,9 @@ object CommonsUtils {
     const val PERIODS_SEARCH_FIELD = "opening_hours,international_phone_number,website"
     const val ERROR_CODE = 404
 
-    const val PHOTO_MAX_WIDTH = "1080"
-    const val GOOGLE_PHOTOS_API_URL = "https://maps.googleapis.com/maps/api/place/photo?"
+    const val NEARBY_KEY = "NEARBY_KEY"
+    const val NEARBY_TYPE = "NEARBY_TYPE"
 
-    private val nearbyConstants = NearbyConstants()
 
     fun getDefaultRestaurantOpeningPeriodList(
         periodList: List<Period> = getDefaultPeriodList()
@@ -80,21 +83,14 @@ object CommonsUtils {
     fun getDefaultRestaurantEntityList() = listOf(
         RestaurantEntity(
             restaurantId = PLACE_ID,
-            name = NAME,
-            address = ADDRESS,
+            name = PLACE_NAME,
+            address = PLACE_ADDRESS,
             latitude = LATITUDE.toDouble(),
             longitude = LONGITUDE.toDouble(),
-            photoUrl = PHOTO_URL,
-            rate = RATE.toFloat(),
-            phoneNumber = PHONE_NUMBER,
-            website = WEBSITE
+            photoUrl = PLACE_PHOTO_URL,
+            rate = PLACE_RATE.toFloat(),
+            phoneNumber = PLACE_PHONE_NUMBER,
+            website = PLACE_WEBSITE
         )
     )
-
-    fun getDefaultPhotoUrl(
-        photoUrl: String = PHOTO_URL
-    )= GOOGLE_PHOTOS_API_URL+
-            "maxwidth=${PHOTO_MAX_WIDTH}&" +
-            "photoreference=$photoUrl&" +
-            "key=${nearbyConstants.key}"
 }

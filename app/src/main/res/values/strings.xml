@@ -54,9 +54,12 @@
     <string name="distance_unit"> m</string>
     <string name="closed_text">closed</string>
     <string name="open_at_text">open at </string>
-    <string name="open_until_text">"open until </string>
+    <string name="open_until_text">open until </string>
     <string name="closed_today_text">closed today</string>
-    <string name="place_photo_api_url">https://maps.googleapis.com/maps/api/place/photo?</string>
+
+    <string name="place_photo_api_url">https://maps.googleapis.com/maps/api/place/photo?
+        maxwidth=%s&amp;photoreference=%s&amp;key=%s</string>
+
     <string name="no_available_hours">no opening hours available</string>
     <string name="landing_page_create_account_button_text">create new account</string>
     <string name="email_bad_format_message">email must have xxx@yyy.zz format</string>
@@ -67,9 +70,10 @@
     <string name="password_too_weak">password too weak</string>
     <string name="invalid_email">invalid email</string>
     <string name="invalid_password">invalid password</string>
-    <string name="workmate_has_decided">"%s is eating at %s"</string>
-    <string name="workmate_has_not_decided">"%s has not decided yet."</string>
+    <string name="workmate_has_decided">%s is eating at %s</string>
+    <string name="workmate_has_not_decided">%s has not decided yet.</string>
     <string name="firestore_fails_message">Problem with network, please try again</string>
     <string name="joined_workmate_message">%s has joined!</string>
+    <string name="dial_error">No phone number available</string>
 
 </resources>

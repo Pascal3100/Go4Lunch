@@ -2,6 +2,7 @@ package fr.plopez.go4lunch.view.main_activity.google_maps
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.lifecycle.*
@@ -64,7 +65,7 @@ class GoogleMapsViewModel @Inject constructor(
 
             liveData(coroutinesProvider.ioCoroutineDispatcher) {
                 locationRepository.fetchUpdates()
-                    .transformLatest<PositionWithZoom, PositionWithZoomAndResponseStatus> { positionWithZoom ->
+                    .transformLatest { positionWithZoom ->
                         // Send a retrofit request to fetch restaurants around received position
                         // the flow will be collected only if the response is different from previous ones
                         restaurantsRepository.getRestaurantsAroundPosition(
@@ -80,7 +81,8 @@ class GoogleMapsViewModel @Inject constructor(
                             )
                         }
                     }
-                    .combine(firestoreRepository.getWorkmatesWithSelectedRestaurants()) { positionWithZoomAndResponseStatus, workmatesWithSelectedRestaurants ->
+                    .combine(firestoreRepository.getWorkmatesWithSelectedRestaurants()) {
+                            positionWithZoomAndResponseStatus, workmatesWithSelectedRestaurants ->
                         Pair(positionWithZoomAndResponseStatus, workmatesWithSelectedRestaurants)
                     }.collect {
                         val positionWithZoom = it.first.positionWithZoom
@@ -180,6 +182,8 @@ class GoogleMapsViewModel @Inject constructor(
         zoom = positionWithZoom.zoom,
         restaurantList = listRestaurants.map { restaurantEntity ->
             val isSelectedRestaurant = workmatesWithSelectedRestaurants.any {
+                Log.d("TAG", "#### restaurantEntity.restaurantId = ${restaurantEntity.restaurantId}")
+                Log.d("TAG", "#### it.selectedRestaurantId = ${it.selectedRestaurantId}")
                 restaurantEntity.restaurantId in it.selectedRestaurantId
             }
             RestaurantViewState(

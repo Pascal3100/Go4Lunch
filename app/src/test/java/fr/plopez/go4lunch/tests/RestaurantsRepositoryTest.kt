@@ -16,10 +16,10 @@ import fr.plopez.go4lunch.tests.utils.CommonsUtils.LOCATION
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.LONGITUDE
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.MAX_DISPLACEMENT_TOL
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PERIODS_SEARCH_FIELD
-import fr.plopez.go4lunch.tests.utils.CommonsUtils.PHONE_NUMBER
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_PHONE_NUMBER
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.QUERY_TIME_STAMP
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.RADIUS
-import fr.plopez.go4lunch.tests.utils.CommonsUtils.WEBSITE
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_WEBSITE
 import fr.plopez.go4lunch.utils.TestCoroutineRule
 import io.mockk.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -78,8 +78,8 @@ class RestaurantsRepositoryTest {
                         periods = CommonsUtils.getDefaultPeriodList(),
                         weekday_text = listOf("")
                     ),
-                    phone_number = PHONE_NUMBER,
-                    website = WEBSITE
+                    phone_number = PLACE_PHONE_NUMBER,
+                    website = PLACE_WEBSITE
                 ),
                 status = ""
             )
@@ -368,8 +368,8 @@ class RestaurantsRepositoryTest {
                             periods = emptyList(),
                             weekday_text = listOf("")
                         ),
-                        phone_number = PHONE_NUMBER,
-                        website = WEBSITE
+                        phone_number = PLACE_PHONE_NUMBER,
+                        website = PLACE_WEBSITE
 
                     ),
                     status = ""
@@ -486,8 +486,8 @@ class RestaurantsRepositoryTest {
                 longitude = restaurantQueryResponseItem.geometry!!.location!!.lng!!,
                 photoUrl = restaurantQueryResponseItem.photos?.firstOrNull()?.photoReference,
                 rate = round((restaurantQueryResponseItem.rating!!.toFloat() * 3.0f) / 5.0f),
-                phoneNumber = PHONE_NUMBER,
-                website = WEBSITE
+                phoneNumber = PLACE_PHONE_NUMBER,
+                website = PLACE_WEBSITE
             )
         )
     }
