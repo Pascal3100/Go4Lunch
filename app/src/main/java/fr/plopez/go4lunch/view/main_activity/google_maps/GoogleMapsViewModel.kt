@@ -182,8 +182,6 @@ class GoogleMapsViewModel @Inject constructor(
         zoom = positionWithZoom.zoom,
         restaurantList = listRestaurants.map { restaurantEntity ->
             val isSelectedRestaurant = workmatesWithSelectedRestaurants.any {
-                Log.d("TAG", "#### restaurantEntity.restaurantId = ${restaurantEntity.restaurantId}")
-                Log.d("TAG", "#### it.selectedRestaurantId = ${it.selectedRestaurantId}")
                 restaurantEntity.restaurantId in it.selectedRestaurantId
             }
             RestaurantViewState(

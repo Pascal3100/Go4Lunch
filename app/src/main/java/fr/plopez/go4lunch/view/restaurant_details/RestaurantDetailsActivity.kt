@@ -100,7 +100,6 @@ class RestaurantDetailsActivity : AppCompatActivity() {
 
             // listener for website button
             binding.websiteButton.setOnClickListener {
-                Log.d("TAG", "websiteButton")
                 val websiteIntent = Intent(Intent.ACTION_VIEW)
                 websiteIntent.data = Uri.parse(restaurantDetailsViewState.website)
                 startActivity(websiteIntent)

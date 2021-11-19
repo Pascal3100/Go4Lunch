@@ -111,7 +111,6 @@ class LoginFragment : Fragment() {
         // Manage login with email display
         button.setOnClickListener {
             // Transition to show login with email stuff when button clicked
-            Log.d(TAG, "onViewCreated: pass")
             TransitionManager.beginDelayedTransition(layout)
             // Clears the selection button
             it.isVisible = false

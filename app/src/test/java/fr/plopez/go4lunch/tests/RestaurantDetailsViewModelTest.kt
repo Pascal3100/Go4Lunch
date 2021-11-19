@@ -4,8 +4,9 @@ import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
-import com.google.firebase.auth.FirebaseAuth
 import fr.plopez.go4lunch.R
+import fr.plopez.go4lunch.data.model.restaurant.User
+import fr.plopez.go4lunch.data.model.restaurant.Workmate
 import fr.plopez.go4lunch.data.repositories.FirestoreRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
@@ -26,6 +27,7 @@ import fr.plopez.go4lunch.tests.utils.CommonsUtils.WORKMATE_EMAIL
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.WORKMATE_NAME
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.WORKMATE_PHOTO_URL
 import fr.plopez.go4lunch.tests.utils.LiveDataUtils.getOrAwaitValue
+import fr.plopez.go4lunch.utils.FirebaseAuthUtils
 import fr.plopez.go4lunch.utils.TestCoroutineRule
 import fr.plopez.go4lunch.view.model.RestaurantDetailsViewState
 import fr.plopez.go4lunch.view.model.WorkmateViewState
@@ -34,7 +36,6 @@ import fr.plopez.go4lunch.view.restaurant_details.RestaurantDetailsViewModel
 import fr.plopez.go4lunch.view.restaurant_details.RestaurantDetailsViewModel.RestaurantDetailsViewAction.FirestoreFails
 import fr.plopez.go4lunch.view.restaurant_details.RestaurantDetailsViewModel.RestaurantDetailsViewAction.FirestoreWorks
 import io.mockk.coEvery
-import io.mockk.coJustRun
 import io.mockk.every
 import io.mockk.mockk
 import junit.framework.Assert.assertEquals
@@ -65,7 +66,7 @@ class RestaurantDetailsViewModelTest {
     private val coroutinesProviderMock = mockk<CoroutinesProvider>()
     private val restaurantsRepositoryMockK = mockk<RestaurantsRepository>()
     private val firestoreRepositoryMockk = mockk<FirestoreRepository>()
-    private val firebaseAuthMockk = mockk<FirebaseAuth>()
+    private val firebaseAuthUtilsMockk = mockk<FirebaseAuthUtils>()
     private val contextMockK = mockk<Context>()
     private val nearbyConstantsMockK = mockk<NearbyConstants>()
     private val stateMockk = mockk<SavedStateHandle>(relaxed = true)
@@ -131,7 +132,16 @@ class RestaurantDetailsViewModelTest {
         } returns CommonsUtils.getDefaultRestaurantEntityList().first()
 
         // Firebase Auth Mock
-        coEvery { firebaseAuthMockk.currentUser?.email } returns WORKMATE_EMAIL
+        coEvery { firebaseAuthUtilsMockk.getUser() } returns User(
+            name = WORKMATE_NAME,
+            email = WORKMATE_EMAIL,
+            photoUrl = WORKMATE_PHOTO_URL
+        )
+        coEvery { firebaseAuthUtilsMockk.getWorkmate() } returns Workmate(
+            name = WORKMATE_NAME,
+            email = WORKMATE_EMAIL,
+            photoUrl = WORKMATE_PHOTO_URL
+        )
 
         // Context Mock
         every {
@@ -170,7 +180,8 @@ class RestaurantDetailsViewModelTest {
     }
 
     @Test
-    fun `restaurant not liked because not this restaurant id in list case`() = testCoroutineRule.runBlockingTest {
+    fun `restaurant not liked because not this restaurant id in list case`() =
+        testCoroutineRule.runBlockingTest {
         // Given
         val restaurantDetailsViewModel = getRestaurantDetailsViewModel()
 
@@ -379,7 +390,7 @@ class RestaurantDetailsViewModelTest {
     private fun getRestaurantDetailsViewModel() = RestaurantDetailsViewModel(
         restaurantsRepository = restaurantsRepositoryMockK,
         firestoreRepository = firestoreRepositoryMockk,
-        firebaseAuth = firebaseAuthMockk,
+        firebaseAuthUtils = firebaseAuthUtilsMockk,
         coroutinesProvider = coroutinesProviderMock,
         nearbyConstants = nearbyConstantsMockK,
         state = stateMockk,

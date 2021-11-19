@@ -1,11 +1,11 @@
 package fr.plopez.go4lunch.data.repositories
 
-import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import fr.plopez.go4lunch.data.model.restaurant.Workmate
 import fr.plopez.go4lunch.utils.DateTimeUtils
+import fr.plopez.go4lunch.utils.FirebaseAuthUtils
 import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
@@ -20,31 +20,24 @@ import javax.inject.Singleton
 class FirestoreRepository @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val restaurantsRepository: RestaurantsRepository,
-    private val firebaseAuth: FirebaseAuth,
+    private val firebaseAuthUtils: FirebaseAuthUtils,
     private val dateTimeUtils: DateTimeUtils,
 ) {
-
     companion object {
         private const val WORKMATES_COLLECTION = "workmates"
         private const val LIKED_RESTAURANTS_COLLECTION = "liked_restaurants"
         private const val DATES_COLLECTION = "dates"
         private const val INTERESTED_WORKMATES_COLLECTION = "interested_workmates"
-        private const val EMAIL_NAME_PATTERN = "(.*)@.*"
         private const val ID_FIELD = "id"
     }
 
+    private val user = firebaseAuthUtils.getUser()
+
     suspend fun addOrUpdateUserOnLogin() =
         suspendCancellableCoroutine<Boolean> { continuation ->
-            // _!! allowed because if an error occurs it will be managed in addOnFailureListener
-            val user = firebaseAuth.currentUser!!
             firestore.collection(WORKMATES_COLLECTION)
-                .document(user.email.toString())
-                .set(
-                    Workmate(
-                        name = user.displayName,
-                        email = user.email.toString(),
-                        photoUrl = user.photoUrl?.toString()
-                    ), SetOptions.merge()
+                .document(user.email)
+                .set(user, SetOptions.merge()
                 )
                 .addOnSuccessListener {
                     continuation.resume(value = true, onCancellation = null)
@@ -65,12 +58,9 @@ class FirestoreRepository @Inject constructor(
 
             if (snapshot != null) {
                 val updatedWorkmatesList = snapshot.mapNotNull {
-                    Workmate(
-                        name = it.getString("name")
-                            ?: Regex(EMAIL_NAME_PATTERN).find(it.getString("email")!!)?.groupValues?.get(
-                                1
-                            ),
-                        email = it.getString("email")!!,
+                    firebaseAuthUtils.getWorkmate(
+                        displayName = it.getString("name"),
+                        email = it.getString("email"),
                         photoUrl = it.getString("photoUrl")
                     )
                 }
@@ -82,10 +72,9 @@ class FirestoreRepository @Inject constructor(
 
     // Returns the ids of all liked restaurants by the current user
     fun getLikedRestaurants(): Flow<List<String>> = callbackFlow {
-        val workmateId = firebaseAuth.currentUser?.email
         val likedRestaurantsCollection = firestore
             .collection(WORKMATES_COLLECTION)
-            .document(workmateId!!)
+            .document(user.email)
             .collection(LIKED_RESTAURANTS_COLLECTION)
 
         val likedRestaurantsListener =
@@ -98,7 +87,6 @@ class FirestoreRepository @Inject constructor(
                     val likedRestaurantsList = snapshot.mapNotNull {
                         it.getString(ID_FIELD)
                     }
-
                     trySend(likedRestaurantsList)
                 }
             }
@@ -109,10 +97,9 @@ class FirestoreRepository @Inject constructor(
     // Manage the liked status of the restaurant
     suspend fun addOrSuppressLikedRestaurant(placeId: String, likeState: Boolean) =
         suspendCancellableCoroutine<Boolean> { continuation ->
-            val user = firebaseAuth.currentUser!!
             if (!likeState) {
                 firestore.collection(WORKMATES_COLLECTION)
-                    .document(user.email.toString())
+                    .document(user.email)
                     .collection(LIKED_RESTAURANTS_COLLECTION)
                     .document(placeId)
                     .set(
@@ -128,7 +115,7 @@ class FirestoreRepository @Inject constructor(
                     }
             } else {
                 firestore.collection(WORKMATES_COLLECTION)
-                    .document(user.email.toString())
+                    .document(user.email)
                     .collection(LIKED_RESTAURANTS_COLLECTION)
                     .document(placeId)
                     .delete()
@@ -146,10 +133,7 @@ class FirestoreRepository @Inject constructor(
         placeId: String,
         selectedState: Boolean
     ): Boolean {
-
         val restaurantData = restaurantsRepository.getRestaurantFromId(placeId)
-        val user = firebaseAuth.currentUser!!
-        Log.d("TAG", "#### setOrUnsetSelectedRestaurant: selectedState = $selectedState")
 
         return suspendCancellableCoroutine { continuation ->
             if (!selectedState) {
@@ -157,12 +141,12 @@ class FirestoreRepository @Inject constructor(
                     .collection(DATES_COLLECTION)
                     .document(dateTimeUtils.getCurrentDate())
                     .collection(INTERESTED_WORKMATES_COLLECTION)
-                    .document(user.email.toString())
+                    .document(user.email)
                     .set(
                         WorkmateWithSelectedRestaurant(
-                            workmateName = user.displayName.toString(),
-                            workmateEmail = user.email.toString(),
-                            workmatePhotoUrl = user.photoUrl.toString(),
+                            workmateName = user.name,
+                            workmateEmail = user.email,
+                            workmatePhotoUrl = user.photoUrl,
                             selectedRestaurantId = restaurantData.restaurantId,
                             selectedRestaurantName = restaurantData.name
                         ), SetOptions.merge()
@@ -178,7 +162,7 @@ class FirestoreRepository @Inject constructor(
                     .collection(DATES_COLLECTION)
                     .document(dateTimeUtils.getCurrentDate())
                     .collection(INTERESTED_WORKMATES_COLLECTION)
-                    .document(user.email.toString())
+                    .document(user.email)
                     .delete()
                     .addOnSuccessListener {
                         continuation.resume(value = true, onCancellation = null)
@@ -206,14 +190,15 @@ class FirestoreRepository @Inject constructor(
                     if (snapshot != null) {
 
                         val interestedWorkmatesWithSelectedRestaurantList = snapshot.mapNotNull {
+                            val workmate = firebaseAuthUtils.getUser(
+                                displayName = it.getString("workmateName"),
+                                email = it.getString("workmateEmail"),
+                                photoUrl = it.getString("workmatePhotoUrl")
+                            )
                             WorkmateWithSelectedRestaurant(
-                                workmateName = if (it.getString("workmateName") == "null" || it.getString("workmateName") == null) {
-                                    Regex(EMAIL_NAME_PATTERN).find(it.getString("workmateEmail")!!)?.groupValues?.get(1)!!
-                                } else {
-                                    it.getString("workmateName")!!
-                                },
-                                workmateEmail = it.getString("workmateEmail")!!,
-                                workmatePhotoUrl = it.getString("workmatePhotoUrl")!!,
+                                workmateName = workmate.name,
+                                workmateEmail = workmate.email,
+                                workmatePhotoUrl = workmate.photoUrl,
                                 selectedRestaurantName = it.getString("selectedRestaurantName")!!,
                                 selectedRestaurantId = it.getString("selectedRestaurantId")!!
                             )

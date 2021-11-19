@@ -6,18 +6,24 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.widget.AutoCompleteTextView
+import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commit
+import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.ActivityMainBinding
 import fr.plopez.go4lunch.interfaces.OnClickRestaurantListener
+import fr.plopez.go4lunch.utils.FirebaseAuthUtils
 import fr.plopez.go4lunch.view.landing_page.LandingPageActivity
 import fr.plopez.go4lunch.view.main_activity.google_maps.GoogleMapsFragment
 import fr.plopez.go4lunch.view.main_activity.list_workmates.ListWorkmatesFragment
@@ -34,18 +40,22 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), OnClickRestauran
             return Intent(activity, MainActivity::class.java)
         }
         private const val PLACE_ID = "PLACE_ID"
+        private const val APP_BAR_CUR_TITLE = "appBarCurTitle"
     }
 
     private lateinit var binding: ActivityMainBinding
 
-    // Firebase Auth
-    @Inject lateinit var firebaseAuth: FirebaseAuth
+    private val firebaseAuthUtils = FirebaseAuthUtils()
+
+    private val firebaseAuth = Firebase.auth
 
     private val firebaseAuthListener = FirebaseAuth.AuthStateListener {
-        if (it.currentUser == null) {
+        if (firebaseAuthUtils.isFirebaseUserNotNull(it.currentUser)) {
             startActivity(LandingPageActivity.navigate(this))
         }
     }
+
+    private val user = firebaseAuthUtils.getUser()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,6 +102,21 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), OnClickRestauran
             false
         }
 
+        val headerView = binding.mainActivityNavigationView.getHeaderView(0)
+        val avatar = headerView.findViewById<ImageView>(R.id.drawer_user_avatar)
+        val name = headerView.findViewById<TextView>(R.id.drawer_user_name)
+        val email = headerView.findViewById<TextView>(R.id.drawer_user_email)
+
+        name.text = user.name
+        email.text = user.email
+        Glide.with(this)
+            .load(user.photoUrl)
+            .placeholder(R.drawable.ic_no_profile_photo_available)
+            .error(R.drawable.ic_no_profile_photo_available)
+            .fallback(R.drawable.ic_no_profile_photo_available)
+            .circleCrop()
+            .into(avatar)
+
         binding.mainActivityNavigationView.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.my_selected_restaurant -> {
@@ -105,7 +130,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), OnClickRestauran
                 R.id.logout -> {
                     // Logout
                     firebaseAuth.signOut()
-                    firebaseAuth.currentUser
                     true
                 }
                 else -> {
@@ -151,7 +175,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), OnClickRestauran
         searchBar?.setTextColor(lightGreyColor)
         searchBar?.textSize = 14F
 
-        // TODO : find a way to tint search icon of search view to lightGrey Color - this does not work...
         val searchIcon =
             menuItemSearch?.actionView?.findViewById<AppCompatImageView>(androidx.appcompat.R.id.search_mag_icon)
         searchIcon?.setColorFilter(lightGreyColor)
@@ -165,7 +188,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), OnClickRestauran
     }
 
     // Set the fragment to replace in view
-    @ExperimentalCoroutinesApi
     private fun setActivePage(@IdRes itemId: Int) {
         val container = binding.activityMainFragmentContainer.id
 
@@ -185,7 +207,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), OnClickRestauran
     // Manage to save current page title to restore it after rotation
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putCharSequence("appBarCurTitle", binding.mainActivityTopAppbar.title.toString())
+        outState.putCharSequence(APP_BAR_CUR_TITLE, binding.mainActivityTopAppbar.title.toString())
     }
 
     override fun onClickRestaurant(placeId: String) {
