@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
@@ -45,7 +44,7 @@ class RestaurantDetailsActivity : AppCompatActivity() {
 
         binding.listWorkmatesRecyclerview.adapter = adapter
 
-        restaurantDetailsViewModel.restaurantDetailsViewLiveData.observe(this) { restaurantDetailsViewState ->
+        restaurantDetailsViewModel.restaurantDetailsViewStateLiveData.observe(this) { restaurantDetailsViewState ->
             // Glide section
             Glide.with(binding.root)
                 .load(restaurantDetailsViewState.photoUrl)

@@ -209,6 +209,4 @@ class FirestoreRepository @Inject constructor(
 
             awaitClose { selectedRestaurantsListener.remove() }
         }
-
-
 }

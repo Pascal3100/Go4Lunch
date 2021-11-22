@@ -83,8 +83,8 @@ class CreateAccountDialogFragment : DialogFragment() {
                 is CreateAccountViewModel.CreateAccountAuthorizer.Authorized ->
                     createAccount(
                         email = binding.createAccountEmailValue.text.toString(),
-                        password = binding.createAccountPasswordValue.text.toString(),
-                        )
+                        password = binding.createAccountPasswordValue.text.toString()
+                    )
             }
         }.exhaustive
     }

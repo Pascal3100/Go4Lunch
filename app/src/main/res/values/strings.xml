@@ -74,5 +74,6 @@
     <string name="firestore_fails_message">Problem with network, please try again</string>
     <string name="joined_workmate_message">%s has joined!</string>
     <string name="dial_error">No phone number available</string>
+    <string name="restaurant_not_yet_selected">Select a restaurant first :0D</string>
 
 </resources>

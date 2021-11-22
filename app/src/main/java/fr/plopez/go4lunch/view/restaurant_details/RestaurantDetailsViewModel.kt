@@ -3,7 +3,6 @@ package fr.plopez.go4lunch.view.restaurant_details
 import android.annotation.SuppressLint
 import android.content.Context
 import androidx.lifecycle.*
-import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.plopez.go4lunch.R
@@ -51,7 +50,7 @@ class RestaurantDetailsViewModel @Inject constructor(
         }
     }
 
-    val restaurantDetailsViewLiveData: LiveData<RestaurantDetailsViewState>
+    val restaurantDetailsViewStateLiveData: LiveData<RestaurantDetailsViewState>
 
     private val firestoreStateMutableLiveData =
         MutableLiveData<RestaurantDetailsViewAction>()
@@ -64,7 +63,7 @@ class RestaurantDetailsViewModel @Inject constructor(
     private val user = firebaseAuthUtils.getUser()
 
     init {
-        restaurantDetailsViewLiveData =
+        restaurantDetailsViewStateLiveData =
             restaurantEntityLiveData.switchMap { restaurantEntity ->
                 liveData(coroutinesProvider.ioCoroutineDispatcher) {
                     combine(

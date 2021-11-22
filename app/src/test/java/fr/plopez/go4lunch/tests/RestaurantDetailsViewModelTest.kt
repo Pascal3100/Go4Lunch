@@ -173,7 +173,7 @@ class RestaurantDetailsViewModelTest {
         val restaurantDetailsViewModel = getRestaurantDetailsViewModel()
 
         // When
-        val result = restaurantDetailsViewModel.restaurantDetailsViewLiveData.getOrAwaitValue()
+        val result = restaurantDetailsViewModel.restaurantDetailsViewStateLiveData.getOrAwaitValue()
 
         // Then
         assertEquals(getDefaultRestaurantDetailsViewState(), result)
@@ -191,7 +191,7 @@ class RestaurantDetailsViewModelTest {
 
 
         // When
-        val result = restaurantDetailsViewModel.restaurantDetailsViewLiveData.getOrAwaitValue()
+        val result = restaurantDetailsViewModel.restaurantDetailsViewStateLiveData.getOrAwaitValue()
 
         // Then
         assertEquals(getDefaultRestaurantDetailsViewState(
@@ -210,7 +210,7 @@ class RestaurantDetailsViewModelTest {
 
 
         // When
-        val result = restaurantDetailsViewModel.restaurantDetailsViewLiveData.getOrAwaitValue()
+        val result = restaurantDetailsViewModel.restaurantDetailsViewStateLiveData.getOrAwaitValue()
 
         // Then
         assertEquals(getDefaultRestaurantDetailsViewState(
@@ -238,7 +238,7 @@ class RestaurantDetailsViewModelTest {
         )
 
         // When
-        val result = restaurantDetailsViewModel.restaurantDetailsViewLiveData.getOrAwaitValue()
+        val result = restaurantDetailsViewModel.restaurantDetailsViewStateLiveData.getOrAwaitValue()
 
         // Then
         assertEquals(getDefaultRestaurantDetailsViewState(
@@ -259,7 +259,7 @@ class RestaurantDetailsViewModelTest {
         )
 
         // When
-        val result = restaurantDetailsViewModel.restaurantDetailsViewLiveData.getOrAwaitValue()
+        val result = restaurantDetailsViewModel.restaurantDetailsViewStateLiveData.getOrAwaitValue()
 
         // Then
         assertEquals(getDefaultRestaurantDetailsViewState(
@@ -284,7 +284,7 @@ class RestaurantDetailsViewModelTest {
         )
 
         // When
-        val result = restaurantDetailsViewModel.restaurantDetailsViewLiveData.getOrAwaitValue()
+        val result = restaurantDetailsViewModel.restaurantDetailsViewStateLiveData.getOrAwaitValue()
 
         // Then
         assertEquals(getDefaultRestaurantDetailsViewState(

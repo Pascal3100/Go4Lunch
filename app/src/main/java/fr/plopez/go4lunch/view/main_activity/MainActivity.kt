@@ -3,12 +3,14 @@ package fr.plopez.go4lunch.view.main_activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.widget.AutoCompleteTextView
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.annotation.IdRes
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.res.ResourcesCompat
@@ -23,13 +25,17 @@ import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.ActivityMainBinding
 import fr.plopez.go4lunch.interfaces.OnClickRestaurantListener
+import fr.plopez.go4lunch.utils.CustomSnackBar
 import fr.plopez.go4lunch.utils.FirebaseAuthUtils
+import fr.plopez.go4lunch.utils.exhaustive
+import fr.plopez.go4lunch.view.MainActivityViewModel
+import fr.plopez.go4lunch.view.MainActivityViewModel.MainActivityViewAction.NoRestaurantSelected
+import fr.plopez.go4lunch.view.MainActivityViewModel.MainActivityViewAction.SelectedRestaurant
 import fr.plopez.go4lunch.view.landing_page.LandingPageActivity
 import fr.plopez.go4lunch.view.main_activity.google_maps.GoogleMapsFragment
 import fr.plopez.go4lunch.view.main_activity.list_workmates.ListWorkmatesFragment
 import fr.plopez.go4lunch.view.restaurant_details.RestaurantDetailsActivity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import javax.inject.Inject
 
 @AndroidEntryPoint
 @ExperimentalCoroutinesApi
@@ -39,9 +45,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), OnClickRestauran
         fun navigate(activity: FragmentActivity): Intent {
             return Intent(activity, MainActivity::class.java)
         }
+
         private const val PLACE_ID = "PLACE_ID"
         private const val APP_BAR_CUR_TITLE = "appBarCurTitle"
     }
+
+    private val mainActivityViewModel: MainActivityViewModel by viewModels()
 
     private lateinit var binding: ActivityMainBinding
 
@@ -102,6 +111,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), OnClickRestauran
             false
         }
 
+        // Update of side menu header items
         val headerView = binding.mainActivityNavigationView.getHeaderView(0)
         val avatar = headerView.findViewById<ImageView>(R.id.drawer_user_avatar)
         val name = headerView.findViewById<TextView>(R.id.drawer_user_name)
@@ -117,10 +127,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), OnClickRestauran
             .circleCrop()
             .into(avatar)
 
+        // Side menu listener
         binding.mainActivityNavigationView.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.my_selected_restaurant -> {
-                    // TODO : implementation to add
+                    mainActivityViewModel.onWantToSeeMyRestaurant()
                     true
                 }
                 R.id.my_settings -> {
@@ -140,6 +151,22 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), OnClickRestauran
 
         binding.mainActivityTopAppbar.setNavigationOnClickListener {
             binding.mainActivityDrawerLayout.openDrawer(GravityCompat.START)
+        }
+
+        // Listener for my_selected_restaurant
+        mainActivityViewModel.selectedRestaurantIdLiveData.observe(this) {
+            if (binding.mainActivityDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+                when (it) {
+                    is NoRestaurantSelected ->
+                        CustomSnackBar.with(binding.root)
+                            .setMessage(getString(R.string.restaurant_not_yet_selected))
+                            .setType(CustomSnackBar.Type.WARNING)
+                            .build()
+                            .show()
+                    is SelectedRestaurant ->
+                        onClickRestaurant(it.id)
+                }.exhaustive
+            }
         }
     }
 
@@ -212,7 +239,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), OnClickRestauran
 
     override fun onClickRestaurant(placeId: String) {
         val intent = RestaurantDetailsActivity.navigate(this)
-        intent.putExtra(PLACE_ID,placeId)
+        intent.putExtra(PLACE_ID, placeId)
         startActivity(intent)
     }
 }
