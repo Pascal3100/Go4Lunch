@@ -87,47 +87,36 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), OnClickRestauran
         }
 
         // Load the corresponding fragment to the bottom nav icon clicked
-        binding.bottomNavigation.setOnItemSelectedListener {
-            when (it.itemId) {
-                R.id.map_view_page -> {
-                    setActivePage(it.itemId)
-                    binding.mainActivityTopAppbar.title =
-                        resources.getString(R.string.maps_view_appbar_title)
-                    return@setOnItemSelectedListener true
-                }
-                R.id.list_view_page -> {
-                    setActivePage(it.itemId)
-                    binding.mainActivityTopAppbar.title =
-                        resources.getString(R.string.list_view_appbar_title)
-                    return@setOnItemSelectedListener true
-                }
-                R.id.workmates_view_page -> {
-                    setActivePage(it.itemId)
-                    binding.mainActivityTopAppbar.title =
-                        resources.getString(R.string.workmates_view_appbar_title)
-                    return@setOnItemSelectedListener true
-                }
-            }
-            false
-        }
+        setupBottomNavigationMenu()
 
         // Update of side menu header items
-        val headerView = binding.mainActivityNavigationView.getHeaderView(0)
-        val avatar = headerView.findViewById<ImageView>(R.id.drawer_user_avatar)
-        val name = headerView.findViewById<TextView>(R.id.drawer_user_name)
-        val email = headerView.findViewById<TextView>(R.id.drawer_user_email)
-
-        name.text = user.name
-        email.text = user.email
-        Glide.with(this)
-            .load(user.photoUrl)
-            .placeholder(R.drawable.ic_no_profile_photo_available)
-            .error(R.drawable.ic_no_profile_photo_available)
-            .fallback(R.drawable.ic_no_profile_photo_available)
-            .circleCrop()
-            .into(avatar)
+        UpdateSideMenuItems()
 
         // Side menu listener
+        setupSideMenu()
+
+        // Listener for my_lunch
+        setupMyLunchAction()
+    }
+
+    private fun setupMyLunchAction() {
+        mainActivityViewModel.selectedRestaurantIdLiveData.observe(this) {
+            if (binding.mainActivityDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+                when (it) {
+                    is NoRestaurantSelected ->
+                        CustomSnackBar.with(binding.root)
+                            .setMessage(getString(R.string.restaurant_not_yet_selected))
+                            .setType(CustomSnackBar.Type.WARNING)
+                            .build()
+                            .show()
+                    is SelectedRestaurant ->
+                        onClickRestaurant(it.id)
+                }.exhaustive
+            }
+        }
+    }
+
+    private fun setupSideMenu() {
         binding.mainActivityNavigationView.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.my_selected_restaurant -> {
@@ -152,21 +141,48 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), OnClickRestauran
         binding.mainActivityTopAppbar.setNavigationOnClickListener {
             binding.mainActivityDrawerLayout.openDrawer(GravityCompat.START)
         }
+    }
 
-        // Listener for my_selected_restaurant
-        mainActivityViewModel.selectedRestaurantIdLiveData.observe(this) {
-            if (binding.mainActivityDrawerLayout.isDrawerOpen(GravityCompat.START)) {
-                when (it) {
-                    is NoRestaurantSelected ->
-                        CustomSnackBar.with(binding.root)
-                            .setMessage(getString(R.string.restaurant_not_yet_selected))
-                            .setType(CustomSnackBar.Type.WARNING)
-                            .build()
-                            .show()
-                    is SelectedRestaurant ->
-                        onClickRestaurant(it.id)
-                }.exhaustive
+    private fun UpdateSideMenuItems() {
+        val headerView = binding.mainActivityNavigationView.getHeaderView(0)
+        val avatar = headerView.findViewById<ImageView>(R.id.drawer_user_avatar)
+        val name = headerView.findViewById<TextView>(R.id.drawer_user_name)
+        val email = headerView.findViewById<TextView>(R.id.drawer_user_email)
+
+        name.text = user.name
+        email.text = user.email
+        Glide.with(this)
+            .load(user.photoUrl)
+            .placeholder(R.drawable.ic_no_profile_photo_available)
+            .error(R.drawable.ic_no_profile_photo_available)
+            .fallback(R.drawable.ic_no_profile_photo_available)
+            .circleCrop()
+            .into(avatar)
+    }
+
+    private fun setupBottomNavigationMenu() {
+        binding.bottomNavigation.setOnItemSelectedListener {
+            when (it.itemId) {
+                R.id.map_view_page -> {
+                    setActivePage(it.itemId)
+                    binding.mainActivityTopAppbar.title =
+                        resources.getString(R.string.maps_view_appbar_title)
+                    return@setOnItemSelectedListener true
+                }
+                R.id.list_view_page -> {
+                    setActivePage(it.itemId)
+                    binding.mainActivityTopAppbar.title =
+                        resources.getString(R.string.list_view_appbar_title)
+                    return@setOnItemSelectedListener true
+                }
+                R.id.workmates_view_page -> {
+                    setActivePage(it.itemId)
+                    binding.mainActivityTopAppbar.title =
+                        resources.getString(R.string.workmates_view_appbar_title)
+                    return@setOnItemSelectedListener true
+                }
             }
+            false
         }
     }
 
