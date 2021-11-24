@@ -132,6 +132,13 @@
         <item name="android:textColor">@color/light_grey</item>
     </style>
 
+    <style name="notificationsSettingsTextAppearance">
+        <item name="android:fontFamily">@font/roboto_regular</item>
+        <item name="android:textSize">@dimen/item_title_text_size</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/light_grey</item>
+    </style>
+
 
     <style name="Divider">
         <item name="android:background">?android:attr/listDivider</item>

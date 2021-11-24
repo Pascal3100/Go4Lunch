@@ -26,7 +26,6 @@ import java.lang.Exception
 class CreateAccountDialogFragment : DialogFragment() {
 
     companion object {
-        private const val TAG = "CreateAccountDialog"
         fun newInstance() = CreateAccountDialogFragment()
     }
 

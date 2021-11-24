@@ -11,6 +11,7 @@ import fr.plopez.go4lunch.data.repositories.FirestoreRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
 import fr.plopez.go4lunch.di.NearbyConstants
+import fr.plopez.go4lunch.utils.DateTimeUtils
 import fr.plopez.go4lunch.utils.FirebaseAuthUtils
 import fr.plopez.go4lunch.view.model.RestaurantDetailsViewState
 import fr.plopez.go4lunch.view.model.WorkmateViewState
@@ -29,10 +30,11 @@ import javax.inject.Inject
 class RestaurantDetailsViewModel @Inject constructor(
     private val restaurantsRepository: RestaurantsRepository,
     private val firestoreRepository: FirestoreRepository,
-    private val firebaseAuthUtils: FirebaseAuthUtils,
+    firebaseAuthUtils: FirebaseAuthUtils,
     private val coroutinesProvider: CoroutinesProvider,
     private val nearbyConstants: NearbyConstants,
     state: SavedStateHandle,
+    private val dateTimeUtils: DateTimeUtils,
     @ApplicationContext private val context: Context
 
 ) : ViewModel() {
@@ -119,6 +121,7 @@ class RestaurantDetailsViewModel @Inject constructor(
     ): RestaurantDetailsViewState =
         RestaurantDetailsViewState(
             photoUrl = mapRestaurantPhotoUrl(restaurantEntity.photoUrl),
+            id = restaurantEntity.restaurantId,
             name = restaurantEntity.name,
             address = restaurantEntity.address,
             rate = restaurantEntity.rate,
@@ -126,7 +129,9 @@ class RestaurantDetailsViewModel @Inject constructor(
             website = restaurantEntity.website,
             isFavorite = isLiked,
             isSelected = isSelected,
-            interestedWorkmatesList = interestedWorkmatesList
+            interestedWorkmatesList = interestedWorkmatesList,
+            currentUserEmail = user.email,
+            delay = dateTimeUtils.getDelayUtilLunch()
         )
 
     // when the current restaurant is liked by the current user

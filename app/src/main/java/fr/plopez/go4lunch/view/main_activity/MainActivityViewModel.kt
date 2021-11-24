@@ -1,13 +1,12 @@
-package fr.plopez.go4lunch.view
+package fr.plopez.go4lunch.view.main_activity
 
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.plopez.go4lunch.data.repositories.FirestoreRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
 import fr.plopez.go4lunch.utils.FirebaseAuthUtils
-import fr.plopez.go4lunch.utils.SingleLiveEvent
-import fr.plopez.go4lunch.view.MainActivityViewModel.MainActivityViewAction.NoRestaurantSelected
-import fr.plopez.go4lunch.view.MainActivityViewModel.MainActivityViewAction.SelectedRestaurant
+import fr.plopez.go4lunch.view.main_activity.MainActivityViewModel.MainActivityViewAction.NoRestaurantSelected
+import fr.plopez.go4lunch.view.main_activity.MainActivityViewModel.MainActivityViewAction.SelectedRestaurant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject

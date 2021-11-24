@@ -7,14 +7,18 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
+import androidx.work.*
 import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
+import fr.plopez.go4lunch.NotifyWork
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.ActivityRestaurantDetailsBinding
 import fr.plopez.go4lunch.utils.CustomSnackBar
+import fr.plopez.go4lunch.view.model.RestaurantDetailsViewState
 import fr.plopez.go4lunch.view.restaurant_details.RestaurantDetailsViewModel.RestaurantDetailsViewAction.FirestoreFails
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.lang.Exception
+import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 @ExperimentalCoroutinesApi
@@ -24,6 +28,8 @@ class RestaurantDetailsActivity : AppCompatActivity() {
         fun navigate(activity: FragmentActivity): Intent {
             return Intent(activity, RestaurantDetailsActivity::class.java)
         }
+
+        private const val NOTIFICATION_ID = 666
     }
 
     private lateinit var binding: ActivityRestaurantDetailsBinding
@@ -45,64 +51,23 @@ class RestaurantDetailsActivity : AppCompatActivity() {
         binding.listWorkmatesRecyclerview.adapter = adapter
 
         restaurantDetailsViewModel.restaurantDetailsViewStateLiveData.observe(this) { restaurantDetailsViewState ->
-            // Glide section
-            Glide.with(binding.root)
-                .load(restaurantDetailsViewState.photoUrl)
-                .placeholder(R.drawable.no_pic_for_item_view)
-                .error(R.drawable.no_pic_for_item_view)
-                .fallback(R.drawable.no_pic_for_item_view)
-                .centerCrop()
-                .into(binding.restaurantDetailsActivityRestaurantImage)
 
-            binding.restaurantDetailsActivityRestaurantName.text = restaurantDetailsViewState.name
-            binding.restaurantDetailsActivityRestaurantRatingBar.rating =restaurantDetailsViewState.rate
-            binding.restaurantDetailsActivitySubtitle.text = restaurantDetailsViewState.address
-            adapter.submitList(restaurantDetailsViewState.interestedWorkmatesList)
+            updateViewItems(restaurantDetailsViewState, adapter)
 
             // modifier for FAB
-            binding.selectRestaurant.setImageDrawable(
-                if (restaurantDetailsViewState.isSelected) {
-                    resources.getDrawable(R.drawable.selected)
-                } else {
-                    resources.getDrawable(R.drawable.not_selected)
-                }
-            )
+            setupFab(restaurantDetailsViewState)
 
             // listener for call button
-            binding.phoneButton.setOnClickListener {
-                try {
-                    val dialIntent = Intent(Intent.ACTION_DIAL)
-                    dialIntent.data = Uri.parse("tel:" + restaurantDetailsViewState.phoneNumber)
-                    startActivity(dialIntent)
-                } catch(e:Exception) {
-                    CustomSnackBar.with(binding.root)
-                        .setMessage(getString(R.string.dial_error))
-                        .setType(CustomSnackBar.Type.WARNING)
-                        .build()
-                        .show()
-                }
-            }
+            setupPhoneButton(restaurantDetailsViewState)
 
             // modifier for like button
-            binding.ratingButton.setCompoundDrawablesWithIntrinsicBounds(
-                null,
-                resources.getDrawable(
-                    if (restaurantDetailsViewState.isFavorite) {
-                        R.drawable.ic_baseline_star_rate_24
-                    } else {
-                        R.drawable.ic_baseline_empty_star_24
-                    }
-                ),
-                null,
-                null
-            )
+            setupLikeButton(restaurantDetailsViewState)
 
             // listener for website button
-            binding.websiteButton.setOnClickListener {
-                val websiteIntent = Intent(Intent.ACTION_VIEW)
-                websiteIntent.data = Uri.parse(restaurantDetailsViewState.website)
-                startActivity(websiteIntent)
-            }
+            setupWebsiteButton(restaurantDetailsViewState)
+
+            // listener for schedule or unschedule the notification
+            scheduleNotification(restaurantDetailsViewState)
         }
 
         // listener for like button
@@ -130,7 +95,106 @@ class RestaurantDetailsActivity : AppCompatActivity() {
                     .show()
             }
         }
+    }
 
+    private fun setupWebsiteButton(restaurantDetailsViewState: RestaurantDetailsViewState) {
+        binding.websiteButton.setOnClickListener {
+            val websiteIntent = Intent(Intent.ACTION_VIEW)
+            websiteIntent.data = Uri.parse(restaurantDetailsViewState.website)
+            startActivity(websiteIntent)
+        }
+    }
 
+    private fun setupLikeButton(restaurantDetailsViewState: RestaurantDetailsViewState) {
+        binding.ratingButton.setCompoundDrawablesWithIntrinsicBounds(
+            null,
+            resources.getDrawable(
+                if (restaurantDetailsViewState.isFavorite) {
+                    R.drawable.ic_baseline_star_rate_24
+                } else {
+                    R.drawable.ic_baseline_empty_star_24
+                }
+            ),
+            null,
+            null
+        )
+    }
+
+    private fun setupPhoneButton(restaurantDetailsViewState: RestaurantDetailsViewState) {
+        binding.phoneButton.setOnClickListener {
+            try {
+                val dialIntent = Intent(Intent.ACTION_DIAL)
+                dialIntent.data = Uri.parse("tel:" + restaurantDetailsViewState.phoneNumber)
+                startActivity(dialIntent)
+            } catch (e: Exception) {
+                CustomSnackBar.with(binding.root)
+                    .setMessage(getString(R.string.dial_error))
+                    .setType(CustomSnackBar.Type.WARNING)
+                    .build()
+                    .show()
+            }
+        }
+    }
+
+    private fun setupFab(restaurantDetailsViewState: RestaurantDetailsViewState) {
+        binding.selectRestaurant.setImageDrawable(
+            if (restaurantDetailsViewState.isSelected) {
+                resources.getDrawable(R.drawable.selected)
+            } else {
+                resources.getDrawable(R.drawable.not_selected)
+            }
+        )
+    }
+
+    private fun updateViewItems(
+        restaurantDetailsViewState: RestaurantDetailsViewState,
+        adapter: RestaurantDetailsAdapter
+    ) {
+        // Glide section
+        Glide.with(binding.root)
+            .load(restaurantDetailsViewState.photoUrl)
+            .placeholder(R.drawable.no_pic_for_item_view)
+            .error(R.drawable.no_pic_for_item_view)
+            .fallback(R.drawable.no_pic_for_item_view)
+            .centerCrop()
+            .into(binding.restaurantDetailsActivityRestaurantImage)
+
+        binding.restaurantDetailsActivityRestaurantName.text = restaurantDetailsViewState.name
+        binding.restaurantDetailsActivityRestaurantRatingBar.rating =
+            restaurantDetailsViewState.rate
+        binding.restaurantDetailsActivitySubtitle.text = restaurantDetailsViewState.address
+        adapter.submitList(restaurantDetailsViewState.interestedWorkmatesList)
+    }
+
+    private fun scheduleNotification(restaurantDetailsViewState: RestaurantDetailsViewState) {
+
+        val instanceWorkManager = WorkManager.getInstance(this)
+
+        if (restaurantDetailsViewState.isSelected && restaurantDetailsViewState.delay > 0) {
+            val data = Data.Builder()
+                .putAll(
+                    mapOf(
+                        NotifyWork.NOTIFICATION_ID to NOTIFICATION_ID,
+                        NotifyWork.RESTAURANT_ID to restaurantDetailsViewState.id,
+                        NotifyWork.USER_EMAIL to restaurantDetailsViewState.currentUserEmail
+                    )
+                )
+                .build()
+
+            val notificationWork = OneTimeWorkRequest.Builder(NotifyWork::class.java)
+                .setInitialDelay(
+//                    restaurantDetailsViewState.delay,
+                     15000,
+                    TimeUnit.MILLISECONDS
+                ).setInputData(data).build()
+
+            instanceWorkManager.beginUniqueWork(
+                NotifyWork.NOTIFICATION_WORK,
+                ExistingWorkPolicy.REPLACE,
+                notificationWork
+            ).enqueue()
+        } else {
+            instanceWorkManager.cancelUniqueWork(NotifyWork.NOTIFICATION_WORK)
+        }
     }
 }

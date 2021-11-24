@@ -75,5 +75,16 @@
     <string name="joined_workmate_message">%s has joined!</string>
     <string name="dial_error">No phone number available</string>
     <string name="restaurant_not_yet_selected">Select a restaurant first :0D</string>
+    <string name="notification_title">Don\'t forget!</string>
+    <string name="notification_text_alone">Lunch at 12:00 at %s</string>
+    <string name="notification_setting_label">Notifications</string>
+
+    <!--    <string name="notification_text_not_alone">Lunch at 12:00 with %s colleagues at %s.\n%s</string>-->
+
+    <plurals name="notification_text_not_alone">
+        <item quantity="one">Lunch at 12:00 with %s colleague at %s.\n%s</item>
+        <item quantity="other">Lunch at 12:00 with %s colleagues at %s.\n%s</item>
+    </plurals>
+
 
 </resources>

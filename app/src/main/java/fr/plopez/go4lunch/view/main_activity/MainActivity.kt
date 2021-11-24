@@ -3,7 +3,6 @@ package fr.plopez.go4lunch.view.main_activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.widget.AutoCompleteTextView
@@ -24,13 +23,14 @@ import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.ActivityMainBinding
+import fr.plopez.go4lunch.databinding.FragmentDialogSettingsBinding
 import fr.plopez.go4lunch.interfaces.OnClickRestaurantListener
 import fr.plopez.go4lunch.utils.CustomSnackBar
 import fr.plopez.go4lunch.utils.FirebaseAuthUtils
 import fr.plopez.go4lunch.utils.exhaustive
-import fr.plopez.go4lunch.view.MainActivityViewModel
-import fr.plopez.go4lunch.view.MainActivityViewModel.MainActivityViewAction.NoRestaurantSelected
-import fr.plopez.go4lunch.view.MainActivityViewModel.MainActivityViewAction.SelectedRestaurant
+import fr.plopez.go4lunch.view.landing_page.CreateAccountDialogFragment
+import fr.plopez.go4lunch.view.main_activity.MainActivityViewModel.MainActivityViewAction.NoRestaurantSelected
+import fr.plopez.go4lunch.view.main_activity.MainActivityViewModel.MainActivityViewAction.SelectedRestaurant
 import fr.plopez.go4lunch.view.landing_page.LandingPageActivity
 import fr.plopez.go4lunch.view.main_activity.google_maps.GoogleMapsFragment
 import fr.plopez.go4lunch.view.main_activity.list_workmates.ListWorkmatesFragment
@@ -90,7 +90,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), OnClickRestauran
         setupBottomNavigationMenu()
 
         // Update of side menu header items
-        UpdateSideMenuItems()
+        updateSideMenuItems()
 
         // Side menu listener
         setupSideMenu()
@@ -124,7 +124,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), OnClickRestauran
                     true
                 }
                 R.id.my_settings -> {
-                    // TODO : implementation to add
+                    SettingsDialogFragment.newInstance()
+                        .show(supportFragmentManager, "")
+
                     true
                 }
                 R.id.logout -> {
@@ -143,7 +145,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), OnClickRestauran
         }
     }
 
-    private fun UpdateSideMenuItems() {
+    private fun updateSideMenuItems() {
         val headerView = binding.mainActivityNavigationView.getHeaderView(0)
         val avatar = headerView.findViewById<ImageView>(R.id.drawer_user_avatar)
         val name = headerView.findViewById<TextView>(R.id.drawer_user_name)

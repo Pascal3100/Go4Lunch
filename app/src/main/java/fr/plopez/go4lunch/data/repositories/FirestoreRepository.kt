@@ -1,5 +1,7 @@
 package fr.plopez.go4lunch.data.repositories
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -21,7 +23,7 @@ class FirestoreRepository @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val restaurantsRepository: RestaurantsRepository,
     private val firebaseAuthUtils: FirebaseAuthUtils,
-    private val dateTimeUtils: DateTimeUtils,
+    private val dateTimeUtils: DateTimeUtils
 ) {
     companion object {
         private const val WORKMATES_COLLECTION = "workmates"
@@ -29,6 +31,8 @@ class FirestoreRepository @Inject constructor(
         private const val DATES_COLLECTION = "dates"
         private const val INTERESTED_WORKMATES_COLLECTION = "interested_workmates"
         private const val ID_FIELD = "id"
+        private const val SETTINGS = "settings"
+        private const val NOTIFICATIONS_SETTINGS = "notifications"
     }
 
     private val user = firebaseAuthUtils.getUser()
@@ -37,8 +41,7 @@ class FirestoreRepository @Inject constructor(
         suspendCancellableCoroutine<Boolean> { continuation ->
             firestore.collection(WORKMATES_COLLECTION)
                 .document(user.email)
-                .set(user, SetOptions.merge()
-                )
+                .set(user, SetOptions.merge())
                 .addOnSuccessListener {
                     continuation.resume(value = true, onCancellation = null)
                 }
@@ -209,4 +212,50 @@ class FirestoreRepository @Inject constructor(
 
             awaitClose { selectedRestaurantsListener.remove() }
         }
+
+    suspend fun setNotificationsSetting(notificationsAccepted: Boolean) =
+        suspendCancellableCoroutine<Boolean> { continuation ->
+            firestore
+                .collection(WORKMATES_COLLECTION)
+                .document(user.email)
+                .collection(SETTINGS)
+                .document(NOTIFICATIONS_SETTINGS)
+                .set(
+                    hashMapOf(
+                        "accept" to notificationsAccepted
+                    )
+                )
+                .addOnSuccessListener {
+                    continuation.resume(value = true, onCancellation = null)
+                }
+                .addOnFailureListener {
+                    continuation.resume(value = false, onCancellation = null)
+                }
+        }
+
+
+    // Listener for workmate updates
+    suspend fun getNotificationsSettingsUpdates(): Flow<Boolean> = callbackFlow {
+        val settingsCollection = firestore
+            .collection(WORKMATES_COLLECTION)
+            .document(user.email)
+            .collection(SETTINGS)
+            .document(NOTIFICATIONS_SETTINGS)
+
+        val settingsListener = settingsCollection.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null) {
+                val updatedSetting = snapshot.getBoolean("accept") ?: return@addSnapshotListener
+                trySend(updatedSetting)
+            }
+        }
+        awaitClose { settingsListener.remove() }
+    }
+
+
+
+
 }
