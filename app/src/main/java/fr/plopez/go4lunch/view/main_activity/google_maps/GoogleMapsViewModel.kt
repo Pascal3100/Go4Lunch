@@ -1,14 +1,12 @@
 package fr.plopez.go4lunch.view.main_activity.google_maps
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.lifecycle.*
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantEntity
 import fr.plopez.go4lunch.data.repositories.FirestoreRepository
@@ -19,6 +17,8 @@ import fr.plopez.go4lunch.data.repositories.RestaurantsRepository.ResponseStatus
 import fr.plopez.go4lunch.di.CoroutinesProvider
 import fr.plopez.go4lunch.utils.SingleLiveEvent
 import fr.plopez.go4lunch.utils.exhaustive
+import fr.plopez.go4lunch.view.main_activity.SearchUseCase
+import fr.plopez.go4lunch.view.main_activity.SearchUseCase.SearchResultStatus.SearchResult
 import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -32,8 +32,8 @@ class GoogleMapsViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
     private val restaurantsRepository: RestaurantsRepository,
     private val firestoreRepository: FirestoreRepository,
+    private val searchUseCase: SearchUseCase,
     coroutinesProvider: CoroutinesProvider,
-    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     // Position with zoom and restaurants live data
@@ -70,9 +70,19 @@ class GoogleMapsViewModel @Inject constructor(
                         // the flow will be collected only if the response is different from previous ones
                         restaurantsRepository.getRestaurantsAroundPosition(
                             latitude = positionWithZoom.latitude.toString(),
-                            longitude = positionWithZoom.longitude.toString(),
-                            radius = context.resources.getString(R.string.default_detection_radius_value)
-                        ).distinctUntilChanged().collect {
+                            longitude = positionWithZoom.longitude.toString()
+                        ).distinctUntilChanged()
+                            .combine(searchUseCase.getSearchResult()) { responseStatus, searchResultStatus ->
+                                Log.d("TAG", "#### searchResultStatus: $searchResultStatus")
+
+                                if (responseStatus is ResponseStatus.Success && searchResultStatus is SearchResult) {
+                                    ResponseStatus.Success(
+                                        data = responseStatus.data.filter { it.restaurantId in searchResultStatus.data }
+                                    )
+                                } else {
+                                    responseStatus
+                                }
+                            }.collect {
                             emit(
                                 PositionWithZoomAndResponseStatus(
                                     positionWithZoom = positionWithZoom,
@@ -81,8 +91,7 @@ class GoogleMapsViewModel @Inject constructor(
                             )
                         }
                     }
-                    .combine(firestoreRepository.getWorkmatesWithSelectedRestaurants()) {
-                            positionWithZoomAndResponseStatus, workmatesWithSelectedRestaurants ->
+                    .combine(firestoreRepository.getWorkmatesWithSelectedRestaurants()) { positionWithZoomAndResponseStatus, workmatesWithSelectedRestaurants ->
                         Pair(positionWithZoomAndResponseStatus, workmatesWithSelectedRestaurants)
                     }.collect {
                         val positionWithZoom = it.first.positionWithZoom
@@ -118,7 +127,6 @@ class GoogleMapsViewModel @Inject constructor(
                         }.exhaustive
                     }
             }
-
         }
     }
 

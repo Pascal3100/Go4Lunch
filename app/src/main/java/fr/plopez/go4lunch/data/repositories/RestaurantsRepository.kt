@@ -1,6 +1,5 @@
 package fr.plopez.go4lunch.data.repositories
 
-import androidx.lifecycle.asLiveData
 import fr.plopez.go4lunch.data.RestaurantDAO
 import fr.plopez.go4lunch.data.model.restaurant.RestaurantQueryResponseItem
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantEntity
@@ -35,7 +34,6 @@ class RestaurantsRepository @Inject constructor(
     companion object {
         // this value is calculated for a tol of 50 m
         private const val MAX_DISPLACEMENT_TOL = "0.000449"
-
         private const val DETAILS_SEARCH_FIELD = "opening_hours,international_phone_number,website"
     }
 
@@ -45,8 +43,7 @@ class RestaurantsRepository @Inject constructor(
 
     suspend fun getRestaurantsAroundPosition(
         latitude: String,
-        longitude: String,
-        radius: String,
+        longitude: String
     ): Flow<ResponseStatus> = flow {
 
         // Check if a previous request correspond in the Database
@@ -69,10 +66,8 @@ class RestaurantsRepository @Inject constructor(
         try {
             val location = "$latitude,$longitude"
             val response = restaurantService.getNearbyRestaurants(
-                nearbyConstants.key,
-                nearbyConstants.type,
-                location,
-                radius
+                key = nearbyConstants.key,
+                location = location
             )
 
             val responseBody = response.body()
@@ -267,7 +262,7 @@ class RestaurantsRepository @Inject constructor(
         }
 
     suspend fun getRestaurantsWithOpeningPeriods(requestedTimeStamp: Long): List<RestaurantWithOpeningPeriods> {
-        return if (requestedTimeStamp == 0L || requestedTimeStamp == null) {
+        return if (requestedTimeStamp == null || requestedTimeStamp == 0L) {
             emptyList()
         } else {
             restaurantsCacheDAO.getCurrentRestaurants(requestedTimeStamp)
