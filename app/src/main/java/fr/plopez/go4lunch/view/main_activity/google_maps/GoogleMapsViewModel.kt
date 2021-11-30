@@ -73,8 +73,6 @@ class GoogleMapsViewModel @Inject constructor(
                             longitude = positionWithZoom.longitude.toString()
                         ).distinctUntilChanged()
                             .combine(searchUseCase.getSearchResult()) { responseStatus, searchResultStatus ->
-                                Log.d("TAG", "#### searchResultStatus: $searchResultStatus")
-
                                 if (responseStatus is ResponseStatus.Success && searchResultStatus is SearchResult) {
                                     ResponseStatus.Success(
                                         data = responseStatus.data.filter { it.restaurantId in searchResultStatus.data }

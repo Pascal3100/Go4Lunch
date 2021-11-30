@@ -6,8 +6,9 @@ import fr.plopez.go4lunch.retrofit.RestaurantService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import retrofit2.Response
 import javax.inject.Inject
+import javax.inject.Singleton
 
-
+@Singleton
 @ExperimentalCoroutinesApi
 class AutoCompleteRepository @Inject constructor(
     private val restaurantService: RestaurantService,

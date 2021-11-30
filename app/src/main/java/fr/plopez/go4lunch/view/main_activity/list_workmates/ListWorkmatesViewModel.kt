@@ -11,6 +11,7 @@ import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.data.model.restaurant.Workmate
 import fr.plopez.go4lunch.data.repositories.FirestoreRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
+import fr.plopez.go4lunch.view.main_activity.SearchUseCase
 import fr.plopez.go4lunch.view.model.WorkmateViewState
 import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -24,6 +25,7 @@ import javax.inject.Inject
 class ListWorkmatesViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
     private val coroutinesProvider: CoroutinesProvider,
+    private val searchUseCase: SearchUseCase,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -32,10 +34,18 @@ class ListWorkmatesViewModel @Inject constructor(
         liveData(coroutinesProvider.ioCoroutineDispatcher) {
             combine(
                 firestoreRepository.getWorkmatesUpdates(),
-                firestoreRepository.getWorkmatesWithSelectedRestaurants()){
-                workmatesList, workmatesWithSelectedRestaurantList ->
-                mapToViewState(workmatesList, workmatesWithSelectedRestaurantList)
-            }.collect {
+                firestoreRepository.getWorkmatesWithSelectedRestaurants(),
+            searchUseCase.getSearchResult()
+            ){
+                workmatesList, workmatesWithSelectedRestaurantList, searchResult ->
+                mapToViewState(
+                    workmatesList = if (searchResult is SearchUseCase.SearchResultStatus.SearchResult) {
+                        workmatesList.filter { it.name.lowercase().contains(searchResult.data.first().lowercase(), ignoreCase = false)}
+                    } else {
+                        workmatesList
+                    },
+                    workmatesWithSelectedRestaurantList = workmatesWithSelectedRestaurantList
+                )}.collect {
                 emit(it)
             }
         }

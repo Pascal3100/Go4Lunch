@@ -3,6 +3,7 @@ package fr.plopez.go4lunch.view.main_activity.list_restaurants
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
+import android.util.Log
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -16,11 +17,13 @@ import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
 import fr.plopez.go4lunch.di.NearbyConstants
 import fr.plopez.go4lunch.utils.DateTimeUtils
+import fr.plopez.go4lunch.view.main_activity.SearchUseCase
 import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import java.time.LocalTime
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.math.round
 
 @ExperimentalCoroutinesApi
@@ -29,6 +32,7 @@ import kotlin.math.round
 class ListRestaurantsViewModel @Inject constructor(
     private val restaurantsRepository: RestaurantsRepository,
     private val nearbyConstants: NearbyConstants,
+    private val searchUseCase: SearchUseCase,
     coroutinesProvider: CoroutinesProvider,
     private val dateTimeUtils: DateTimeUtils,
     private val firestoreRepository: FirestoreRepository,
@@ -44,15 +48,25 @@ class ListRestaurantsViewModel @Inject constructor(
     init {
         restaurantsItemsLiveData = liveData(coroutinesProvider.ioCoroutineDispatcher) {
             // Update the restaurant list and expose the view State
-            combine(
-                restaurantsRepository.lastRequestTimeStampSharedFlow,
-                firestoreRepository.getWorkmatesWithSelectedRestaurants()
-            ) { requestTimeStamp, workmatesWithSelectedRestaurantsList ->
-                mapToViewState(
-                    restaurantsRepository.getRestaurantsWithOpeningPeriods(requestTimeStamp),
-                    restaurantsRepository.getPositionForTimestamp(requestTimeStamp),
-                    workmatesWithSelectedRestaurantsList
-                )
+            restaurantsRepository.lastRequestTimeStampSharedFlow.flatMapLatest { requestTimeStamp ->
+                combine(
+                    firestoreRepository.getWorkmatesWithSelectedRestaurants(),
+                    searchUseCase.getSearchResult()
+                ) { workmatesWithSelectedRestaurantsList, searchResultStatus ->
+                    val restaurantsWithOpeningPeriods =
+                        restaurantsRepository.getRestaurantsWithOpeningPeriods(requestedTimeStamp = requestTimeStamp)
+                    mapToViewState(
+                        restaurantsWithOpeningPeriods =
+                        if (searchResultStatus is SearchUseCase.SearchResultStatus.SearchResult) {
+                            restaurantsWithOpeningPeriods.filter {
+                                it.restaurant.restaurantId in searchResultStatus.data }
+                        } else {
+                            restaurantsWithOpeningPeriods
+                        },
+                        restaurantsQuery = restaurantsRepository.getPositionForTimestamp(timestamp = requestTimeStamp),
+                        workmatesWithSelectedRestaurantsList = workmatesWithSelectedRestaurantsList
+                    )
+                }
             }.collect {
                 emit(it)
             }
@@ -64,14 +78,15 @@ class ListRestaurantsViewModel @Inject constructor(
         restaurantsQuery: RestaurantsQuery,
         workmatesWithSelectedRestaurantsList: List<WorkmateWithSelectedRestaurant>
     ): List<RestaurantItemViewState> {
+
         if (restaurantsWithOpeningPeriods.isEmpty()) emptyList<RestaurantItemViewState>()
-        
-        return restaurantsWithOpeningPeriods.map {restaurantWithOpeningPeriod ->
+
+        return restaurantsWithOpeningPeriods.map { restaurantWithOpeningPeriod ->
 
             val numberOfInterestedWorkmates = workmatesWithSelectedRestaurantsList.filter {
                 it.selectedRestaurantId == restaurantWithOpeningPeriod.restaurant.restaurantId
             }.size.toString()
-            
+
             RestaurantItemViewState(
                 name = restaurantWithOpeningPeriod.restaurant.name,
                 address = restaurantWithOpeningPeriod.restaurant.address,
@@ -102,11 +117,6 @@ class ListRestaurantsViewModel @Inject constructor(
         } else {
             ""
         }
-    }
-
-    // TODO how to do this??? surely another Flow buddy
-    private fun getInterestedWorkmates(restaurantName: String): String {
-        return "0"
     }
 
     private fun getDistanceToUser(
