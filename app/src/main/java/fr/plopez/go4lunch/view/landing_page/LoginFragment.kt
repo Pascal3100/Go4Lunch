@@ -124,14 +124,6 @@ class LoginFragment : Fragment() {
             )
         }
 
-        binding.loginFragmentForgotPasswordLink.setOnClickListener {
-            CustomSnackBar.with(requireView())
-                .setMessage("Forgot password???")
-                .setType(CustomSnackBar.Type.DEFAULT)
-                .build()
-                .show()
-        }
-
         binding.loginFragmentCreateAccountLink.setOnClickListener {
             CreateAccountDialogFragment.newInstance()
                 .show(requireActivity().supportFragmentManager, "")

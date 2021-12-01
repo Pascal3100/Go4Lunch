@@ -47,6 +47,7 @@ interface RestaurantDAO {
     )
     suspend fun getNearestRestaurants(latitude: Double, longitude: Double, displacementTol: Float): List<QueryWithRestaurants>
 
+    // get list of restaurants corresponding to a specific timestamp request
     @Transaction
     @Query(
         "SELECT * " +
@@ -59,9 +60,9 @@ interface RestaurantDAO {
     )
     suspend fun getCurrentRestaurants(queryTimeStamp:Long): List<RestaurantWithOpeningPeriods>
 
+    // get position corresponding to a specific timestamp request
     @Query("SELECT * FROM restaurant_query WHERE query_time_stamp = :timestamp")
     suspend fun getPositionForTimestamp(timestamp: Long): RestaurantsQuery
-
 
     @Query("SELECT * FROM restaurant_entity WHERE restaurant_id = :id")
     suspend fun getRestaurantFromId(id: String): RestaurantEntity

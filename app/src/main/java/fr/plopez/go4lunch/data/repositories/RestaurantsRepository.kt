@@ -144,6 +144,7 @@ class RestaurantsRepository @Inject constructor(
             }
         }
 
+    // Store restaurants data from a nearby request into local SQLite database
     private suspend fun storeInDatabase(
         restaurantEntityList: List<RestaurantEntity>,
         restaurantDetailsList: List<RestaurantDetails>,
@@ -261,6 +262,7 @@ class RestaurantsRepository @Inject constructor(
             }
         }
 
+    // get list of restaurants with their opening periods
     suspend fun getRestaurantsWithOpeningPeriods(requestedTimeStamp: Long): List<RestaurantWithOpeningPeriods> {
         return if (requestedTimeStamp == 0L) {
             emptyList()

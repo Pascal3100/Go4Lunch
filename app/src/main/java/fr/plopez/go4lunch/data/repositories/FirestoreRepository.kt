@@ -32,8 +32,10 @@ class FirestoreRepository @Inject constructor(
         private const val NOTIFICATIONS_SETTINGS = "notifications"
     }
 
+    // current user info
     private val user = firebaseAuthUtils.getUser()
 
+    // add user in firestore database or update it if exists
     suspend fun addOrUpdateUserOnLogin() =
         suspendCancellableCoroutine<Boolean> { continuation ->
             firestore.collection(WORKMATES_COLLECTION)
@@ -174,6 +176,7 @@ class FirestoreRepository @Inject constructor(
         }
     }
 
+    // get all workmates which have selected a restaurant
     suspend fun getWorkmatesWithSelectedRestaurants(): Flow<List<WorkmateWithSelectedRestaurant>> =
         callbackFlow {
             val interestedWorkmatesCollection = firestore
@@ -210,6 +213,7 @@ class FirestoreRepository @Inject constructor(
             awaitClose { selectedRestaurantsListener.remove() }
         }
 
+    // update notification setting for current user
     suspend fun setNotificationsSetting(notificationsAccepted: Boolean) =
         suspendCancellableCoroutine<Boolean> { continuation ->
             firestore
@@ -231,7 +235,7 @@ class FirestoreRepository @Inject constructor(
         }
 
 
-    // Listener for workmate updates
+    // get notification setting for current user
     suspend fun getNotificationsSettingsUpdates(): Flow<Boolean> = callbackFlow {
         val settingsCollection = firestore
             .collection(WORKMATES_COLLECTION)
@@ -251,8 +255,4 @@ class FirestoreRepository @Inject constructor(
         }
         awaitClose { settingsListener.remove() }
     }
-
-
-
-
 }

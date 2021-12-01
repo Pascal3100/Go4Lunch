@@ -1,46 +1,43 @@
 <resources>
-    <string name="app_name">Go4Lunch</string>
-    <string name="slogan">Find a nice restaurant for lunch!</string>
+    <string name="app_name" translatable="false">Go4Lunch</string>
+    <string name="slogan" translatable="false">Find a nice restaurant for lunch!</string>
     <string name="login_with_email">or login with email</string>
-    <string name="type_email_string">email</string>
+    <string name="type_email_string" translatable="false">email</string>
     <string name="type_password_string">password</string>
     <string name="landing_page_facebook_button_text">continue with facebook</string>
     <string name="landing_page_google_button_text">continue with Google</string>
     <string name="landing_page_email_button_text">continue with email</string>
-    <string name="landing_page_forgot_password_link">Forgot your password?</string>
     <string name="landing_page_create_account_link">Not a member yet? Create your account now!</string>
     <string name="maps_view_appbar_title">who\'s there&#x2026;</string>
     <string name="menu_search_item_title">Search</string>
     <string name="map_view_page_label">Map View</string>
     <string name="list_view_page_label">List View</string>
     <string name="workmates_view_page_label">Workmates</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="list_view_appbar_title">today’s special?</string>
     <string name="workmates_view_appbar_title">my workmates</string>
-    <string name="number_of_rating_stars">3</string>
+    <string name="number_of_rating_stars" translatable="false">3</string>
     <string name="frd_call_item_text">CALL</string>
     <string name="frd_rate_item_text">LIKE</string>
     <string name="frd_website_item_text">WEBSITE</string>
-    <string name="search_view_text_size">12sp</string>
     <string name="drawer_my_selected_restaurant_label">Your lunch</string>
     <string name="drawer_my_settings_label">Settings</string>
     <string name="drawer_logout_label">Logout</string>
 
     <!-- Facebook -->
-    <string name="facebook_app_id">497958498159883</string>
-    <string name="fb_login_protocol_scheme">fb497958498159883</string>
+    <string name="facebook_app_id" translatable="false">497958498159883</string>
+    <string name="fb_login_protocol_scheme" translatable="false">fb497958498159883</string>
 
     <!--  Google Auth -->
-    <string name="web_client_id">238464625821-9u2ora1s2bgd66b3eb7vv01qe64cupg6.apps.googleusercontent.com</string>
+    <string name="web_client_id" translatable="false">238464625821-9u2ora1s2bgd66b3eb7vv01qe64cupg6.apps.googleusercontent.com</string>
 
     <!--  Google Maps -->
-    <string name="default_zoom_value">15.0</string>
-    <string name="default_detection_radius_value">1000</string>
+    <string name="default_zoom_value" translatable="false">15.0</string>
+    <string name="default_detection_radius_value" translatable="false">1000</string>
 
-    <string name="default_lat_value">43.6067724</string>
-    <string name="default_long_value">1.4371122</string>
+    <string name="default_lat_value" translatable="false">43.6067724</string>
+    <string name="default_long_value" translatable="false">1.4371122</string>
 
-    <string name="place_api_url">https://maps.googleapis.com/maps/api/place/</string>
+    <string name="place_api_url" translatable="false">https://maps.googleapis.com/maps/api/place/</string>
 
     <string name="no_restaurants_message">no restaurant around you</string>
     <string name="no_response_message">no response from server</string>
@@ -51,13 +48,13 @@
     <string name="facebook_connection_failed_message">Facebook login failed</string>
     <string name="not_connected_message">Hey, you\'re not connected</string>
     <string name="google_connection_failed_message">Google sign in failed</string>
-    <string name="distance_unit">%s m</string>
+    <string name="distance_unit" translatable="false">%s m</string>
     <string name="closed_text">closed</string>
     <string name="open_at_text">open at %s</string>
     <string name="open_until_text">open until %s</string>
     <string name="closed_today_text">closed today</string>
 
-    <string name="place_photo_api_url">https://maps.googleapis.com/maps/api/place/photo?maxwidth=%s&amp;photoreference=%s&amp;key=%s</string>
+    <string name="place_photo_api_url" translatable="false">https://maps.googleapis.com/maps/api/place/photo?maxwidth=%s&amp;photoreference=%s&amp;key=%s</string>
 
     <string name="no_available_hours">no opening hours available</string>
     <string name="landing_page_create_account_button_text">create new account</string>
@@ -78,16 +75,13 @@
     <string name="notification_title">Don\'t forget!</string>
     <string name="notification_text_alone">Lunch at 12:00 at %s</string>
     <string name="notification_setting_label">Notifications</string>
-    <string name="landing_page_logo_description">landing page logo</string>
-    <string name="restaurant_details_description">restaurant details description</string>
-    <string name="floating_action_button_description">FAB to select restaurant for lunch</string>
-
-    <!--    <string name="notification_text_not_alone">Lunch at 12:00 with %s colleagues at %s.\n%s</string>-->
+    <string name="landing_page_logo_description" translatable="false">landing page logo</string>
+    <string name="restaurant_details_description" translatable="false">restaurant details description</string>
+    <string name="floating_action_button_description" translatable="false">FAB to select restaurant for lunch</string>
 
     <plurals name="notification_text_not_alone">
         <item quantity="one">Lunch at 12:00 with %s colleague at %s.\n%s</item>
         <item quantity="other">Lunch at 12:00 with %s colleagues at %s.\n%s</item>
     </plurals>
-
 
 </resources>

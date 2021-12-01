@@ -50,7 +50,7 @@ class SearchUseCase @Inject constructor(
                         } else {
                             emit(SearchResultStatus.NoResponse)
                         }
-                    } else if (!workmatesViewDisplayState && searchStringStatus is SearchString) {
+                    } else if (workmatesViewDisplayState && searchStringStatus is SearchString) {
                         emit(SearchResultStatus.SearchResult(data = listOf(searchStringStatus.data)))
                     }
                 }

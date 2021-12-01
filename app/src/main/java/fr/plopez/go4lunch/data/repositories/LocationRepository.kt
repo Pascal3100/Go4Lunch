@@ -18,6 +18,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
+@ExperimentalCoroutinesApi
 class LocationRepository @Inject constructor(
     private val client: FusedLocationProviderClient,
     @ApplicationContext private val context: Context
@@ -32,7 +33,7 @@ class LocationRepository @Inject constructor(
 
     var currentZoom = context.resources.getString(R.string.default_zoom_value).toFloat()
 
-    @ExperimentalCoroutinesApi
+    // get continuous updates from google location service
     @SuppressLint("MissingPermission")
     fun fetchUpdates(): Flow<PositionWithZoom> = callbackFlow {
 

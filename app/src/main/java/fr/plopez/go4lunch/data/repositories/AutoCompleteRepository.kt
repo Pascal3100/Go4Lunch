@@ -14,6 +14,7 @@ class AutoCompleteRepository @Inject constructor(
     private val restaurantService: RestaurantService,
     private val nearbyConstants: NearbyConstants
 ) {
+    // get search result from autocomplete Google web API
     suspend fun getAutocompleteResults(
         searchQuery: String,
         latitude: Double,

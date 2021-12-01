@@ -1,0 +1,61 @@
+<resources>
+    <string name="login_with_email">ou se connecter via email</string>
+    <string name="type_password_string">mot de passe</string>
+    <string name="landing_page_facebook_button_text">continuer via facebook</string>
+    <string name="landing_page_google_button_text">continuer via Google</string>
+    <string name="landing_page_email_button_text">continuer via email</string>
+    <string name="landing_page_create_account_link">Pas encore membre? Créez votre compte!</string>
+    <string name="maps_view_appbar_title">Où manger?</string>
+    <string name="menu_search_item_title">Chercher</string>
+    <string name="map_view_page_label">Carte</string>
+    <string name="list_view_page_label">Restaurants</string>
+    <string name="workmates_view_page_label">Collègues</string>
+    <string name="list_view_appbar_title">Quel Restaurant?</string>
+    <string name="workmates_view_appbar_title">Mes Collègues</string>
+    <string name="frd_call_item_text">APPELER</string>
+    <string name="frd_rate_item_text">FAVORIS</string>
+    <string name="frd_website_item_text">SITE WEB</string>
+    <string name="drawer_my_selected_restaurant_label">Votre selection</string>
+    <string name="drawer_my_settings_label">Réglages</string>
+    <string name="drawer_logout_label">Se deconnecter</string>
+
+    <string name="no_restaurants_message">Aucun restaurant autour de vous</string>
+    <string name="no_response_message">Serveur muet</string>
+    <string name="no_internet_message">Aucun acces internet disponible</string>
+    <string name="network_error_message">Erreur réseau</string>
+    <string name="accept_permissions_message">Acceptez les permissions et activez votre GPS afin de pouvoir continuer</string>
+    <string name="facebook_canceled_connection_message">Connexion à Facebook annulée</string>
+    <string name="facebook_connection_failed_message">Echec de connexion à Facebook</string>
+    <string name="not_connected_message">Vous n\'etes pas connecté</string>
+    <string name="google_connection_failed_message">Echec de connexion à Google</string>
+    <string name="closed_text">fermé</string>
+    <string name="open_at_text">ouvre à %s</string>
+    <string name="open_until_text">ouvert jusqu\'à %s</string>
+    <string name="closed_today_text">fermé aujourd\'hui</string>
+
+    <string name="no_available_hours">horaires indisponibles</string>
+    <string name="landing_page_create_account_button_text">Créez un nouveau compte</string>
+    <string name="email_bad_format_message">l\'email doit avoir le format : xxx@yyy.zz</string>
+    <string name="password_bad_format_message">le mot de passe doit contenir au moins un(e) majuscule/minuscule/caractere special/chiffre</string>
+    <string name="password_too_short_message">le mot de passe doit contenir au moins 8 caractère</string>
+    <string name="email_account_creation_failed">Echec de la création du compte</string>
+    <string name="email_already_exists">Cet email existe déjà</string>
+    <string name="password_too_weak">Mot de passe trop faible</string>
+    <string name="invalid_email">Email invalide</string>
+    <string name="invalid_password">Mot de passe invalide</string>
+    <string name="workmate_has_decided">%s mange à %s</string>
+    <string name="workmate_has_not_decided">%s ne s\'est pas encore decidé(e).</string>
+    <string name="firestore_fails_message">Probleme réseau, rééssayez plus tard</string>
+    <string name="joined_workmate_message">%s se joint à vous!</string>
+    <string name="dial_error">Pas de numéro disponible</string>
+    <string name="restaurant_not_yet_selected">Selectionnez un restaurant d\'abord :0D</string>
+    <string name="notification_title">N\'oublie pas!</string>
+    <string name="notification_text_alone">Dejeuner prévu à 12:00 à %s</string>
+    <string name="notification_setting_label">Notifications</string>
+
+    <plurals name="notification_text_not_alone">
+        <item quantity="one">Dejeuner prévu à 12:00 avec %s collègue à %s.\n%s</item>
+        <item quantity="other">Dejeuner prévu à 12:00 avec %s collègues à %s.\n%s</item>
+    </plurals>
+
+</resources>
