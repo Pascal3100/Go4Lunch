@@ -5,8 +5,8 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import fr.plopez.go4lunch.R
-import fr.plopez.go4lunch.data.model.restaurant.User
-import fr.plopez.go4lunch.data.model.restaurant.Workmate
+import fr.plopez.go4lunch.data.User
+import fr.plopez.go4lunch.data.Workmate
 import fr.plopez.go4lunch.data.repositories.FirestoreRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
@@ -14,7 +14,6 @@ import fr.plopez.go4lunch.di.NearbyConstants
 import fr.plopez.go4lunch.tests.utils.CommonsUtils
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.MAX_WIDTH
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.NEARBY_KEY
-import fr.plopez.go4lunch.tests.utils.CommonsUtils.NEARBY_TYPE
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_ADDRESS
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_ID
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_NAME
@@ -27,6 +26,7 @@ import fr.plopez.go4lunch.tests.utils.CommonsUtils.WORKMATE_EMAIL
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.WORKMATE_NAME
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.WORKMATE_PHOTO_URL
 import fr.plopez.go4lunch.tests.utils.LiveDataUtils.getOrAwaitValue
+import fr.plopez.go4lunch.utils.DateTimeUtils
 import fr.plopez.go4lunch.utils.FirebaseAuthUtils
 import fr.plopez.go4lunch.utils.TestCoroutineRule
 import fr.plopez.go4lunch.view.model.RestaurantDetailsViewState
@@ -53,6 +53,7 @@ class RestaurantDetailsViewModelTest {
         private const val WORKMATE_HAS_JOINED_STYLE = R.style.workmateItemNormalBlackBoldTextAppearance
         private const val OTHER_PLACE_ID = "OTHER_PLACE_ID"
         private const val OTHER_PLACE_NAME = "OTHER_PLACE_NAME"
+        private const val DELAY = 666L
     }
 
     // Rules
@@ -70,6 +71,7 @@ class RestaurantDetailsViewModelTest {
     private val contextMockK = mockk<Context>()
     private val nearbyConstantsMockK = mockk<NearbyConstants>()
     private val stateMockk = mockk<SavedStateHandle>(relaxed = true)
+    private val dateTimeUtilsMockk = mockk<DateTimeUtils>()
 
     // Test variables
 
@@ -162,9 +164,8 @@ class RestaurantDetailsViewModelTest {
             nearbyConstantsMockK.key
         } returns NEARBY_KEY
 
-        every {
-            nearbyConstantsMockK.type
-        } returns NEARBY_TYPE
+        // DateTimeUtils Mockk
+        every { dateTimeUtilsMockk.getDelayUtilLunch() } returns DELAY
     }
 
     @Test
@@ -369,13 +370,16 @@ class RestaurantDetailsViewModelTest {
     ) = RestaurantDetailsViewState(
         photoUrl = PLACE_PHOTO_API_URL,
         name = PLACE_NAME,
+        id = PLACE_ID,
         address = PLACE_ADDRESS,
         rate = PLACE_RATE.toFloat(),
         phoneNumber = PLACE_PHONE_NUMBER,
         website = PLACE_WEBSITE,
         isSelected = isSelected,
         isFavorite = isFavorite,
-        interestedWorkmatesList = interestedWorkmatesList
+        interestedWorkmatesList = interestedWorkmatesList,
+        currentUserEmail = WORKMATE_EMAIL,
+        delay = DELAY
     )
 
     private fun getDefaultWorkmatesViewStateList() =
@@ -394,6 +398,7 @@ class RestaurantDetailsViewModelTest {
         coroutinesProvider = coroutinesProviderMock,
         nearbyConstants = nearbyConstantsMockK,
         state = stateMockk,
-        context = contextMockK
+        context = contextMockK,
+        dateTimeUtils = dateTimeUtilsMockk
     )
 }

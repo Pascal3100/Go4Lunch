@@ -15,6 +15,7 @@ import fr.plopez.go4lunch.tests.utils.CommonsUtils.LATITUDE
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.LOCATION
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.LONGITUDE
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.MAX_DISPLACEMENT_TOL
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.NEARBY_KEY
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PERIODS_SEARCH_FIELD
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_PHONE_NUMBER
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.QUERY_TIME_STAMP
@@ -47,27 +48,29 @@ class RestaurantsRepositoryTest {
     private val restaurantServiceMock = mockk<RestaurantService>()
     private val restaurantsCacheDAOMock = mockk<RestaurantDAO>()
     private val coroutinesProviderMock = mockk<CoroutinesProvider>()
+    private val nearbyConstantsMockK = mockk<NearbyConstants>()
 
     // Test variables
-    private val nearbyConstants = NearbyConstants()
     private val podamFactory = PodamFactoryImpl()
     private val restaurantQueryResponseItem =
         podamFactory.manufacturePojo(RestaurantQueryResponseItem::class.java)
     private val queryWithRestaurants = getQueryWithRestaurants()
-
-    private lateinit var restaurantsRepository: RestaurantsRepository
 
     @Before
     fun setUp() {
         // Coroutines provider mock - provides a specific dispatcher for tests
         every { coroutinesProviderMock.ioCoroutineDispatcher } returns testCoroutineRule.testCoroutineDispatcher
 
+        // Nearby Constants Mockk
+        every {nearbyConstantsMockK.key} returns NEARBY_KEY
+
+
         // service mockk
         coEvery {
             restaurantServiceMock.getDetailsForRestaurant(
-                nearbyConstants.key,
-                PERIODS_SEARCH_FIELD,
-                any()
+                key = NEARBY_KEY,
+                fields = PERIODS_SEARCH_FIELD,
+                placeId = any()
             )
         } returns Response.success(
             DetailsQueryResult(
@@ -102,10 +105,8 @@ class RestaurantsRepositoryTest {
 
         coEvery {
             restaurantServiceMock.getNearbyRestaurants(
-                nearbyConstants.key,
-                nearbyConstants.type,
-                LOCATION,
-                RADIUS
+                key = NEARBY_KEY,
+                location = LOCATION
             )
         } returns Response.success(
             NearbyQueryResult(
@@ -115,14 +116,6 @@ class RestaurantsRepositoryTest {
                 ""
             )
         )
-
-        restaurantsRepository = RestaurantsRepository(
-            restaurantService = restaurantServiceMock,
-            nearbyConstants = nearbyConstants,
-            restaurantsCacheDAO = restaurantsCacheDAOMock,
-            coroutinesProvider = coroutinesProviderMock
-        )
-
     }
 
     // returns some restaurants from the network because database is empty
@@ -131,12 +124,12 @@ class RestaurantsRepositoryTest {
     fun `getRestaurantsAroundPosition from network case`() = testCoroutineRule.runBlockingTest {
 
         // Given
+        val restaurantsRepository = getRestaurantsRepository()
 
         // When
         val result = restaurantsRepository.getRestaurantsAroundPosition(
             latitude = LATITUDE,
-            longitude = LONGITUDE,
-            radius = RADIUS
+            longitude = LONGITUDE
         ).first()
 
         // Then
@@ -160,6 +153,8 @@ class RestaurantsRepositoryTest {
     fun `getRestaurantsAroundPosition from database case`() = testCoroutineRule.runBlockingTest {
 
         // Given
+        val restaurantsRepository = getRestaurantsRepository()
+
         coEvery {
             restaurantsCacheDAOMock.getNearestRestaurants(
                 latitude = LATITUDE.toDouble(),
@@ -171,8 +166,7 @@ class RestaurantsRepositoryTest {
         // When
         val result = restaurantsRepository.getRestaurantsAroundPosition(
             latitude = LATITUDE,
-            longitude = LONGITUDE,
-            radius = RADIUS
+            longitude = LONGITUDE
         ).first()
 
         // Then
@@ -197,20 +191,19 @@ class RestaurantsRepositoryTest {
         testCoroutineRule.runBlockingTest {
 
             // Given
+            val restaurantsRepository = getRestaurantsRepository()
+
             coEvery {
                 restaurantServiceMock.getNearbyRestaurants(
-                    nearbyConstants.key,
-                    nearbyConstants.type,
-                    LOCATION,
-                    RADIUS
+                    key = NEARBY_KEY,
+                    location = LOCATION
                 )
             }.throws(IOException("this is a fake IO exception for testing purpose"))
 
             // When
             val result = restaurantsRepository.getRestaurantsAroundPosition(
                 latitude = LATITUDE,
-                longitude = LONGITUDE,
-                radius = RADIUS
+                longitude = LONGITUDE
             ).first()
 
             // Then
@@ -224,12 +217,12 @@ class RestaurantsRepositoryTest {
         testCoroutineRule.runBlockingTest {
 
             // Given
+            val restaurantsRepository = getRestaurantsRepository()
+
             coEvery {
                 restaurantServiceMock.getNearbyRestaurants(
-                    nearbyConstants.key,
-                    nearbyConstants.type,
-                    LOCATION,
-                    RADIUS
+                    key = NEARBY_KEY,
+                    location = LOCATION
                 )
             }.throws(
                 HttpException(
@@ -245,8 +238,7 @@ class RestaurantsRepositoryTest {
             // When
             val result = restaurantsRepository.getRestaurantsAroundPosition(
                 latitude = LATITUDE,
-                longitude = LONGITUDE,
-                radius = RADIUS
+                longitude = LONGITUDE
             ).first()
 
             // Then
@@ -260,12 +252,12 @@ class RestaurantsRepositoryTest {
         testCoroutineRule.runBlockingTest {
 
             // Given
+            val restaurantsRepository = getRestaurantsRepository()
+
             coEvery {
                 restaurantServiceMock.getNearbyRestaurants(
-                    nearbyConstants.key,
-                    nearbyConstants.type,
-                    LOCATION,
-                    RADIUS
+                    key = NEARBY_KEY,
+                    location = LOCATION
                 )
             } returns Response.error(
                 ERROR_CODE,
@@ -277,8 +269,7 @@ class RestaurantsRepositoryTest {
             // When
             val result = restaurantsRepository.getRestaurantsAroundPosition(
                 latitude = LATITUDE,
-                longitude = LONGITUDE,
-                radius = RADIUS
+                longitude = LONGITUDE
             ).first()
 
             // Then
@@ -292,12 +283,12 @@ class RestaurantsRepositoryTest {
         testCoroutineRule.runBlockingTest {
 
             // Given
+            val restaurantsRepository = getRestaurantsRepository()
+
             coEvery {
                 restaurantServiceMock.getNearbyRestaurants(
-                    nearbyConstants.key,
-                    nearbyConstants.type,
-                    LOCATION,
-                    RADIUS
+                    key = NEARBY_KEY,
+                    location = LOCATION
                 )
             } returns Response.success(
                 NearbyQueryResult(
@@ -311,8 +302,7 @@ class RestaurantsRepositoryTest {
             // When
             val result = restaurantsRepository.getRestaurantsAroundPosition(
                 latitude = LATITUDE,
-                longitude = LONGITUDE,
-                radius = RADIUS
+                longitude = LONGITUDE
             ).first()
 
             // Then
@@ -326,20 +316,19 @@ class RestaurantsRepositoryTest {
         testCoroutineRule.runBlockingTest {
 
             // Given
+            val restaurantsRepository = getRestaurantsRepository()
+
             coEvery {
                 restaurantServiceMock.getNearbyRestaurants(
-                    nearbyConstants.key,
-                    nearbyConstants.type,
-                    LOCATION,
-                    RADIUS
+                    key = NEARBY_KEY,
+                    location = LOCATION
                 )
             } returns Response.success(null)
 
             // When
             val result = restaurantsRepository.getRestaurantsAroundPosition(
                 latitude = LATITUDE,
-                longitude = LONGITUDE,
-                radius = RADIUS
+                longitude = LONGITUDE
             ).first()
 
             // Then
@@ -351,13 +340,14 @@ class RestaurantsRepositoryTest {
     @Test
     fun `opening periods not inserted in database when empty`() =
         testCoroutineRule.runBlockingTest {
-
             // Given
+            val restaurantsRepository = getRestaurantsRepository()
+
             coEvery {
                 restaurantServiceMock.getDetailsForRestaurant(
-                    nearbyConstants.key,
-                    PERIODS_SEARCH_FIELD,
-                    any()
+                    key = NEARBY_KEY,
+                    fields = PERIODS_SEARCH_FIELD,
+                    placeId = any()
                 )
             } returns Response.success(
                 DetailsQueryResult(
@@ -379,8 +369,7 @@ class RestaurantsRepositoryTest {
             // When
             val result = restaurantsRepository.getRestaurantsAroundPosition(
                 latitude = LATITUDE,
-                longitude = LONGITUDE,
-                radius = RADIUS
+                longitude = LONGITUDE
             ).first()
 
             // then
@@ -402,19 +391,20 @@ class RestaurantsRepositoryTest {
         testCoroutineRule.runBlockingTest {
 
             // Given
+            val restaurantsRepository = getRestaurantsRepository()
+
             coEvery {
                 restaurantServiceMock.getDetailsForRestaurant(
-                    nearbyConstants.key,
-                    PERIODS_SEARCH_FIELD,
-                    any()
+                    key = NEARBY_KEY,
+                    fields = PERIODS_SEARCH_FIELD,
+                    placeId = any()
                 )
             } returns Response.success(null)
 
             // When
             val result = restaurantsRepository.getRestaurantsAroundPosition(
                 latitude = LATITUDE,
-                longitude = LONGITUDE,
-                radius = RADIUS
+                longitude = LONGITUDE
             ).first()
 
             // then
@@ -436,11 +426,13 @@ class RestaurantsRepositoryTest {
         testCoroutineRule.runBlockingTest {
 
             // Given
+            val restaurantsRepository = getRestaurantsRepository()
+
             coEvery {
                 restaurantServiceMock.getDetailsForRestaurant(
-                    nearbyConstants.key,
-                    PERIODS_SEARCH_FIELD,
-                    any()
+                    key = NEARBY_KEY,
+                    fields = PERIODS_SEARCH_FIELD,
+                    placeId = any()
                 )
             }.throws(
                 HttpException(
@@ -456,8 +448,7 @@ class RestaurantsRepositoryTest {
             // When
             val result = restaurantsRepository.getRestaurantsAroundPosition(
                 latitude = LATITUDE,
-                longitude = LONGITUDE,
-                radius = RADIUS
+                longitude = LONGITUDE
             ).first()
 
             // then
@@ -474,6 +465,13 @@ class RestaurantsRepositoryTest {
         }
 
     // region IN
+    private fun getRestaurantsRepository() = RestaurantsRepository(
+        restaurantService = restaurantServiceMock,
+        nearbyConstants = nearbyConstantsMockK,
+        restaurantsCacheDAO = restaurantsCacheDAOMock,
+        coroutinesProvider = coroutinesProviderMock
+    )
+
     private fun getExpectedRestaurantEntityList(
         restaurantQueryResponseItem: RestaurantQueryResponseItem
     ): List<RestaurantEntity> {
@@ -527,6 +525,7 @@ class RestaurantsRepositoryTest {
             )
         )
     }
+
     // endregion
 }
 

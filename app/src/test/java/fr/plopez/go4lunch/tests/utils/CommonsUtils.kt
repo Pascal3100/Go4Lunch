@@ -20,6 +20,8 @@ object CommonsUtils {
 
     const val PLACE_ID = "PLACE_ID"
     const val PLACE_NAME = "PLACE_NAME"
+    const val OTHER_PLACE_NAME = "OTHER_PLACE_NAME"
+    const val OTHER_PLACE_ID = "OTHER_PLACE_ID"
     const val PLACE_ADDRESS = "PLACE_ADDRESS"
     const val PLACE_PHOTO_URL = "PLACE_PHOTO_URL"
     const val PLACE_RATE = "5.0"
@@ -87,6 +89,31 @@ object CommonsUtils {
         RestaurantEntity(
             restaurantId = PLACE_ID,
             name = PLACE_NAME,
+            address = PLACE_ADDRESS,
+            latitude = LATITUDE.toDouble(),
+            longitude = LONGITUDE.toDouble(),
+            photoUrl = PLACE_PHOTO_URL,
+            rate = PLACE_RATE.toFloat(),
+            phoneNumber = PLACE_PHONE_NUMBER,
+            website = PLACE_WEBSITE
+        )
+    )
+
+    fun getTwiceRestaurantEntityList() = listOf(
+        RestaurantEntity(
+            restaurantId = PLACE_ID,
+            name = PLACE_NAME,
+            address = PLACE_ADDRESS,
+            latitude = LATITUDE.toDouble(),
+            longitude = LONGITUDE.toDouble(),
+            photoUrl = PLACE_PHOTO_URL,
+            rate = PLACE_RATE.toFloat(),
+            phoneNumber = PLACE_PHONE_NUMBER,
+            website = PLACE_WEBSITE
+        ),
+        RestaurantEntity(
+            restaurantId = OTHER_PLACE_ID,
+            name = OTHER_PLACE_NAME,
             address = PLACE_ADDRESS,
             latitude = LATITUDE.toDouble(),
             longitude = LONGITUDE.toDouble(),

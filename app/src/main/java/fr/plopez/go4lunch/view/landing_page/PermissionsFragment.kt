@@ -4,28 +4,21 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Context.LOCATION_SERVICE
+import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.PermissionChecker.checkSelfPermission
+import androidx.fragment.app.Fragment
+import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.databinding.FragmentPermissionsBinding
 import fr.plopez.go4lunch.interfaces.OnPermissionsAccepted
-import fr.plopez.go4lunch.utils.CustomSnackBar
-import java.lang.ClassCastException
-import android.content.DialogInterface
-
-import android.content.Intent
-
-import android.location.LocationManager
-import android.provider.Settings
-import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
-
-import androidx.core.content.ContextCompat.getSystemService
-import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class PermissionsFragment : Fragment() {

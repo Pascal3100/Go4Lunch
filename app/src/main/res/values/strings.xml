@@ -78,6 +78,9 @@
     <string name="notification_title">Don\'t forget!</string>
     <string name="notification_text_alone">Lunch at 12:00 at %s</string>
     <string name="notification_setting_label">Notifications</string>
+    <string name="landing_page_logo_description">landing page logo</string>
+    <string name="restaurant_details_description">restaurant details description</string>
+    <string name="floating_action_button_description">FAB to select restaurant for lunch</string>
 
     <!--    <string name="notification_text_not_alone">Lunch at 12:00 with %s colleagues at %s.\n%s</string>-->
 

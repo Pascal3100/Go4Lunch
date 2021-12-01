@@ -21,7 +21,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                tools:src="@tools:sample/backgrounds/scenic" />
+                tools:src="@tools:sample/backgrounds/scenic"
+                android:contentDescription="@string/restaurant_details_description" />
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/restaurant_details_activity_toolbar"
@@ -166,6 +167,7 @@
         app:layout_anchorGravity="bottom|end"
         tools:srcCompat="@drawable/selected"
         app:tint="@null"
-        app:maxImageSize="32dp"/>
+        app:maxImageSize="32dp"
+        android:contentDescription="@string/floating_action_button_description" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

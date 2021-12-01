@@ -1,7 +1,6 @@
 package fr.plopez.go4lunch.view.main_activity.google_maps
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.lifecycle.*
@@ -11,7 +10,7 @@ import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantEntity
 import fr.plopez.go4lunch.data.repositories.FirestoreRepository
 import fr.plopez.go4lunch.data.repositories.LocationRepository
-import fr.plopez.go4lunch.data.repositories.LocationRepository.*
+import fr.plopez.go4lunch.data.repositories.LocationRepository.PositionWithZoom
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository.ResponseStatus
 import fr.plopez.go4lunch.di.CoroutinesProvider
@@ -21,10 +20,15 @@ import fr.plopez.go4lunch.view.main_activity.SearchUseCase
 import fr.plopez.go4lunch.view.main_activity.SearchUseCase.SearchResultStatus.SearchResult
 import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+@FlowPreview
 @ExperimentalCoroutinesApi
 @SuppressLint("StaticFieldLeak")
 @HiltViewModel

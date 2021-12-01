@@ -20,7 +20,6 @@ import fr.plopez.go4lunch.utils.exhaustive
 import fr.plopez.go4lunch.view.main_activity.MainActivity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
-import java.lang.ClassCastException
 
 
 @ExperimentalCoroutinesApi

@@ -7,7 +7,10 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
-import androidx.work.*
+import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.NotifyWork
@@ -17,7 +20,6 @@ import fr.plopez.go4lunch.utils.CustomSnackBar
 import fr.plopez.go4lunch.view.model.RestaurantDetailsViewState
 import fr.plopez.go4lunch.view.restaurant_details.RestaurantDetailsViewModel.RestaurantDetailsViewAction.FirestoreFails
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import java.lang.Exception
 import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint

@@ -2,11 +2,15 @@ package fr.plopez.go4lunch.view.main_activity
 
 import fr.plopez.go4lunch.data.repositories.AutoCompleteRepository
 import fr.plopez.go4lunch.data.repositories.LocationRepository
+import fr.plopez.go4lunch.view.main_activity.SearchUseCase.SearchStringStatus.EmptyString
+import fr.plopez.go4lunch.view.main_activity.SearchUseCase.SearchStringStatus.SearchString
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@FlowPreview
 @Singleton
 @ExperimentalCoroutinesApi
 class SearchUseCase @Inject constructor(
@@ -14,11 +18,11 @@ class SearchUseCase @Inject constructor(
     private val autoCompleteRepository: AutoCompleteRepository,
 ) {
 
-    private val searchTextMutableStateFlow = MutableStateFlow("")
+    private val searchTextMutableStateFlow = MutableStateFlow<SearchStringStatus>(value = EmptyString)
     private val workmatesViewDisplayStateMutableStateFlow = MutableStateFlow(false)
 
-    fun updateSearchText(newSearchText: String) {
-        searchTextMutableStateFlow.value = newSearchText
+    fun updateSearchText(searchStringStatus: SearchStringStatus) {
+        searchTextMutableStateFlow.value = searchStringStatus
     }
 
     fun updateWorkmatesViewDisplayState(isWorkmatesViewDisplayed: Boolean) {
@@ -28,12 +32,12 @@ class SearchUseCase @Inject constructor(
     suspend fun getSearchResult(): Flow<SearchResultStatus> =
         workmatesViewDisplayStateMutableStateFlow.flatMapLatest { workmatesViewDisplayState ->
             locationRepository.fetchUpdates().flatMapLatest { positionWithZoom ->
-                searchTextMutableStateFlow.debounce(250).transform { searchQuery ->
-                    if (searchQuery == "") {
+                searchTextMutableStateFlow.debounce(250).transform { searchStringStatus ->
+                    if (searchStringStatus is EmptyString) {
                         emit(SearchResultStatus.EmptyQuery)
-                    } else if (!workmatesViewDisplayState) {
+                    } else if (!workmatesViewDisplayState && searchStringStatus is SearchString) {
                         val response = autoCompleteRepository.getAutocompleteResults(
-                            searchQuery = searchQuery,
+                            searchQuery = searchStringStatus.data,
                             latitude = positionWithZoom.latitude,
                             longitude = positionWithZoom.longitude
                         )
@@ -46,8 +50,8 @@ class SearchUseCase @Inject constructor(
                         } else {
                             emit(SearchResultStatus.NoResponse)
                         }
-                    } else {
-                        emit(SearchResultStatus.SearchResult(data = listOf(searchQuery)))
+                    } else if (!workmatesViewDisplayState && searchStringStatus is SearchString) {
+                        emit(SearchResultStatus.SearchResult(data = listOf(searchStringStatus.data)))
                     }
                 }
             }
@@ -57,5 +61,10 @@ class SearchUseCase @Inject constructor(
         object EmptyQuery : SearchResultStatus()
         object NoResponse : SearchResultStatus()
         data class SearchResult(val data: List<String>) : SearchResultStatus()
+    }
+
+    sealed class SearchStringStatus {
+        object EmptyString : SearchStringStatus()
+        data class SearchString(val data: String) : SearchStringStatus()
     }
 }

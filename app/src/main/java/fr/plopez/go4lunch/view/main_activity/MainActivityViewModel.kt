@@ -1,6 +1,5 @@
 package fr.plopez.go4lunch.view.main_activity
 
-import android.util.Log
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.plopez.go4lunch.data.repositories.FirestoreRepository
@@ -8,9 +7,12 @@ import fr.plopez.go4lunch.di.CoroutinesProvider
 import fr.plopez.go4lunch.utils.FirebaseAuthUtils
 import fr.plopez.go4lunch.view.main_activity.MainActivityViewModel.MainActivityViewAction.NoRestaurantSelected
 import fr.plopez.go4lunch.view.main_activity.MainActivityViewModel.MainActivityViewAction.SelectedRestaurant
+import fr.plopez.go4lunch.view.main_activity.SearchUseCase.SearchStringStatus.EmptyString
+import fr.plopez.go4lunch.view.main_activity.SearchUseCase.SearchStringStatus.SearchString
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 @ExperimentalCoroutinesApi
@@ -50,9 +52,9 @@ class MainActivityViewModel @Inject constructor(
 
     fun onSearchTextChange(newSearchText: String?) {
         if (newSearchText != null && newSearchText.length > 2) {
-            searchUseCase.updateSearchText(newSearchText)
+            searchUseCase.updateSearchText(SearchString(data = newSearchText))
         } else {
-            searchUseCase.updateSearchText("")
+            searchUseCase.updateSearchText(EmptyString)
         }
     }
 

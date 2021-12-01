@@ -3,12 +3,11 @@ package fr.plopez.go4lunch.view.landing_page
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.transition.TransitionManager
 import com.facebook.AccessToken
 import com.facebook.CallbackManager
@@ -21,12 +20,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.*
+import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.FragmentLoginBinding
-import fr.plopez.go4lunch.utils.CustomSnackBar
-import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.interfaces.OnLoginSuccessful
-import java.lang.ClassCastException
+import fr.plopez.go4lunch.utils.CustomSnackBar
 import javax.inject.Inject
 
 @AndroidEntryPoint

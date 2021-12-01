@@ -19,18 +19,26 @@ import fr.plopez.go4lunch.tests.utils.CommonsUtils.WORKMATE_NAME
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.WORKMATE_PHOTO_URL
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.ZOOM
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.getDefaultRestaurantEntityList
+import fr.plopez.go4lunch.tests.utils.CommonsUtils.getTwiceRestaurantEntityList
 import fr.plopez.go4lunch.tests.utils.LiveDataUtils.getOrAwaitValue
 import fr.plopez.go4lunch.utils.TestCoroutineRule
+import fr.plopez.go4lunch.view.main_activity.SearchUseCase
+import fr.plopez.go4lunch.view.main_activity.SearchUseCase.SearchResultStatus
+import fr.plopez.go4lunch.view.main_activity.SearchUseCase.SearchResultStatus.EmptyQuery
+import fr.plopez.go4lunch.view.main_activity.SearchUseCase.SearchResultStatus.SearchResult
 import fr.plopez.go4lunch.view.main_activity.google_maps.GoogleMapsViewModel
 import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant
 import io.mockk.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
+@FlowPreview
 @ExperimentalCoroutinesApi
 class GoogleMapsViewModelTest {
 
@@ -53,6 +61,7 @@ class GoogleMapsViewModelTest {
     private val locationRepositoryMockK = mockk<LocationRepository>()
     private val restaurantsRepositoryMockK = mockk<RestaurantsRepository>()
     private val firestoreRepositoryMockk = mockk<FirestoreRepository>()
+    private val searchUseCaseMock = mockk<SearchUseCase>()
     private val contextMockK = mockk<Context>()
 
     // Test variables
@@ -76,14 +85,9 @@ class GoogleMapsViewModelTest {
         coEvery {
             restaurantsRepositoryMockK.getRestaurantsAroundPosition(
                 LATITUDE,
-                LONGITUDE,
-                RADIUS
+                LONGITUDE
             )
-        } returns flowOf(
-            RestaurantsRepository.ResponseStatus.Success(
-                getDefaultRestaurantEntityList()
-            )
-        )
+        } returns getDefaultFlowOfResponseStatus()
 
         // Mock firestore repository
         coEvery {
@@ -104,40 +108,35 @@ class GoogleMapsViewModelTest {
         every {
             contextMockK.resources.getString(R.string.default_detection_radius_value)
         } returns RADIUS
+
+        // Mock searchUseCase
+        justRun { searchUseCaseMock.updateSearchText(any()) }
+        justRun { searchUseCaseMock.updateWorkmatesViewDisplayState(any()) }
+        coEvery { searchUseCaseMock.getSearchResult() } returns
+                getDefaultSearchResultFlow()
+
     }
 
     @Test
     fun `success response when a list of restaurant is returned and a restaurant is selected by users`() =
         testCoroutineRule.runBlockingTest {
             // Given
-            val googleMapsViewModel = GoogleMapsViewModel(
-                locationRepository = locationRepositoryMockK,
-                restaurantsRepository = restaurantsRepositoryMockK,
-                firestoreRepository = firestoreRepositoryMockk,
-                coroutinesProvider = coroutinesProviderMock,
-                context = contextMockK
-            )
+            val googleMapsViewModel = getGoogleMapsViewModel()
 
             // When
+            // Activate the switch map
             googleMapsViewModel.onMapReady()
-            googleMapsViewModel.googleMapViewStateLiveData.observeForever {
-                // Then
-                assertEquals(getDefaultGoogleMapViewState(), it)
-            }
+            val result = googleMapsViewModel.googleMapViewStateLiveData.getOrAwaitValue()
+
+            // Then
+            assertEquals(getDefaultGoogleMapViewState(), result)
         }
 
     @Test
     fun `success response when a list of restaurant is returned and a restaurant is not selected by users`() =
-
         testCoroutineRule.runBlockingTest {
             // Given
-            val googleMapsViewModel = GoogleMapsViewModel(
-                locationRepository = locationRepositoryMockK,
-                restaurantsRepository = restaurantsRepositoryMockK,
-                firestoreRepository = firestoreRepositoryMockk,
-                coroutinesProvider = coroutinesProviderMock,
-                context = contextMockK
-            )
+            val googleMapsViewModel = getGoogleMapsViewModel()
 
             coEvery {
                 firestoreRepositoryMockk.getWorkmatesWithSelectedRestaurants()
@@ -147,42 +146,37 @@ class GoogleMapsViewModelTest {
 
             // When
             googleMapsViewModel.onMapReady()
-            googleMapsViewModel.googleMapViewStateLiveData.observeForever {
-                // Then
-                assertEquals(getDefaultGoogleMapViewState(
-                    restaurantViewStateList = listOf(
-                        GoogleMapsViewModel.RestaurantViewState(
-                            latitude = LATITUDE.toDouble(),
-                            longitude = LONGITUDE.toDouble(),
-                            name = PLACE_NAME,
-                            id = PLACE_ID,
-                            iconDrawable = R.drawable.grey_pin_128px
-                        )
+            val result = googleMapsViewModel.googleMapViewStateLiveData.getOrAwaitValue()
+            val expected = getDefaultGoogleMapViewState(
+                restaurantViewStateList = listOf(
+                    GoogleMapsViewModel.RestaurantViewState(
+                        latitude = LATITUDE.toDouble(),
+                        longitude = LONGITUDE.toDouble(),
+                        name = PLACE_NAME,
+                        id = PLACE_ID,
+                        iconDrawable = R.drawable.grey_pin_128px
                     )
-                ), it)
-            }
+                )
+            )
+
+            // Then
+            assertEquals(expected, result)
         }
 
     @Test
     fun `NoRestaurant response when list of restaurant is empty`() =
         testCoroutineRule.runBlockingTest {
             // Given
-            val googleMapsViewModel = GoogleMapsViewModel(
-                locationRepository = locationRepositoryMockK,
-                restaurantsRepository = restaurantsRepositoryMockK,
-                firestoreRepository = firestoreRepositoryMockk,
-                coroutinesProvider = coroutinesProviderMock,
-                context = contextMockK
-            )
+            val googleMapsViewModel = getGoogleMapsViewModel()
 
             coEvery {
                 restaurantsRepositoryMockK.getRestaurantsAroundPosition(
                     LATITUDE,
-                    LONGITUDE,
-                    RADIUS
+                    LONGITUDE
                 )
-            } returns flowOf(
-                RestaurantsRepository.ResponseStatus.NoRestaurants
+            } returns getDefaultFlowOfResponseStatus(
+                responseStatusFlow =
+                flowOf(RestaurantsRepository.ResponseStatus.NoRestaurants)
             )
             val observer = mockk<Observer<GoogleMapsViewModel.GoogleMapViewAction>> {
                 every { onChanged(any()) } just Runs
@@ -212,24 +206,20 @@ class GoogleMapsViewModelTest {
     fun `NoRestaurant response trigger only one time when list of restaurant is empty many times`() =
         testCoroutineRule.runBlockingTest {
             // Given
-            val googleMapsViewModel = GoogleMapsViewModel(
-                locationRepository = locationRepositoryMockK,
-                restaurantsRepository = restaurantsRepositoryMockK,
-                firestoreRepository = firestoreRepositoryMockk,
-                coroutinesProvider = coroutinesProviderMock,
-                context = contextMockK
-            )
+            val googleMapsViewModel = getGoogleMapsViewModel()
 
             coEvery {
                 restaurantsRepositoryMockK.getRestaurantsAroundPosition(
                     LATITUDE,
-                    LONGITUDE,
-                    RADIUS
+                    LONGITUDE
                 )
-            } returns flowOf(
-                RestaurantsRepository.ResponseStatus.NoRestaurants,
-                RestaurantsRepository.ResponseStatus.NoRestaurants,
-                RestaurantsRepository.ResponseStatus.NoRestaurants
+            } returns getDefaultFlowOfResponseStatus(
+                responseStatusFlow =
+                flowOf(
+                    RestaurantsRepository.ResponseStatus.NoRestaurants,
+                    RestaurantsRepository.ResponseStatus.NoRestaurants,
+                    RestaurantsRepository.ResponseStatus.NoRestaurants
+                )
             )
 
             val observer = mockk<Observer<GoogleMapsViewModel.GoogleMapViewAction>> {
@@ -260,21 +250,17 @@ class GoogleMapsViewModelTest {
     fun `http error message when http exception is returned`() =
         testCoroutineRule.runBlockingTest {
             // Given
-            val googleMapsViewModel = GoogleMapsViewModel(
-                locationRepository = locationRepositoryMockK,
-                restaurantsRepository = restaurantsRepositoryMockK,
-                firestoreRepository = firestoreRepositoryMockk,
-                coroutinesProvider = coroutinesProviderMock,
-                context = contextMockK
-            )
+            val googleMapsViewModel = getGoogleMapsViewModel()
             coEvery {
                 restaurantsRepositoryMockK.getRestaurantsAroundPosition(
                     LATITUDE,
-                    LONGITUDE,
-                    RADIUS
+                    LONGITUDE
                 )
-            } returns flowOf(
-                RestaurantsRepository.ResponseStatus.StatusError.HttpException
+            } returns getDefaultFlowOfResponseStatus(
+                responseStatusFlow =
+                flowOf(
+                    RestaurantsRepository.ResponseStatus.StatusError.HttpException
+                )
             )
             // When
             // Activate the switch map
@@ -292,20 +278,16 @@ class GoogleMapsViewModelTest {
     fun `no response message when nothing is returned`() =
         testCoroutineRule.runBlockingTest {
             // Given
-            val googleMapsViewModel = GoogleMapsViewModel(
-                locationRepository = locationRepositoryMockK,
-                restaurantsRepository = restaurantsRepositoryMockK,
-                firestoreRepository = firestoreRepositoryMockk,
-                coroutinesProvider = coroutinesProviderMock,
-                context = contextMockK
-            )
+            val googleMapsViewModel = getGoogleMapsViewModel()
             coEvery {
                 restaurantsRepositoryMockK.getRestaurantsAroundPosition(
                     LATITUDE,
-                    LONGITUDE,
-                    RADIUS
+                    LONGITUDE
                 )
-            } returns flowOf()
+            } returns getDefaultFlowOfResponseStatus(
+                responseStatusFlow =
+                flowOf()
+            )
             // When
             // Activate the switch map
             googleMapsViewModel.onMapReady()
@@ -322,21 +304,16 @@ class GoogleMapsViewModelTest {
     fun `internet error message when io exception is returned`() =
         testCoroutineRule.runBlockingTest {
             // Given
-            val googleMapsViewModel = GoogleMapsViewModel(
-                locationRepository = locationRepositoryMockK,
-                restaurantsRepository = restaurantsRepositoryMockK,
-                firestoreRepository = firestoreRepositoryMockk,
-                coroutinesProvider = coroutinesProviderMock,
-                context = contextMockK
-            )
+            val googleMapsViewModel = getGoogleMapsViewModel()
             coEvery {
                 restaurantsRepositoryMockK.getRestaurantsAroundPosition(
                     LATITUDE,
-                    LONGITUDE,
-                    RADIUS
+                    LONGITUDE
                 )
-            } returns flowOf(
-                RestaurantsRepository.ResponseStatus.StatusError.IOException
+            } returns getDefaultFlowOfResponseStatus(
+                responseStatusFlow = flowOf(
+                    RestaurantsRepository.ResponseStatus.StatusError.IOException
+                )
             )
 
             // When
@@ -351,13 +328,88 @@ class GoogleMapsViewModelTest {
             }
         }
 
+    @Test
+    fun `filtered result case no result found`() =
+        testCoroutineRule.runBlockingTest {
+            // Given
+            val googleMapsViewModel = getGoogleMapsViewModel()
+            coEvery {
+                restaurantsRepositoryMockK.getRestaurantsAroundPosition(
+                    LATITUDE,
+                    LONGITUDE
+                )
+            } returns getDefaultFlowOfResponseStatus(
+                responseStatusFlow = flowOf(
+                    RestaurantsRepository.ResponseStatus.Success(
+                        getTwiceRestaurantEntityList()
+                    )
+                )
+            )
+            coEvery { searchUseCaseMock.getSearchResult() } returns
+                    getDefaultSearchResultFlow(searchResult = SearchResult(listOf()))
+
+            // When
+            // Activate the switch map
+            googleMapsViewModel.onMapReady()
+
+            // Then
+            val result = googleMapsViewModel.googleMapViewStateLiveData.getOrAwaitValue()
+            assertEquals(getDefaultGoogleMapViewState(restaurantViewStateList = listOf()), result)
+        }
+
+    @Test
+    fun `filtered result case one result found`() =
+        testCoroutineRule.runBlockingTest {
+            // Given
+            val googleMapsViewModel = getGoogleMapsViewModel()
+            coEvery {
+                restaurantsRepositoryMockK.getRestaurantsAroundPosition(
+                    LATITUDE,
+                    LONGITUDE
+                )
+            } returns getDefaultFlowOfResponseStatus(
+                responseStatusFlow = flowOf(
+                    RestaurantsRepository.ResponseStatus.Success(
+                        getTwiceRestaurantEntityList()
+                    )
+                )
+            )
+
+            // When
+            // Activate the switch map
+            googleMapsViewModel.onMapReady()
+            coEvery { searchUseCaseMock.getSearchResult() } returns
+                    getDefaultSearchResultFlow(searchResult = SearchResult(listOf(PLACE_ID)))
+
+            // Then
+            val result = googleMapsViewModel.googleMapViewStateLiveData.getOrAwaitValue()
+            assertEquals(getDefaultGoogleMapViewState(), result)
+        }
+
     // region IN
+
+    private fun getGoogleMapsViewModel() = GoogleMapsViewModel(
+        locationRepository = locationRepositoryMockK,
+        restaurantsRepository = restaurantsRepositoryMockK,
+        firestoreRepository = firestoreRepositoryMockk,
+        coroutinesProvider = coroutinesProviderMock,
+        searchUseCase = searchUseCaseMock
+    )
+
+    private fun getDefaultFlowOfResponseStatus(
+        responseStatusFlow: Flow<RestaurantsRepository.ResponseStatus> =
+            flowOf(
+                RestaurantsRepository.ResponseStatus.Success(
+                    getDefaultRestaurantEntityList()
+                )
+            )
+    ) = responseStatusFlow
 
     private fun getDefaultGoogleMapViewState(
         restaurantViewStateList: List<GoogleMapsViewModel.RestaurantViewState> = getDefaultRestaurantViewStateList()
     ) = GoogleMapsViewModel.GoogleMapViewState(
         latitude = LATITUDE.toDouble(),
-        longitude =  LONGITUDE.toDouble(),
+        longitude = LONGITUDE.toDouble(),
         zoom = ZOOM.toFloat(),
         restaurantList = restaurantViewStateList
     )
@@ -383,6 +435,10 @@ class GoogleMapsViewModelTest {
                 zoom = ZOOM.toFloat()
             )
     ) = camera
+
+    private fun getDefaultSearchResultFlow(
+        searchResult: SearchResultStatus = EmptyQuery
+    ) = flowOf(searchResult)
 
     // endregion
 }

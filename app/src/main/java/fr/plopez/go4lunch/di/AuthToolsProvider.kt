@@ -9,10 +9,8 @@ import com.google.firebase.ktx.Firebase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.scopes.ActivityScoped
 import dagger.hilt.components.SingletonComponent
 import fr.plopez.go4lunch.utils.FirebaseAuthUtils
-import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module

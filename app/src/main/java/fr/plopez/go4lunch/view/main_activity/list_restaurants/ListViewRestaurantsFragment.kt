@@ -2,14 +2,11 @@ package fr.plopez.go4lunch.view.main_activity
 
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
@@ -17,8 +14,6 @@ import fr.plopez.go4lunch.interfaces.OnClickRestaurantListener
 import fr.plopez.go4lunch.view.main_activity.list_restaurants.ListRestaurantsAdapter
 import fr.plopez.go4lunch.view.main_activity.list_restaurants.ListRestaurantsViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
-import java.lang.ClassCastException
 
 @AndroidEntryPoint
 @ExperimentalCoroutinesApi

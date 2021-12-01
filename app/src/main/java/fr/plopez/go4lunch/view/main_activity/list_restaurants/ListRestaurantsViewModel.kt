@@ -3,12 +3,12 @@ package fr.plopez.go4lunch.view.main_activity.list_restaurants
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
-import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.liveData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.plopez.go4lunch.R
-import fr.plopez.go4lunch.view.model.RestaurantItemViewState
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantOpeningPeriod
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantsQuery
 import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantWithOpeningPeriods
@@ -18,12 +18,14 @@ import fr.plopez.go4lunch.di.CoroutinesProvider
 import fr.plopez.go4lunch.di.NearbyConstants
 import fr.plopez.go4lunch.utils.DateTimeUtils
 import fr.plopez.go4lunch.view.main_activity.SearchUseCase
+import fr.plopez.go4lunch.view.model.RestaurantItemViewState
 import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import java.time.LocalTime
 import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.math.round
 
 @ExperimentalCoroutinesApi

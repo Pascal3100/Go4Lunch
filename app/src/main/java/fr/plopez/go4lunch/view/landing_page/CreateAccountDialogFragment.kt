@@ -2,24 +2,21 @@ package fr.plopez.go4lunch.view.landing_page
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
-import androidx.lifecycle.viewModelScope
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
-import com.google.firebase.auth.*
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.CreateAccountDialogFragmentBinding
 import fr.plopez.go4lunch.interfaces.OnLoginSuccessful
 import fr.plopez.go4lunch.utils.CustomSnackBar
 import fr.plopez.go4lunch.utils.exhaustive
-import java.lang.ClassCastException
 import javax.inject.Inject
-
-import java.lang.Exception
 
 
 @AndroidEntryPoint

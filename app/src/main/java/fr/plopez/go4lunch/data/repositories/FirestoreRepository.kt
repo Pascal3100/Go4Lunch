@@ -1,11 +1,8 @@
 package fr.plopez.go4lunch.data.repositories
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
-import fr.plopez.go4lunch.data.model.restaurant.Workmate
+import fr.plopez.go4lunch.data.Workmate
 import fr.plopez.go4lunch.utils.DateTimeUtils
 import fr.plopez.go4lunch.utils.FirebaseAuthUtils
 import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant

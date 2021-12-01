@@ -1,11 +1,10 @@
 package fr.plopez.go4lunch.utils
 
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import fr.plopez.go4lunch.data.model.restaurant.User
-import fr.plopez.go4lunch.data.model.restaurant.Workmate
+import fr.plopez.go4lunch.data.User
+import fr.plopez.go4lunch.data.Workmate
 
 class FirebaseAuthUtils {
 
