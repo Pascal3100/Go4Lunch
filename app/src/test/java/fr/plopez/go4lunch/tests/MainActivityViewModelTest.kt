@@ -53,7 +53,7 @@ class MainActivityViewModelTest {
     private val searchUseCaseMock = mockk<SearchUseCase>()
 
     //
-    val NULL_SEARCH_STRING = null
+    private val nullSearchString = null
 
 
     @Before
@@ -172,7 +172,7 @@ class MainActivityViewModelTest {
             val mainActivityViewModel = getMainActivityViewModel()
 
             // When
-            mainActivityViewModel.onSearchTextChange(newSearchText = NULL_SEARCH_STRING)
+            mainActivityViewModel.onSearchTextChange(newSearchText = nullSearchString)
 
             // Then
             verify { searchUseCaseMock.updateSearchText(SearchUseCase.SearchStringStatus.EmptyString) }

@@ -1,4 +1,4 @@
-package fr.plopez.go4lunch.view.main_activity
+package fr.plopez.go4lunch.view.main_activity.list_restaurants
 
 import android.content.Context
 import android.os.Bundle
@@ -11,11 +11,12 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.interfaces.OnClickRestaurantListener
-import fr.plopez.go4lunch.view.main_activity.list_restaurants.ListRestaurantsAdapter
-import fr.plopez.go4lunch.view.main_activity.list_restaurants.ListRestaurantsViewModel
+import fr.plopez.go4lunch.view.main_activity.MainActivity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 
 @AndroidEntryPoint
+@FlowPreview
 @ExperimentalCoroutinesApi
 class ListViewRestaurantFragment : Fragment() {
 

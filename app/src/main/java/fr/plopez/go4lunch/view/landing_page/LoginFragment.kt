@@ -33,8 +33,6 @@ class LoginFragment : Fragment() {
     companion object {
         fun newInstance() = LoginFragment()
 
-        private const val TAG = "LoginFragment"
-
         // Interface
         private lateinit var onLoginSuccessful: OnLoginSuccessful
 

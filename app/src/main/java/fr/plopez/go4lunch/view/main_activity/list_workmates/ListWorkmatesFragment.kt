@@ -10,8 +10,10 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 
 @AndroidEntryPoint
+@FlowPreview
 @ExperimentalCoroutinesApi
 class ListWorkmatesFragment : Fragment() {
 

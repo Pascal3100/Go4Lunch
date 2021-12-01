@@ -19,7 +19,6 @@ import fr.plopez.go4lunch.tests.utils.CommonsUtils.NEARBY_KEY
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PERIODS_SEARCH_FIELD
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_PHONE_NUMBER
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.QUERY_TIME_STAMP
-import fr.plopez.go4lunch.tests.utils.CommonsUtils.RADIUS
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_WEBSITE
 import fr.plopez.go4lunch.utils.TestCoroutineRule
 import io.mockk.*

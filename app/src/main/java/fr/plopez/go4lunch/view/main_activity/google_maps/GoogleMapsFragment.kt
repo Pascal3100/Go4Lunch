@@ -19,10 +19,12 @@ import fr.plopez.go4lunch.utils.CustomSnackBar
 import fr.plopez.go4lunch.utils.exhaustive
 import fr.plopez.go4lunch.view.main_activity.MainActivity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
 
 
 @ExperimentalCoroutinesApi
+@FlowPreview
 @AndroidEntryPoint
 class GoogleMapsFragment :
     SupportMapFragment(),

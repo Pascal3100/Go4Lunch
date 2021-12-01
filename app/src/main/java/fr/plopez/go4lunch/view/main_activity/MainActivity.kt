@@ -32,6 +32,7 @@ import fr.plopez.go4lunch.view.landing_page.LandingPageActivity
 import fr.plopez.go4lunch.view.main_activity.MainActivityViewModel.MainActivityViewAction.NoRestaurantSelected
 import fr.plopez.go4lunch.view.main_activity.MainActivityViewModel.MainActivityViewAction.SelectedRestaurant
 import fr.plopez.go4lunch.view.main_activity.google_maps.GoogleMapsFragment
+import fr.plopez.go4lunch.view.main_activity.list_restaurants.ListViewRestaurantFragment
 import fr.plopez.go4lunch.view.main_activity.list_workmates.ListWorkmatesFragment
 import fr.plopez.go4lunch.view.restaurant_details.RestaurantDetailsActivity
 import kotlinx.coroutines.ExperimentalCoroutinesApi

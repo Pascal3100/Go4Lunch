@@ -53,7 +53,7 @@ class CreateAccountDialogFragment : DialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = CreateAccountDialogFragmentBinding.inflate(layoutInflater)
 
         return binding.root

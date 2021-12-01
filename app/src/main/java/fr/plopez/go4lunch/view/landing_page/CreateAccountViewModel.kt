@@ -47,7 +47,7 @@ class CreateAccountViewModel @Inject constructor() : ViewModel() {
                 CreateAccountAuthorizer.StatusMessage(Messages.PASSWORD_BAD_FORMAT.messageResId)
         } else {
             createAccountAuthorizerSingleLiveEvent.value =
-                CreateAccountAuthorizer.Authorized()
+                CreateAccountAuthorizer.Authorized
         }
     }
 
@@ -69,6 +69,6 @@ class CreateAccountViewModel @Inject constructor() : ViewModel() {
 
     sealed class CreateAccountAuthorizer {
         data class StatusMessage(@StringRes val messageResId: Int) : CreateAccountAuthorizer()
-        class Authorized : CreateAccountAuthorizer()
+        object Authorized : CreateAccountAuthorizer()
     }
 }

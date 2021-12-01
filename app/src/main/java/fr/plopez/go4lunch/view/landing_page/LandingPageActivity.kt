@@ -21,15 +21,16 @@ import fr.plopez.go4lunch.view.landing_page.LandingPageViewModel.LandingPageView
 import fr.plopez.go4lunch.view.landing_page.LandingPageViewModel.LandingPageViewAction.GoToPermissions
 import fr.plopez.go4lunch.view.main_activity.MainActivity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import javax.inject.Inject
 
 @AndroidEntryPoint
+@FlowPreview
 @ExperimentalCoroutinesApi
 class LandingPageActivity : AppCompatActivity(R.layout.activity_landing_page), OnLoginSuccessful,
     OnPermissionsAccepted {
 
     companion object {
-        private val TAG = "LandingPageActivity"
         fun navigate(activity: FragmentActivity): Intent {
             return Intent(activity, LandingPageActivity::class.java)
         }

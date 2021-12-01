@@ -21,6 +21,7 @@ import fr.plopez.go4lunch.view.main_activity.SearchUseCase
 import fr.plopez.go4lunch.view.model.RestaurantItemViewState
 import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
@@ -29,6 +30,7 @@ import javax.inject.Inject
 import kotlin.math.round
 
 @ExperimentalCoroutinesApi
+@FlowPreview
 @SuppressLint("StaticFieldLeak")
 @HiltViewModel
 class ListRestaurantsViewModel @Inject constructor(

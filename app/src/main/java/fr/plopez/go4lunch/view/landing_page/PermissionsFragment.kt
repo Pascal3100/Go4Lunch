@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Context.LOCATION_SERVICE
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
@@ -24,7 +23,7 @@ import fr.plopez.go4lunch.interfaces.OnPermissionsAccepted
 class PermissionsFragment : Fragment() {
 
     companion object{
-        val REQUEST_CODE = 0
+        private const val REQUEST_CODE = 0
 
         fun newInstance(): PermissionsFragment {
             return PermissionsFragment()
@@ -126,15 +125,14 @@ class PermissionsFragment : Fragment() {
         val builder = AlertDialog.Builder(requireContext())
         builder.setMessage("Your GPS seems to be disabled, do you want to enable it?")
             .setCancelable(false)
-            .setPositiveButton("Yes",
-                DialogInterface.OnClickListener {
-                    dialog, id -> onPermissionsAccepted.onGPSActivationRequest(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-                })
-            .setNegativeButton("No",
-                DialogInterface.OnClickListener {
-                    dialog, id -> dialog.cancel()
-                }
-            )
+            .setPositiveButton("Yes"
+            ) { _, _ ->
+                onPermissionsAccepted.onGPSActivationRequest(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+            }
+            .setNegativeButton("No"
+            ) { dialog, _ ->
+                dialog.cancel()
+            }
         val alert: AlertDialog = builder.create()
         alert.show()
     }
