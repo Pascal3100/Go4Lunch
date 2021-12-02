@@ -185,8 +185,7 @@ class RestaurantDetailsActivity : AppCompatActivity() {
 
             val notificationWork = OneTimeWorkRequest.Builder(NotifyWork::class.java)
                 .setInitialDelay(
-//                    restaurantDetailsViewState.delay,
-                     15000,
+                    restaurantDetailsViewState.delay,
                     TimeUnit.MILLISECONDS
                 ).setInputData(data).build()
 
