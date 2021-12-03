@@ -179,6 +179,7 @@ dependencies {
 
 }
 
+// TODO @Nino : j'arrive pas à le faire marcher ce Jacoco
 // open JaCoCo report after generation
 def openReport(htmlOutDir) {
     final reportPath = "$htmlOutDir\\index.html"

@@ -6,6 +6,7 @@ import com.google.firebase.ktx.Firebase
 import fr.plopez.go4lunch.data.User
 import fr.plopez.go4lunch.data.Workmate
 
+// TODO @Nino : ce module me pose probleme avec la gestion des retours server possiblement null...
 class FirebaseAuthUtils {
 
     companion object {

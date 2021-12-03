@@ -133,6 +133,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), OnClickRestauran
                 }
                 R.id.logout -> {
                     // Logout
+                    // TODO @Nino : qd delog et relog avec un nouvel utilisateur, le user ne change pas...
                     firebaseAuth.signOut()
                     true
                 }
