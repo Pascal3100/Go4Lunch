@@ -144,6 +144,7 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+<!--    TODO Pascal RV avec height : wrap_content -> bad perfs -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list_workmates_recyclerview"
         android:layout_width="match_parent"

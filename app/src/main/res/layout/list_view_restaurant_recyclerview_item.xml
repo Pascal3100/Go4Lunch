@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- TODO Pascal ConstraintLayout dans ConstraintLayout non nécessaire ici -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -70,6 +71,7 @@
             app:layout_constraintTop_toBottomOf="@+id/lvr_item_restaurant_name"
             tools:text="Mexican - 552 calle de los gringos" />
 
+<!--        TODO Pascal je suis sur que tu peux mieux faire !-->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="0dp"

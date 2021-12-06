@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="80dp">
 
+<!--    TODO Pascal aie aie aie les nippons ! -->
     <ImageView
         android:id="@+id/wlv_item_workmate_avatar"
         android:layout_width="80dp"

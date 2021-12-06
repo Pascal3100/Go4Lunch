@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".view.main_activity.list_restaurants.ListViewRestaurantFragment">
-
+    <!-- TODO Pascal du rouge + RV peut se suffir à elle même -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list_view_restaurant_recyclerview"
         android:layout_width="0dp"

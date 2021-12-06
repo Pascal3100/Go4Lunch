@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".view.main_activity.list_workmates.ListWorkmatesFragment">
 
+    <!-- TODO Pascal RV peut se suffir à elle même -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list_workmates_recyclerview"
         android:layout_width="0dp"
