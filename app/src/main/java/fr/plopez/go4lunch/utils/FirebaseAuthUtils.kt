@@ -6,23 +6,21 @@ import com.google.firebase.ktx.Firebase
 import fr.plopez.go4lunch.data.User
 import fr.plopez.go4lunch.data.Workmate
 
-// TODO @Nino : ce module me pose probleme avec la gestion des retours server possiblement null...
 class FirebaseAuthUtils {
 
     companion object {
         private const val EMAIL_NAME_PATTERN = "(.*)@.*"
     }
-    // Firebase Auth
-    private val firebaseUser = Firebase.auth.currentUser
 
     fun isFirebaseUserNotNull(firebaseUser: FirebaseUser?)=
         firebaseUser == null
 
-    fun getUser() = User(
+    fun getUser() = Firebase.auth.currentUser.let { firebaseUser ->
+        User(
             email = firebaseUser?.email!!,
             name = firebaseUser.displayName ?: Regex(EMAIL_NAME_PATTERN).find(firebaseUser.email!!)?.groupValues?.get(1)!!,
             photoUrl = firebaseUser.photoUrl.toString()
-        )
+        )}
 
     fun getUser(displayName:String?, email:String?, photoUrl:String?)=
         User(
@@ -31,12 +29,12 @@ class FirebaseAuthUtils {
             photoUrl = photoUrl.toString()
         )
 
-    fun getWorkmate() =
+    fun getWorkmate() = Firebase.auth.currentUser.let { firebaseUser ->
         Workmate(
             email = firebaseUser?.email!!,
             name = firebaseUser.displayName ?: Regex(EMAIL_NAME_PATTERN).find(firebaseUser.email!!)?.groupValues?.get(1)!!,
             photoUrl = firebaseUser.photoUrl.toString()
-        )
+        )}
 
     fun getWorkmate(displayName:String?, email:String?, photoUrl:String?)=
         Workmate(

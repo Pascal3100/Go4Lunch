@@ -66,8 +66,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), OnClickRestauran
         }
     }
 
-    private val user = firebaseAuthUtils.getUser()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -133,7 +131,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), OnClickRestauran
                 }
                 R.id.logout -> {
                     // Logout
-                    // TODO @Nino : qd delog et relog avec un nouvel utilisateur, le user ne change pas...
                     firebaseAuth.signOut()
                     true
                 }
@@ -149,6 +146,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), OnClickRestauran
     }
 
     private fun updateSideMenuItems() {
+        val user = firebaseAuthUtils.getUser()
         val headerView = binding.mainActivityNavigationView.getHeaderView(0)
         val avatar = headerView.findViewById<ImageView>(R.id.drawer_user_avatar)
         val name = headerView.findViewById<TextView>(R.id.drawer_user_name)

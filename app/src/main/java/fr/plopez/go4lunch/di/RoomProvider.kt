@@ -15,7 +15,6 @@ import javax.inject.Singleton
 class RoomProvider {
     @Singleton
     @Provides
-    // TODO : add a callBack at database creation to clean up old queries with time tolerance
     fun provideRestaurantCacheDatabase(
         @ApplicationContext context: Context
     ) = Room.databaseBuilder(
