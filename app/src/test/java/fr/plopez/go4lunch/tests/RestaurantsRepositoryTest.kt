@@ -47,7 +47,7 @@ class RestaurantsRepositoryTest {
     private val restaurantServiceMock = mockk<RestaurantService>()
     private val restaurantsCacheDAOMock = mockk<RestaurantDAO>()
     private val coroutinesProviderMock = mockk<CoroutinesProvider>()
-    private val nearbyConstantsMockK = mockk<BuildConfigProvider>()
+    private val buildConfigProviderMockK = mockk<BuildConfigProvider>()
 
     // Test variables
     private val podamFactory = PodamFactoryImpl()
@@ -61,7 +61,7 @@ class RestaurantsRepositoryTest {
         every { coroutinesProviderMock.ioCoroutineDispatcher } returns testCoroutineRule.testCoroutineDispatcher
 
         // Nearby Constants Mockk
-        every {nearbyConstantsMockK.key} returns NEARBY_KEY
+        every {buildConfigProviderMockK.key} returns NEARBY_KEY
 
 
         // service mockk
@@ -466,7 +466,7 @@ class RestaurantsRepositoryTest {
     // region IN
     private fun getRestaurantsRepository() = RestaurantsRepository(
         restaurantService = restaurantServiceMock,
-        nearbyConstants = nearbyConstantsMockK,
+        buildConfigProvider = buildConfigProviderMockK,
         restaurantsCacheDAO = restaurantsCacheDAOMock,
         coroutinesProvider = coroutinesProviderMock
     )

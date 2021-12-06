@@ -69,7 +69,7 @@ class RestaurantDetailsViewModelTest {
     private val firestoreRepositoryMockk = mockk<FirestoreRepository>()
     private val firebaseAuthUtilsMockk = mockk<FirebaseAuthUtils>()
     private val contextMockK = mockk<Context>()
-    private val nearbyConstantsMockK = mockk<BuildConfigProvider>()
+    private val buildConfigProviderMockK = mockk<BuildConfigProvider>()
     private val stateMockk = mockk<SavedStateHandle>(relaxed = true)
     private val dateTimeUtilsMockk = mockk<DateTimeUtils>()
 
@@ -161,7 +161,7 @@ class RestaurantDetailsViewModelTest {
 
         // Nearby Constants Mockk
         every {
-            nearbyConstantsMockK.key
+            buildConfigProviderMockK.key
         } returns NEARBY_KEY
 
         // DateTimeUtils Mockk
@@ -396,7 +396,7 @@ class RestaurantDetailsViewModelTest {
         firestoreRepository = firestoreRepositoryMockk,
         firebaseAuthUtils = firebaseAuthUtilsMockk,
         coroutinesProvider = coroutinesProviderMock,
-        nearbyConstants = nearbyConstantsMockK,
+        buildConfigProvider = buildConfigProviderMockK,
         state = stateMockk,
         context = contextMockK,
         dateTimeUtils = dateTimeUtilsMockk

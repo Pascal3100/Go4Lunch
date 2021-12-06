@@ -98,7 +98,7 @@ class ListRestaurantViewModelTest {
     private val restaurantsRepositoryMockK = mockk<RestaurantsRepository>()
     private val dateTimeUtilsMockk = mockk<DateTimeUtils>()
     private val contextMockK = mockk<Context>()
-    private val nearbyConstantsMockK = mockk<BuildConfigProvider>()
+    private val buildConfigProviderMockK = mockk<BuildConfigProvider>()
     private val firestoreRepositoryMockk = mockk<FirestoreRepository>()
     private val searchUseCaseMock = mockk<SearchUseCase>()
 
@@ -172,7 +172,7 @@ class ListRestaurantViewModelTest {
         } returns JOINED_DISTANCE_TO_USER
 
         // Nearby Constants Mockk
-        every { nearbyConstantsMockK.key } returns NEARBY_KEY
+        every { buildConfigProviderMockK.key } returns NEARBY_KEY
 
         // Mock firestore repository
         coEvery {
@@ -389,7 +389,7 @@ class ListRestaurantViewModelTest {
 
     private fun getListRestaurantsViewModel() = ListRestaurantsViewModel(
         restaurantsRepository = restaurantsRepositoryMockK,
-        nearbyConstants = nearbyConstantsMockK,
+        buildConfigProvider = buildConfigProviderMockK,
         coroutinesProvider = coroutinesProviderMock,
         dateTimeUtils = dateTimeUtilsMockk,
         context = contextMockK,
