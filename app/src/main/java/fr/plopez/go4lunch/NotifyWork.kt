@@ -19,7 +19,7 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import fr.plopez.go4lunch.data.repositories.FirestoreRepository
-import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant
+import fr.plopez.go4lunch.view.main_activity.list_workmates.WorkmateWithSelectedRestaurant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map

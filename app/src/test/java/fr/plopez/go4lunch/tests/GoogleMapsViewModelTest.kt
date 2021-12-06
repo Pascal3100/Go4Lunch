@@ -27,7 +27,7 @@ import fr.plopez.go4lunch.view.main_activity.SearchUseCase.SearchResultStatus
 import fr.plopez.go4lunch.view.main_activity.SearchUseCase.SearchResultStatus.EmptyQuery
 import fr.plopez.go4lunch.view.main_activity.SearchUseCase.SearchResultStatus.SearchResult
 import fr.plopez.go4lunch.view.main_activity.google_maps.GoogleMapsViewModel
-import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant
+import fr.plopez.go4lunch.view.main_activity.list_workmates.WorkmateWithSelectedRestaurant
 import io.mockk.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview

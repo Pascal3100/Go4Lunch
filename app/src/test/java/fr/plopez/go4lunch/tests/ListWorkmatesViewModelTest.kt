@@ -18,8 +18,8 @@ import fr.plopez.go4lunch.utils.TestCoroutineRule
 import fr.plopez.go4lunch.view.main_activity.SearchUseCase
 import fr.plopez.go4lunch.view.main_activity.SearchUseCase.SearchResultStatus.SearchResult
 import fr.plopez.go4lunch.view.main_activity.list_workmates.ListWorkmatesViewModel
-import fr.plopez.go4lunch.view.model.WorkmateViewState
-import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant
+import fr.plopez.go4lunch.view.main_activity.list_workmates.WorkmateViewState
+import fr.plopez.go4lunch.view.main_activity.list_workmates.WorkmateWithSelectedRestaurant
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.justRun

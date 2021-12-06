@@ -17,7 +17,6 @@ import fr.plopez.go4lunch.NotifyWork
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.ActivityRestaurantDetailsBinding
 import fr.plopez.go4lunch.utils.CustomSnackBar
-import fr.plopez.go4lunch.view.model.RestaurantDetailsViewState
 import fr.plopez.go4lunch.view.restaurant_details.RestaurantDetailsViewModel.RestaurantDetailsViewAction.FirestoreFails
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.util.concurrent.TimeUnit

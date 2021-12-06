@@ -18,7 +18,7 @@ import fr.plopez.go4lunch.utils.SingleLiveEvent
 import fr.plopez.go4lunch.utils.exhaustive
 import fr.plopez.go4lunch.view.main_activity.SearchUseCase
 import fr.plopez.go4lunch.view.main_activity.SearchUseCase.SearchResultStatus.SearchResult
-import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant
+import fr.plopez.go4lunch.view.main_activity.list_workmates.WorkmateWithSelectedRestaurant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect

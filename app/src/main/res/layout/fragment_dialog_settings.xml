@@ -13,8 +13,8 @@
         android:layout_height="80dp"
         android:scaleType="fitCenter"
         android:src="@drawable/landing_page_logo"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.switchmaterial.SwitchMaterial
@@ -28,7 +28,7 @@
         android:text="@string/notification_setting_label"
         app:switchPadding="64dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/create_account_logo" />
 </androidx.constraintlayout.widget.ConstraintLayout>

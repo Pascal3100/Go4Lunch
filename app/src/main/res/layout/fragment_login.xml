@@ -29,8 +29,8 @@
             android:textSize="@dimen/landing_page_buttons_and_fields_text_size"
             app:backgroundTint="@color/com_facebook_blue"
             app:drawableTint="@color/com_facebook_primary_button_text_color"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <!--    Google sign in button-->
@@ -49,8 +49,8 @@
             android:textColor="@color/common_google_signin_btn_text_light"
             android:textSize="@dimen/landing_page_buttons_and_fields_text_size"
             app:backgroundTint="@color/white"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/login_fragment_facebook_login_button" />
 
         <!--    Login with email : text-->
@@ -61,8 +61,8 @@
             android:layout_marginStart="@dimen/landing_page_borders_spacing_value"
             android:layout_marginTop="16dp"
             android:background="@color/light_grey"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@id/login_fragment_alternative_connection_type_text"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/login_fragment_alternative_connection_type_text"
             app:layout_constraintTop_toBottomOf="@id/login_fragment_google_login_button" />
 
         <TextView
@@ -74,8 +74,8 @@
             android:text="@string/login_with_email"
             android:textColor="@color/light_grey"
             android:textSize="@dimen/landing_page_standard_text_size"
-            app:layout_constraintLeft_toRightOf="@id/login_fragment_divider_left"
-            app:layout_constraintRight_toLeftOf="@id/login_fragment_divider_right"
+            app:layout_constraintStart_toEndOf="@id/login_fragment_divider_left"
+            app:layout_constraintEnd_toStartOf="@id/login_fragment_divider_right"
             app:layout_constraintTop_toBottomOf="@id/login_fragment_google_login_button" />
 
         <View
@@ -85,8 +85,8 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="@dimen/landing_page_borders_spacing_value"
             android:background="@color/light_grey"
-            app:layout_constraintLeft_toRightOf="@id/login_fragment_alternative_connection_type_text"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toEndOf="@id/login_fragment_alternative_connection_type_text"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/login_fragment_google_login_button" />
 
         <!--    Email sign in button selection-->
@@ -106,8 +106,8 @@
             android:textSize="@dimen/landing_page_buttons_and_fields_text_size"
             app:backgroundTint="@color/light_grey"
             app:drawableTint="@color/common_google_signin_btn_text_light_default"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/login_fragment_alternative_connection_type_text" />
 
 
@@ -127,15 +127,15 @@
             android:id="@+id/login_fragment_email_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/landing_page_borders_spacing_value"
+            android:layout_marginStart="@dimen/landing_page_borders_spacing_value"
             android:layout_marginTop="@dimen/landing_page_standard_vertical_spacing_value"
-            android:layout_marginRight="@dimen/landing_page_borders_spacing_value"
+            android:layout_marginEnd="@dimen/landing_page_borders_spacing_value"
             app:boxStrokeColor="@color/light_grey"
             app:helperText="@string/type_email_string"
             app:helperTextEnabled="true"
             app:helperTextTextColor="@color/light_grey"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/login_fragment_alternative_connection_type_text"
             app:startIconDrawable="@drawable/ic_baseline_alternate_email_24"
             app:startIconTint="@color/light_grey">
@@ -159,15 +159,15 @@
             android:id="@+id/login_fragment_password_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/landing_page_borders_spacing_value"
+            android:layout_marginStart="@dimen/landing_page_borders_spacing_value"
             android:layout_marginTop="@dimen/landing_page_standard_vertical_spacing_value"
-            android:layout_marginRight="@dimen/landing_page_borders_spacing_value"
+            android:layout_marginEnd="@dimen/landing_page_borders_spacing_value"
             app:boxStrokeColor="@color/light_grey"
             app:helperText="@string/type_password_string"
             app:helperTextEnabled="true"
             app:helperTextTextColor="@color/light_grey"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/login_fragment_email_input"
             app:startIconDrawable="@drawable/ic_baseline_password_24"
             app:startIconTint="@color/light_grey">
@@ -203,8 +203,8 @@
             android:textSize="@dimen/landing_page_buttons_and_fields_text_size"
             app:backgroundTint="@color/light_grey"
             app:drawableTint="@color/common_google_signin_btn_text_light_default"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/login_fragment_password_input" />
 
         <!--    create account link-->
@@ -223,8 +223,8 @@
             android:textSize="@dimen/landing_page_standard_text_size"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/login_fragment_email_login_button"
             app:layout_constraintVertical_bias="1" />
 

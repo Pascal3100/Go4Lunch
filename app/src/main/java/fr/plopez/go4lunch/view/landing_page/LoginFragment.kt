@@ -23,7 +23,6 @@ import com.google.firebase.auth.*
 import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.FragmentLoginBinding
-import fr.plopez.go4lunch.interfaces.OnLoginSuccessful
 import fr.plopez.go4lunch.utils.CustomSnackBar
 import javax.inject.Inject
 

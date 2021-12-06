@@ -10,7 +10,7 @@ import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantWith
 import fr.plopez.go4lunch.data.repositories.FirestoreRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
-import fr.plopez.go4lunch.di.NearbyConstants
+import fr.plopez.go4lunch.di.BuildConfigProvider
 import fr.plopez.go4lunch.tests.utils.CommonsUtils
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_ADDRESS
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.LATITUDE
@@ -34,8 +34,8 @@ import fr.plopez.go4lunch.view.main_activity.SearchUseCase
 import fr.plopez.go4lunch.view.main_activity.SearchUseCase.SearchResultStatus
 import fr.plopez.go4lunch.view.main_activity.SearchUseCase.SearchResultStatus.EmptyQuery
 import fr.plopez.go4lunch.view.main_activity.list_restaurants.ListRestaurantsViewModel
-import fr.plopez.go4lunch.view.model.RestaurantItemViewState
-import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant
+import fr.plopez.go4lunch.view.main_activity.list_restaurants.RestaurantItemViewState
+import fr.plopez.go4lunch.view.main_activity.list_workmates.WorkmateWithSelectedRestaurant
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.justRun
@@ -98,7 +98,7 @@ class ListRestaurantViewModelTest {
     private val restaurantsRepositoryMockK = mockk<RestaurantsRepository>()
     private val dateTimeUtilsMockk = mockk<DateTimeUtils>()
     private val contextMockK = mockk<Context>()
-    private val nearbyConstantsMockK = mockk<NearbyConstants>()
+    private val nearbyConstantsMockK = mockk<BuildConfigProvider>()
     private val firestoreRepositoryMockk = mockk<FirestoreRepository>()
     private val searchUseCaseMock = mockk<SearchUseCase>()
 

@@ -15,8 +15,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/landing_page_margin_top_logo"
         android:src="@drawable/landing_page_logo"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:contentDescription="@string/landing_page_logo_description" />
 
@@ -28,8 +28,8 @@
         android:layout_marginTop="@dimen/landing_page_standard_vertical_spacing_value"
         android:text="@string/slogan"
         android:textColor="@color/white"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/landing_page_logo" />
 
     <FrameLayout

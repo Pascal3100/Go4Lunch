@@ -13,7 +13,6 @@ import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.CreateAccountDialogFragmentBinding
-import fr.plopez.go4lunch.interfaces.OnLoginSuccessful
 import fr.plopez.go4lunch.utils.CustomSnackBar
 import fr.plopez.go4lunch.utils.exhaustive
 import javax.inject.Inject

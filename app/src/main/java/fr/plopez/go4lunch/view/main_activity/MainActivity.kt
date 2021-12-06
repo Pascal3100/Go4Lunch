@@ -24,7 +24,7 @@ import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.ActivityMainBinding
-import fr.plopez.go4lunch.interfaces.OnClickRestaurantListener
+import fr.plopez.go4lunch.view.main_activity.list_restaurants.OnClickRestaurantListener
 import fr.plopez.go4lunch.utils.CustomSnackBar
 import fr.plopez.go4lunch.utils.FirebaseAuthUtils
 import fr.plopez.go4lunch.utils.exhaustive

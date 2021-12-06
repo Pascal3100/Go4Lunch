@@ -15,11 +15,10 @@ import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantWith
 import fr.plopez.go4lunch.data.repositories.FirestoreRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.di.CoroutinesProvider
-import fr.plopez.go4lunch.di.NearbyConstants
+import fr.plopez.go4lunch.di.BuildConfigProvider
 import fr.plopez.go4lunch.utils.DateTimeUtils
 import fr.plopez.go4lunch.view.main_activity.SearchUseCase
-import fr.plopez.go4lunch.view.model.RestaurantItemViewState
-import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant
+import fr.plopez.go4lunch.view.main_activity.list_workmates.WorkmateWithSelectedRestaurant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
@@ -35,7 +34,7 @@ import kotlin.math.round
 @HiltViewModel
 class ListRestaurantsViewModel @Inject constructor(
     private val restaurantsRepository: RestaurantsRepository,
-    private val nearbyConstants: NearbyConstants,
+    private val buildConfigProvider: BuildConfigProvider,
     private val searchUseCase: SearchUseCase,
     coroutinesProvider: CoroutinesProvider,
     private val dateTimeUtils: DateTimeUtils,
@@ -116,7 +115,7 @@ class ListRestaurantsViewModel @Inject constructor(
                 R.string.place_photo_api_url,
                 MAX_WIDTH,
                 photoReference,
-                nearbyConstants.key
+                buildConfigProvider.key
             )
         } else {
             ""
@@ -148,13 +147,6 @@ class ListRestaurantsViewModel @Inject constructor(
     ): String {
 
         var day = dateTimeUtils.getCurrentDay()
-
-        // Manage the difference of day index system between Place Details and Calendar
-        if (day > 1) {
-            day -= 1
-        } else {
-            day += 6
-        }
 
         if (openingHours.isEmpty()) {
             return context.resources.getString(R.string.no_available_hours)

@@ -5,14 +5,14 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import fr.plopez.go4lunch.retrofit.RestaurantService
+import fr.plopez.go4lunch.data.retrofit.RestaurantService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object RetrofitModule {
+object RetrofitModuleProvider {
     @Singleton
     @Provides
     fun provideNearbyApi(): RestaurantService {
@@ -25,7 +25,7 @@ object RetrofitModule {
 
     @Singleton
     @Provides
-    fun provideNearbyParameters():NearbyConstants{
-        return NearbyConstants()
+    fun provideNearbyParameters():BuildConfigProvider{
+        return BuildConfigProvider()
     }
 }

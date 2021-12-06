@@ -1,4 +1,4 @@
-package fr.plopez.go4lunch.view.model
+package fr.plopez.go4lunch.view.main_activity.list_restaurants
 
 data class RestaurantItemViewState(
     val name: String,

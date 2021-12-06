@@ -5,7 +5,7 @@ import com.google.firebase.firestore.SetOptions
 import fr.plopez.go4lunch.data.Workmate
 import fr.plopez.go4lunch.utils.DateTimeUtils
 import fr.plopez.go4lunch.utils.FirebaseAuthUtils
-import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant
+import fr.plopez.go4lunch.view.main_activity.list_workmates.WorkmateWithSelectedRestaurant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow

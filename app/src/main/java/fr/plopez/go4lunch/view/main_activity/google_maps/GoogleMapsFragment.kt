@@ -14,7 +14,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import dagger.hilt.android.AndroidEntryPoint
-import fr.plopez.go4lunch.interfaces.OnClickRestaurantListener
+import fr.plopez.go4lunch.view.main_activity.list_restaurants.OnClickRestaurantListener
 import fr.plopez.go4lunch.utils.CustomSnackBar
 import fr.plopez.go4lunch.utils.exhaustive
 import fr.plopez.go4lunch.view.main_activity.MainActivity

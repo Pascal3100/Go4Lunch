@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import fr.plopez.go4lunch.R
-import fr.plopez.go4lunch.view.model.WorkmateViewState
+import fr.plopez.go4lunch.view.main_activity.list_workmates.WorkmateViewState
 
 class RestaurantDetailsAdapter (private val context: Context) :
     ListAdapter<WorkmateViewState, RestaurantDetailsAdapter.WorkmateViewHolder>(DiffCallback()) {

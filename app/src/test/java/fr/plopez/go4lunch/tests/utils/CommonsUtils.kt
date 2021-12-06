@@ -5,7 +5,6 @@ import fr.plopez.go4lunch.data.model.restaurant.Open
 import fr.plopez.go4lunch.data.model.restaurant.Period
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantEntity
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantOpeningPeriod
-import fr.plopez.go4lunch.di.NearbyConstants
 import java.time.LocalTime
 
 object CommonsUtils {

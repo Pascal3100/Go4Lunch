@@ -9,8 +9,8 @@ import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantOpen
 import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantQueriesCrossReference
 import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantWithOpeningPeriods
 import fr.plopez.go4lunch.di.CoroutinesProvider
-import fr.plopez.go4lunch.di.NearbyConstants
-import fr.plopez.go4lunch.retrofit.RestaurantService
+import fr.plopez.go4lunch.di.BuildConfigProvider
+import fr.plopez.go4lunch.data.retrofit.RestaurantService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -26,7 +26,7 @@ import kotlin.math.round
 @Singleton
 class RestaurantsRepository @Inject constructor(
     private val restaurantService: RestaurantService,
-    private val nearbyConstants: NearbyConstants,
+    private val buildConfigProvider: BuildConfigProvider,
     private val restaurantsCacheDAO: RestaurantDAO,
     private val coroutinesProvider: CoroutinesProvider
 ) {
@@ -66,7 +66,7 @@ class RestaurantsRepository @Inject constructor(
         try {
             val location = "$latitude,$longitude"
             val response = restaurantService.getNearbyRestaurants(
-                key = nearbyConstants.key,
+                key = buildConfigProvider.key,
                 location = location
             )
 
@@ -119,7 +119,7 @@ class RestaurantsRepository @Inject constructor(
 
             try {
                 val response = restaurantService.getDetailsForRestaurant(
-                    key = nearbyConstants.key,
+                    key = buildConfigProvider.key,
                     fields = DETAILS_SEARCH_FIELD,
                     placeId = it.placeID!!
                 )

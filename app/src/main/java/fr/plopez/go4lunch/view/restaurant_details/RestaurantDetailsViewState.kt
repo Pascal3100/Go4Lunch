@@ -1,4 +1,6 @@
-package fr.plopez.go4lunch.view.model
+package fr.plopez.go4lunch.view.restaurant_details
+
+import fr.plopez.go4lunch.view.main_activity.list_workmates.WorkmateViewState
 
 data class RestaurantDetailsViewState(
     val photoUrl: String,

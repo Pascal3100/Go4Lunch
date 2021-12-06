@@ -1,4 +1,4 @@
-package fr.plopez.go4lunch.retrofit
+package fr.plopez.go4lunch.data.retrofit
 
 import fr.plopez.go4lunch.data.model.restaurant.AutoCompleteQueryResult
 import fr.plopez.go4lunch.data.model.restaurant.DetailsQueryResult
