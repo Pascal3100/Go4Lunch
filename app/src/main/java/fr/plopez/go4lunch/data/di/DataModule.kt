@@ -1,4 +1,4 @@
-package fr.plopez.go4lunch.di
+package fr.plopez.go4lunch.data.di
 
 import com.facebook.CallbackManager
 import com.google.firebase.auth.FirebaseAuth
@@ -14,7 +14,7 @@ import fr.plopez.go4lunch.utils.FirebaseAuthUtils
 
 @InstallIn(SingletonComponent::class)
 @Module
-class AuthToolsProvider {
+class DataModule {
 
     @Provides
     fun provideFirebaseAuth(): FirebaseAuth = Firebase.auth

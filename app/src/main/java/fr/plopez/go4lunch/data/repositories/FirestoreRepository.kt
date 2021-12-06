@@ -32,15 +32,12 @@ class FirestoreRepository @Inject constructor(
         private const val NOTIFICATIONS_SETTINGS = "notifications"
     }
 
-    // current user info
-    private val user = firebaseAuthUtils.getUser()
-
     // add user in firestore database or update it if exists
     suspend fun addOrUpdateUserOnLogin() =
         suspendCancellableCoroutine<Boolean> { continuation ->
             firestore.collection(WORKMATES_COLLECTION)
-                .document(user.email)
-                .set(user, SetOptions.merge())
+                .document(firebaseAuthUtils.getUser().email)
+                .set(firebaseAuthUtils.getUser(), SetOptions.merge())
                 .addOnSuccessListener {
                     continuation.resume(value = true, onCancellation = null)
                 }
@@ -76,7 +73,7 @@ class FirestoreRepository @Inject constructor(
     fun getLikedRestaurants(): Flow<List<String>> = callbackFlow {
         val likedRestaurantsCollection = firestore
             .collection(WORKMATES_COLLECTION)
-            .document(user.email)
+            .document(firebaseAuthUtils.getUser().email)
             .collection(LIKED_RESTAURANTS_COLLECTION)
 
         val likedRestaurantsListener =
@@ -101,7 +98,7 @@ class FirestoreRepository @Inject constructor(
         suspendCancellableCoroutine<Boolean> { continuation ->
             if (!likeState) {
                 firestore.collection(WORKMATES_COLLECTION)
-                    .document(user.email)
+                    .document(firebaseAuthUtils.getUser().email)
                     .collection(LIKED_RESTAURANTS_COLLECTION)
                     .document(placeId)
                     .set(
@@ -117,7 +114,7 @@ class FirestoreRepository @Inject constructor(
                     }
             } else {
                 firestore.collection(WORKMATES_COLLECTION)
-                    .document(user.email)
+                    .document(firebaseAuthUtils.getUser().email)
                     .collection(LIKED_RESTAURANTS_COLLECTION)
                     .document(placeId)
                     .delete()
@@ -143,12 +140,12 @@ class FirestoreRepository @Inject constructor(
                     .collection(DATES_COLLECTION)
                     .document(dateTimeUtils.getCurrentDate())
                     .collection(INTERESTED_WORKMATES_COLLECTION)
-                    .document(user.email)
+                    .document(firebaseAuthUtils.getUser().email)
                     .set(
                         WorkmateWithSelectedRestaurant(
-                            workmateName = user.name,
-                            workmateEmail = user.email,
-                            workmatePhotoUrl = user.photoUrl,
+                            workmateName = firebaseAuthUtils.getUser().name,
+                            workmateEmail = firebaseAuthUtils.getUser().email,
+                            workmatePhotoUrl = firebaseAuthUtils.getUser().photoUrl,
                             selectedRestaurantId = restaurantData.restaurantId,
                             selectedRestaurantName = restaurantData.name
                         ), SetOptions.merge()
@@ -164,7 +161,7 @@ class FirestoreRepository @Inject constructor(
                     .collection(DATES_COLLECTION)
                     .document(dateTimeUtils.getCurrentDate())
                     .collection(INTERESTED_WORKMATES_COLLECTION)
-                    .document(user.email)
+                    .document(firebaseAuthUtils.getUser().email)
                     .delete()
                     .addOnSuccessListener {
                         continuation.resume(value = true, onCancellation = null)
@@ -218,7 +215,7 @@ class FirestoreRepository @Inject constructor(
         suspendCancellableCoroutine<Boolean> { continuation ->
             firestore
                 .collection(WORKMATES_COLLECTION)
-                .document(user.email)
+                .document(firebaseAuthUtils.getUser().email)
                 .collection(SETTINGS)
                 .document(NOTIFICATIONS_SETTINGS)
                 .set(
@@ -239,7 +236,7 @@ class FirestoreRepository @Inject constructor(
     suspend fun getNotificationsSettingsUpdates(): Flow<Boolean> = callbackFlow {
         val settingsCollection = firestore
             .collection(WORKMATES_COLLECTION)
-            .document(user.email)
+            .document(firebaseAuthUtils.getUser().email)
             .collection(SETTINGS)
             .document(NOTIFICATIONS_SETTINGS)
 

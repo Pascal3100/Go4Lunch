@@ -9,11 +9,10 @@ import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantEntity
 import fr.plopez.go4lunch.data.repositories.FirestoreRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
-import fr.plopez.go4lunch.di.CoroutinesProvider
-import fr.plopez.go4lunch.di.NearbyConstants
+import fr.plopez.go4lunch.data.di.CoroutinesProvider
+import fr.plopez.go4lunch.data.di.BuildConfigProvider
 import fr.plopez.go4lunch.utils.DateTimeUtils
 import fr.plopez.go4lunch.utils.FirebaseAuthUtils
-import fr.plopez.go4lunch.view.model.RestaurantDetailsViewState
 import fr.plopez.go4lunch.view.model.WorkmateViewState
 import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant
 import fr.plopez.go4lunch.view.restaurant_details.RestaurantDetailsViewModel.RestaurantDetailsViewAction.FirestoreFails
@@ -33,7 +32,7 @@ class RestaurantDetailsViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
     firebaseAuthUtils: FirebaseAuthUtils,
     private val coroutinesProvider: CoroutinesProvider,
-    private val nearbyConstants: NearbyConstants,
+    private val nearbyConstants: BuildConfigProvider,
     state: SavedStateHandle,
     private val dateTimeUtils: DateTimeUtils,
     @ApplicationContext private val context: Context

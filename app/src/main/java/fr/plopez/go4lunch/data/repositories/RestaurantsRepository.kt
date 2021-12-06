@@ -8,8 +8,8 @@ import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantsQuery
 import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantOpeningPeriodsCrossReference
 import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantQueriesCrossReference
 import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantWithOpeningPeriods
-import fr.plopez.go4lunch.di.CoroutinesProvider
-import fr.plopez.go4lunch.di.NearbyConstants
+import fr.plopez.go4lunch.data.di.CoroutinesProvider
+import fr.plopez.go4lunch.data.di.BuildConfigProvider
 import fr.plopez.go4lunch.retrofit.RestaurantService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -26,7 +26,7 @@ import kotlin.math.round
 @Singleton
 class RestaurantsRepository @Inject constructor(
     private val restaurantService: RestaurantService,
-    private val nearbyConstants: NearbyConstants,
+    private val nearbyConstants: BuildConfigProvider,
     private val restaurantsCacheDAO: RestaurantDAO,
     private val coroutinesProvider: CoroutinesProvider
 ) {

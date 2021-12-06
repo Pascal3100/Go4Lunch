@@ -14,8 +14,8 @@ import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantsQuery
 import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantWithOpeningPeriods
 import fr.plopez.go4lunch.data.repositories.FirestoreRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
-import fr.plopez.go4lunch.di.CoroutinesProvider
-import fr.plopez.go4lunch.di.NearbyConstants
+import fr.plopez.go4lunch.data.di.CoroutinesProvider
+import fr.plopez.go4lunch.data.di.BuildConfigProvider
 import fr.plopez.go4lunch.utils.DateTimeUtils
 import fr.plopez.go4lunch.view.main_activity.SearchUseCase
 import fr.plopez.go4lunch.view.model.RestaurantItemViewState
@@ -35,7 +35,7 @@ import kotlin.math.round
 @HiltViewModel
 class ListRestaurantsViewModel @Inject constructor(
     private val restaurantsRepository: RestaurantsRepository,
-    private val nearbyConstants: NearbyConstants,
+    private val nearbyConstants: BuildConfigProvider,
     private val searchUseCase: SearchUseCase,
     coroutinesProvider: CoroutinesProvider,
     private val dateTimeUtils: DateTimeUtils,

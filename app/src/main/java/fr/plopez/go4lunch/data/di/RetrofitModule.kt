@@ -1,4 +1,4 @@
-package fr.plopez.go4lunch.di
+package fr.plopez.go4lunch.data.di
 
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -25,7 +25,7 @@ object RetrofitModule {
 
     @Singleton
     @Provides
-    fun provideNearbyParameters():NearbyConstants{
-        return NearbyConstants()
+    fun provideNearbyParameters():BuildConfigProvider{
+        return BuildConfigProvider()
     }
 }

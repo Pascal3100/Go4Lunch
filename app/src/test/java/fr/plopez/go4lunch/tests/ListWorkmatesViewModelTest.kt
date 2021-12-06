@@ -5,7 +5,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.data.Workmate
 import fr.plopez.go4lunch.data.repositories.FirestoreRepository
-import fr.plopez.go4lunch.di.CoroutinesProvider
+import fr.plopez.go4lunch.data.di.CoroutinesProvider
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.OTHER_PLACE_ID
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.OTHER_PLACE_NAME
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_ID

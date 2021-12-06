@@ -13,7 +13,7 @@ import fr.plopez.go4lunch.data.repositories.LocationRepository
 import fr.plopez.go4lunch.data.repositories.LocationRepository.PositionWithZoom
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository.ResponseStatus
-import fr.plopez.go4lunch.di.CoroutinesProvider
+import fr.plopez.go4lunch.data.di.CoroutinesProvider
 import fr.plopez.go4lunch.utils.SingleLiveEvent
 import fr.plopez.go4lunch.utils.exhaustive
 import fr.plopez.go4lunch.view.main_activity.SearchUseCase

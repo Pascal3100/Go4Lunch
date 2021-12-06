@@ -8,7 +8,7 @@ import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.data.repositories.FirestoreRepository
 import fr.plopez.go4lunch.data.repositories.LocationRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
-import fr.plopez.go4lunch.di.CoroutinesProvider
+import fr.plopez.go4lunch.data.di.CoroutinesProvider
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.LATITUDE
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.LONGITUDE
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_NAME

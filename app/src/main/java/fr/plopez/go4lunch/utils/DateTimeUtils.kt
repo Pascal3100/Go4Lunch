@@ -8,6 +8,7 @@ import javax.inject.Inject
 
 class DateTimeUtils @Inject constructor() {
 
+    // TODO Pascal à ne pas utiliser
     fun getCurrentDay(): Int {
         val calendar = Calendar.getInstance()
         return calendar.get(Calendar.DAY_OF_WEEK)

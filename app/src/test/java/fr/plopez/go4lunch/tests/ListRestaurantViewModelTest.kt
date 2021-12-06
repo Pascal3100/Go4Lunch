@@ -9,8 +9,8 @@ import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantsQuery
 import fr.plopez.go4lunch.data.model.restaurant.entites.relations.RestaurantWithOpeningPeriods
 import fr.plopez.go4lunch.data.repositories.FirestoreRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
-import fr.plopez.go4lunch.di.CoroutinesProvider
-import fr.plopez.go4lunch.di.NearbyConstants
+import fr.plopez.go4lunch.data.di.CoroutinesProvider
+import fr.plopez.go4lunch.data.di.BuildConfigProvider
 import fr.plopez.go4lunch.tests.utils.CommonsUtils
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_ADDRESS
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.LATITUDE
@@ -98,7 +98,7 @@ class ListRestaurantViewModelTest {
     private val restaurantsRepositoryMockK = mockk<RestaurantsRepository>()
     private val dateTimeUtilsMockk = mockk<DateTimeUtils>()
     private val contextMockK = mockk<Context>()
-    private val nearbyConstantsMockK = mockk<NearbyConstants>()
+    private val nearbyConstantsMockK = mockk<BuildConfigProvider>()
     private val firestoreRepositoryMockk = mockk<FirestoreRepository>()
     private val searchUseCaseMock = mockk<SearchUseCase>()
 

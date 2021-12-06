@@ -10,7 +10,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.data.Workmate
 import fr.plopez.go4lunch.data.repositories.FirestoreRepository
-import fr.plopez.go4lunch.di.CoroutinesProvider
+import fr.plopez.go4lunch.data.di.CoroutinesProvider
 import fr.plopez.go4lunch.view.main_activity.SearchUseCase
 import fr.plopez.go4lunch.view.model.WorkmateViewState
 import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant

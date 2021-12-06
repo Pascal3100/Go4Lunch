@@ -14,8 +14,8 @@ import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.ActivityLandingPageBinding
-import fr.plopez.go4lunch.interfaces.OnLoginSuccessful
-import fr.plopez.go4lunch.interfaces.OnPermissionsAccepted
+import fr.plopez.go4lunch.view.interfaces.OnLoginSuccessful
+import fr.plopez.go4lunch.view.interfaces.OnPermissionsAccepted
 import fr.plopez.go4lunch.utils.CustomSnackBar
 import fr.plopez.go4lunch.view.landing_page.LandingPageViewModel.LandingPageViewAction.FirestoreFails
 import fr.plopez.go4lunch.view.landing_page.LandingPageViewModel.LandingPageViewAction.GoToPermissions

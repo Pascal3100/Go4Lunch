@@ -1,4 +1,4 @@
-package fr.plopez.go4lunch.di
+package fr.plopez.go4lunch.data.di
 
 import android.content.Context
 import com.google.android.gms.location.FusedLocationProviderClient

@@ -6,8 +6,8 @@ import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantEntity
 import fr.plopez.go4lunch.data.model.restaurant.entites.RestaurantsQuery
 import fr.plopez.go4lunch.data.model.restaurant.entites.relations.QueryWithRestaurants
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
-import fr.plopez.go4lunch.di.CoroutinesProvider
-import fr.plopez.go4lunch.di.NearbyConstants
+import fr.plopez.go4lunch.data.di.CoroutinesProvider
+import fr.plopez.go4lunch.data.di.BuildConfigProvider
 import fr.plopez.go4lunch.retrofit.RestaurantService
 import fr.plopez.go4lunch.tests.utils.CommonsUtils
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.ERROR_CODE
@@ -47,7 +47,7 @@ class RestaurantsRepositoryTest {
     private val restaurantServiceMock = mockk<RestaurantService>()
     private val restaurantsCacheDAOMock = mockk<RestaurantDAO>()
     private val coroutinesProviderMock = mockk<CoroutinesProvider>()
-    private val nearbyConstantsMockK = mockk<NearbyConstants>()
+    private val nearbyConstantsMockK = mockk<BuildConfigProvider>()
 
     // Test variables
     private val podamFactory = PodamFactoryImpl()

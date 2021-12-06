@@ -10,17 +10,8 @@ import javax.inject.Inject
 @HiltAndroidApp
 class Go4LunchApp : Application(), Configuration.Provider {
 
-    companion object {
-        lateinit var instance: Application
-            private set
-    }
-
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
-
-    init {
-        instance = this
-    }
 
     override fun getWorkManagerConfiguration() =
         Configuration.Builder()

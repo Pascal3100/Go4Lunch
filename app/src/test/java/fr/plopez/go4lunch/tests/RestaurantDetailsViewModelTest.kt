@@ -9,8 +9,8 @@ import fr.plopez.go4lunch.data.User
 import fr.plopez.go4lunch.data.Workmate
 import fr.plopez.go4lunch.data.repositories.FirestoreRepository
 import fr.plopez.go4lunch.data.repositories.RestaurantsRepository
-import fr.plopez.go4lunch.di.CoroutinesProvider
-import fr.plopez.go4lunch.di.NearbyConstants
+import fr.plopez.go4lunch.data.di.CoroutinesProvider
+import fr.plopez.go4lunch.data.di.BuildConfigProvider
 import fr.plopez.go4lunch.tests.utils.CommonsUtils
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.MAX_WIDTH
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.NEARBY_KEY
@@ -29,7 +29,7 @@ import fr.plopez.go4lunch.tests.utils.LiveDataUtils.getOrAwaitValue
 import fr.plopez.go4lunch.utils.DateTimeUtils
 import fr.plopez.go4lunch.utils.FirebaseAuthUtils
 import fr.plopez.go4lunch.utils.TestCoroutineRule
-import fr.plopez.go4lunch.view.model.RestaurantDetailsViewState
+import fr.plopez.go4lunch.view.restaurant_details.RestaurantDetailsViewState
 import fr.plopez.go4lunch.view.model.WorkmateViewState
 import fr.plopez.go4lunch.view.model.WorkmateWithSelectedRestaurant
 import fr.plopez.go4lunch.view.restaurant_details.RestaurantDetailsViewModel
@@ -69,7 +69,7 @@ class RestaurantDetailsViewModelTest {
     private val firestoreRepositoryMockk = mockk<FirestoreRepository>()
     private val firebaseAuthUtilsMockk = mockk<FirebaseAuthUtils>()
     private val contextMockK = mockk<Context>()
-    private val nearbyConstantsMockK = mockk<NearbyConstants>()
+    private val nearbyConstantsMockK = mockk<BuildConfigProvider>()
     private val stateMockk = mockk<SavedStateHandle>(relaxed = true)
     private val dateTimeUtilsMockk = mockk<DateTimeUtils>()
 

@@ -17,7 +17,7 @@ import androidx.core.content.PermissionChecker.checkSelfPermission
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.databinding.FragmentPermissionsBinding
-import fr.plopez.go4lunch.interfaces.OnPermissionsAccepted
+import fr.plopez.go4lunch.view.interfaces.OnPermissionsAccepted
 
 @AndroidEntryPoint
 class PermissionsFragment : Fragment() {

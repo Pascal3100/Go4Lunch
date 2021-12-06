@@ -27,7 +27,7 @@ import kotlinx.coroutines.runBlocking
 
 @ExperimentalCoroutinesApi
 @HiltWorker
-class NotifyWork @AssistedInject constructor(
+class NotificationWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted workerParams: WorkerParameters,
     private val firestoreRepository: FirestoreRepository,

@@ -13,11 +13,10 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
-import fr.plopez.go4lunch.NotifyWork
+import fr.plopez.go4lunch.NotificationWorker
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.ActivityRestaurantDetailsBinding
 import fr.plopez.go4lunch.utils.CustomSnackBar
-import fr.plopez.go4lunch.view.model.RestaurantDetailsViewState
 import fr.plopez.go4lunch.view.restaurant_details.RestaurantDetailsViewModel.RestaurantDetailsViewAction.FirestoreFails
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.util.concurrent.TimeUnit
@@ -176,26 +175,26 @@ class RestaurantDetailsActivity : AppCompatActivity() {
             val data = Data.Builder()
                 .putAll(
                     mapOf(
-                        NotifyWork.NOTIFICATION_ID to NOTIFICATION_ID,
-                        NotifyWork.RESTAURANT_ID to restaurantDetailsViewState.id,
-                        NotifyWork.USER_EMAIL to restaurantDetailsViewState.currentUserEmail
+                        NotificationWorker.NOTIFICATION_ID to NOTIFICATION_ID,
+                        NotificationWorker.RESTAURANT_ID to restaurantDetailsViewState.id,
+                        NotificationWorker.USER_EMAIL to restaurantDetailsViewState.currentUserEmail
                     )
                 )
                 .build()
 
-            val notificationWork = OneTimeWorkRequest.Builder(NotifyWork::class.java)
+            val notificationWork = OneTimeWorkRequest.Builder(NotificationWorker::class.java)
                 .setInitialDelay(
                     restaurantDetailsViewState.delay,
                     TimeUnit.MILLISECONDS
                 ).setInputData(data).build()
 
             instanceWorkManager.beginUniqueWork(
-                NotifyWork.NOTIFICATION_WORK,
+                NotificationWorker.NOTIFICATION_WORK,
                 ExistingWorkPolicy.REPLACE,
                 notificationWork
             ).enqueue()
         } else {
-            instanceWorkManager.cancelUniqueWork(NotifyWork.NOTIFICATION_WORK)
+            instanceWorkManager.cancelUniqueWork(NotificationWorker.NOTIFICATION_WORK)
         }
     }
 }

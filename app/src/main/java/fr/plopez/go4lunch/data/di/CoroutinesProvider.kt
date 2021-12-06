@@ -1,4 +1,4 @@
-package fr.plopez.go4lunch.di
+package fr.plopez.go4lunch.data.di
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

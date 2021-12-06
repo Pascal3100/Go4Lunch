@@ -23,7 +23,7 @@ import com.google.firebase.auth.*
 import dagger.hilt.android.AndroidEntryPoint
 import fr.plopez.go4lunch.R
 import fr.plopez.go4lunch.databinding.FragmentLoginBinding
-import fr.plopez.go4lunch.interfaces.OnLoginSuccessful
+import fr.plopez.go4lunch.view.interfaces.OnLoginSuccessful
 import fr.plopez.go4lunch.utils.CustomSnackBar
 import javax.inject.Inject
 
@@ -34,7 +34,7 @@ class LoginFragment : Fragment() {
         fun newInstance() = LoginFragment()
 
         // Interface
-        private lateinit var onLoginSuccessful: OnLoginSuccessful
+        private lateinit var onLoginSuccessful: OnLoginSuccessful // TODO Pascal naming : _listener !
 
         // Google authentication code
         private const val GOOGLE_AUTH_REQUEST_CODE = 999

@@ -3,7 +3,7 @@ package fr.plopez.go4lunch.tests
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import fr.plopez.go4lunch.data.User
 import fr.plopez.go4lunch.data.repositories.FirestoreRepository
-import fr.plopez.go4lunch.di.CoroutinesProvider
+import fr.plopez.go4lunch.data.di.CoroutinesProvider
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_ID
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.PLACE_NAME
 import fr.plopez.go4lunch.tests.utils.CommonsUtils.WORKMATE_EMAIL
